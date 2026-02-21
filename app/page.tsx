@@ -113,7 +113,7 @@ export default function MidiPlayApp() {
             <KeyboardIcon className="text-white h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-white">MidiPlay <span className="text-xs font-mono text-indigo-400 ml-1">v1.0.2</span></h1>
+            <h1 className="text-xl font-bold tracking-tight text-white">NoteCascade <span className="text-xs font-mono text-indigo-400 ml-1">v1.0.3</span></h1>
             <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Master your keys</p>
           </div>
         </div>

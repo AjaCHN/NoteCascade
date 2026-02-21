@@ -13,7 +13,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'MidiPlay - Keyboard Practice v1.0.2',
+  title: 'NoteCascade - Keyboard Practice v1.0.3',
   description: 'A visual/game-like MIDI keyboard practice app with real-time scoring and achievements.',
 };
 
