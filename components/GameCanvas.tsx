@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
+import { motion } from 'motion/react';
 import { Song } from '../lib/songs';
 
 interface GameCanvasProps {
@@ -154,13 +155,37 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
   return (
     <div className="relative h-full w-full overflow-hidden bg-slate-950">
       <canvas ref={canvasRef} width={800} height={600} className="h-full w-full" />
-      <div className="pointer-events-none absolute top-4 right-4 flex flex-col items-end space-y-2 font-mono text-white">
-        <div className="text-4xl font-bold text-indigo-400">{score.currentScore}</div>
-        <div className="flex space-x-4 text-sm opacity-80">
-          <span className="text-emerald-400">P: {score.perfect}</span>
-          <span className="text-blue-400">G: {score.good}</span>
-          <span className="text-amber-400">M: {score.miss}</span>
-          <span className="text-rose-400">W: {score.wrong}</span>
+      <div id="game-stats-overlay" className="pointer-events-none absolute inset-0 flex flex-col p-8">
+        <div className="flex justify-between items-start w-full">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col"
+          >
+            <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-1">Current Score</div>
+            <div className="text-6xl font-black text-white tabular-nums drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+              {score.currentScore.toLocaleString()}
+            </div>
+          </motion.div>
+
+          <div className="flex flex-col gap-3">
+            {[
+              { label: 'Perfect', value: score.perfect, color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-400/20' },
+              { label: 'Good', value: score.good, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
+              { label: 'Miss', value: score.miss, color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'border-amber-400/20' },
+              { label: 'Wrong', value: score.wrong, color: 'text-rose-400', bg: 'bg-rose-400/10', border: 'border-rose-400/20' },
+            ].map((stat) => (
+              <motion.div 
+                key={stat.label}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className={`flex items-center justify-between gap-4 px-4 py-2 rounded-xl border ${stat.bg} ${stat.border} backdrop-blur-md min-w-[140px]`}
+              >
+                <span className={`text-[10px] uppercase tracking-wider font-bold ${stat.color}`}>{stat.label}</span>
+                <span className="text-xl font-black text-white tabular-nums">{stat.value}</span>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

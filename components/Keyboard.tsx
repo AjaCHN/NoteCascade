@@ -1,4 +1,7 @@
+'use client';
+
 import React, { useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface KeyboardProps {
   activeNotes: Set<number>;
@@ -8,6 +11,9 @@ interface KeyboardProps {
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
+/**
+ * A visually appealing MIDI keyboard component with real-time feedback.
+ */
 export function Keyboard({ activeNotes, startNote = 48, endNote = 84 }: KeyboardProps) {
   const keys = useMemo(() => {
     const result = [];
@@ -20,31 +26,67 @@ export function Keyboard({ activeNotes, startNote = 48, endNote = 84 }: Keyboard
   }, [startNote, endNote]);
 
   return (
-    <div className="relative flex h-32 w-full justify-center overflow-hidden rounded-b-xl border-t-4 border-gray-800 bg-gray-900 select-none">
-      {keys.map((key) => {
-        const isActive = activeNotes.has(key.midi);
-        if (key.isBlack) {
-          return (
-            <div
-              key={key.midi}
-              className={`z-10 -ml-3 -mr-3 h-20 w-6 rounded-b-md border border-black ${
-                isActive ? 'bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.8)]' : 'bg-black'
-              }`}
-            />
-          );
-        } else {
-          return (
-            <div
-              key={key.midi}
-              className={`z-0 flex h-full w-10 flex-col justify-end rounded-b-md border border-gray-300 pb-2 text-center text-xs font-medium ${
-                isActive ? 'bg-indigo-200 shadow-[inset_0_0_10px_rgba(99,102,241,0.5)]' : 'bg-white'
-              }`}
-            >
-              <span className="text-gray-400">{key.noteName}</span>
-            </div>
-          );
-        }
-      })}
+    <div id="piano-keyboard" className="relative flex h-40 w-full justify-center overflow-hidden rounded-b-2xl border-t-8 border-slate-900 bg-slate-950 select-none shadow-2xl">
+      <div className="flex relative w-full max-w-7xl px-4">
+        {keys.map((key) => {
+          const isActive = activeNotes.has(key.midi);
+          
+          if (key.isBlack) {
+            return (
+              <div
+                key={key.midi}
+                className="relative z-20"
+                style={{ width: 0, overflow: 'visible' }}
+              >
+                <motion.div
+                  animate={{
+                    backgroundColor: isActive ? '#6366f1' : '#0f172a',
+                    height: isActive ? '95px' : '100px',
+                    boxShadow: isActive ? '0 0 20px rgba(99, 102, 241, 0.6)' : 'none',
+                  }}
+                  className="absolute -left-3 top-0 w-6 rounded-b-lg border border-slate-900 cursor-pointer transition-colors"
+                >
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-b-lg"
+                      />
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              </div>
+            );
+          } else {
+            return (
+              <motion.div
+                key={key.midi}
+                animate={{
+                  backgroundColor: isActive ? '#e2e8f0' : '#ffffff',
+                  boxShadow: isActive ? 'inset 0 0 15px rgba(99, 102, 241, 0.3)' : 'none',
+                }}
+                className="relative z-10 flex flex-1 h-full flex-col justify-end rounded-b-xl border border-slate-200 pb-4 text-center transition-colors cursor-pointer"
+              >
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                  {key.noteName}
+                </span>
+                <AnimatePresence>
+                  {isActive && (
+                    <motion.div
+                      initial={{ scaleY: 0 }}
+                      animate={{ scaleY: 1 }}
+                      exit={{ scaleY: 0 }}
+                      className="absolute inset-x-0 bottom-0 h-1 bg-indigo-500 rounded-b-xl origin-bottom"
+                    />
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          }
+        })}
+      </div>
     </div>
   );
 }

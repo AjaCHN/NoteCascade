@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useAppStore } from '../lib/store';
+import { useAchievements } from '../lib/store';
 import { Trophy, Lock, CheckCircle2, Music, Star, Clock, Palette } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -14,7 +14,7 @@ const iconMap: Record<string, any> = {
 };
 
 export function AchievementList() {
-  const { achievements } = useAppStore();
+  const achievements = useAchievements();
 
   return (
     <div className="flex flex-col space-y-4 p-4">

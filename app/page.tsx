@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useMidi } from '../hooks/use-midi';
 import { initAudio, playNote, releaseNote } from '../lib/audio';
 import { Song, builtInSongs } from '../lib/songs';
-import { useAppStore } from '../lib/store';
+import { useAppActions } from '../lib/store';
 import { Keyboard } from '../components/Keyboard';
 import { GameCanvas } from '../components/GameCanvas';
 import { SongSelector } from '../components/SongSelector';
@@ -15,7 +15,7 @@ import confetti from 'canvas-confetti';
 
 export default function MidiPlayApp() {
   const { activeNotes, inputs, selectedInputId, setSelectedInputId, error: midiError } = useMidi();
-  const { unlockAchievement, addScore, addPracticeTime } = useAppStore();
+  const { unlockAchievement, addScore, incrementPracticeTime } = useAppActions();
   
   const [selectedSong, setSelectedSong] = useState<Song>(builtInSongs[0]);
   const [isPlaying, setIsPlaying] = useState(false);

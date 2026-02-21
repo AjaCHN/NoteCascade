@@ -27,24 +27,32 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
                 : 'border-slate-800 bg-slate-900/50 hover:border-slate-700'
             }`}
           >
-            <div className="flex flex-col items-start">
-              <span className="font-semibold text-slate-100">{song.title}</span>
-              <span className="text-xs text-slate-400">{song.artist} • {song.style}</span>
+            <div className="flex flex-col items-start gap-1">
+              <span className="font-bold text-slate-100 text-lg leading-tight">{song.title}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+                  {song.style}
+                </span>
+                <span className="text-xs text-slate-500 font-medium">{song.artist}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex gap-1">
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-                    className={`h-3 w-3 ${
-                      i < song.difficulty ? 'fill-amber-400 text-amber-400' : 'text-slate-700'
+                    className={`h-3.5 w-3.5 ${
+                      i < song.difficulty 
+                        ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_5px_rgba(251,191,36,0.4)]' 
+                        : 'text-slate-800'
                     }`}
                   />
                 ))}
               </div>
-              <ChevronRight className={`h-5 w-5 transition-transform group-hover:translate-x-1 ${
-                selectedSongId === song.id ? 'text-indigo-400' : 'text-slate-600'
-              }`} />
+              <div className="flex items-center gap-1 text-slate-500 group-hover:text-indigo-400 transition-colors">
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Play</span>
+                <ChevronRight className={`h-4 w-4 transition-transform group-hover:translate-x-1`} />
+              </div>
             </div>
           </button>
         ))}
