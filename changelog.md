@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.4]
+- Expand built-in song library with new pieces: Happy Birthday, Jingle Bells, Minuet in G, and Prelude in E Minor
+- Add style and difficulty filtering to the Song Library
+- Improve SongSelector UI with filter chips and empty state handling
+- Update version to 1.0.4
+
 ## [1.0.3]
 - Rename application to NoteCascade
 - Add multi-language support (i18n) with persistent locale selection

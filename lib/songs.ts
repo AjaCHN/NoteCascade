@@ -50,9 +50,25 @@ export const builtInSongs: Song[] = [
     id: 'twinkle',
     title: 'Twinkle Twinkle Little Star',
     artist: 'Traditional',
-    style: 'Classical',
+    style: 'Traditional',
     difficulty: 1,
-    ...generateMelody('C4:1 C4:1 G4:1 G4:1 A4:1 A4:1 G4:2 F4:1 F4:1 E4:1 E4:1 D4:1 D4:1 C4:2 G4:1 G4:1 F4:1 F4:1 E4:1 E4:1 D4:2 G4:1 G4:1 F4:1 F4:1 E4:1 E4:1 D4:2 C4:1 C4:1 G4:1 G4:1 A4:1 A4:1 G4:2 F4:1 F4:1 E4:1 E4:1 D4:1 D4:1 C4:2', 120),
+    ...generateMelody('C4:1 C4:1 G4:1 G4:1 A4:1 A4:1 G4:2 F4:1 F4:1 E4:1 E4:1 D4:1 D4:1 C4:2 G4:1 G4:1 F4:1 F4:1 E4:1 E4:1 D4:2 G4:1 G4:1 F4:1 F4:1 E4:1 E4:1 D4:2 C4:1 C4:1 G4:1 G4:1 A4:1 A4:1 G4:2 F4:1 F4:1 E4:1 E4:1 D4:1 D4:1 C4:2', 100),
+  },
+  {
+    id: 'happy_birthday',
+    title: 'Happy Birthday',
+    artist: 'Traditional',
+    style: 'Traditional',
+    difficulty: 1,
+    ...generateMelody('G3:0.75 G3:0.25 A3:1 G3:1 C4:1 B3:2 G3:0.75 G3:0.25 A3:1 G3:1 D4:1 C4:2 G3:0.75 G3:0.25 G4:1 E4:1 C4:1 B3:1 A3:2 F4:0.75 F4:0.25 E4:1 C4:1 D4:1 C4:2', 90),
+  },
+  {
+    id: 'jingle_bells',
+    title: 'Jingle Bells',
+    artist: 'Traditional',
+    style: 'Traditional',
+    difficulty: 1,
+    ...generateMelody('E4:1 E4:1 E4:2 E4:1 E4:1 E4:2 E4:1 G4:1 C4:1.5 D4:0.5 E4:4 F4:1 F4:1 F4:1.5 F4:0.5 F4:1 E4:1 E4:1 E4:0.5 E4:0.5 E4:1 D4:1 D4:1 E4:1 D4:2 G4:2', 120),
   },
   {
     id: 'ode_to_joy',
@@ -63,12 +79,28 @@ export const builtInSongs: Song[] = [
     ...generateMelody('E4:1 E4:1 F4:1 G4:1 G4:1 F4:1 E4:1 D4:1 C4:1 C4:1 D4:1 E4:1 E4:1.5 D4:0.5 D4:2 E4:1 E4:1 F4:1 G4:1 G4:1 F4:1 E4:1 D4:1 C4:1 C4:1 D4:1 E4:1 D4:1.5 C4:0.5 C4:2', 120),
   },
   {
+    id: 'minuet_g',
+    title: 'Minuet in G',
+    artist: 'J.S. Bach',
+    style: 'Classical',
+    difficulty: 2,
+    ...generateMelody('D4:1 G3:0.5 A3:0.5 B3:0.5 C4:0.5 D4:1 G3:1 G3:1 E4:1 C4:0.5 D4:0.5 E4:0.5 F#4:0.5 G4:1 G3:1 G3:1 C4:1 D4:0.5 C4:0.5 B3:0.5 A3:0.5 B3:1 C4:0.5 B3:0.5 A3:0.5 G3:0.5 F#3:1 G3:0.5 A3:0.5 B3:0.5 G3:0.5 A3:2', 110),
+  },
+  {
     id: 'blues_riff',
     title: 'Simple Blues Riff',
     artist: 'Unknown',
     style: 'Jazz',
     difficulty: 3,
     ...generateMelody('C4:0.5 E4:0.5 G4:0.5 A4:0.5 A#4:0.5 A4:0.5 G4:0.5 E4:0.5 F4:0.5 A4:0.5 C5:0.5 D5:0.5 D#5:0.5 D5:0.5 C5:0.5 A4:0.5 C4:0.5 E4:0.5 G4:0.5 A4:0.5 A#4:0.5 A4:0.5 G4:0.5 E4:0.5 G4:0.5 B4:0.5 D5:0.5 E5:0.5 F4:0.5 A4:0.5 C5:0.5 D5:0.5 C4:0.5 E4:0.5 G4:0.5 A4:0.5 C4:2', 140),
+  },
+  {
+    id: 'prelude_em',
+    title: 'Prelude in E Minor',
+    artist: 'Chopin',
+    style: 'Classical',
+    difficulty: 4,
+    ...generateMelody('B4:2 B4:1 C5:1 B4:1 C5:1 B4:1 C5:1 B4:2 A#4:2 A4:2 A4:1 B4:1 A4:1 B4:1 A4:1 B4:1 A4:2 G#4:2 G4:2 G4:1 A4:1 G4:1 A4:1 G4:1 A4:1 G4:2 F#4:2 F4:2 E4:4', 70),
   }
 ];
 

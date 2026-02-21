@@ -14,15 +14,69 @@ interface SongSelectorProps {
 export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   const locale = useLocale();
   const t = translations[locale] || translations.en;
+  const [filter, setFilter] = React.useState<string>('all');
+  const [difficultyFilter, setDifficultyFilter] = React.useState<number | 'all'>('all');
+
+  const styles = ['all', ...Array.from(new Set(builtInSongs.map(s => s.style)))];
+  const difficulties = ['all', 1, 2, 3, 4, 5];
+
+  const filteredSongs = builtInSongs.filter(song => {
+    const styleMatch = filter === 'all' || song.style === filter;
+    const difficultyMatch = difficultyFilter === 'all' || song.difficulty === difficultyFilter;
+    return styleMatch && difficultyMatch;
+  });
 
   return (
     <div className="flex flex-col space-y-4 p-4">
-      <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-        <Music className="w-5 h-5" />
-        {t.library}
-      </h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
+          <Music className="w-5 h-5" />
+          {t.library}
+        </h2>
+        <span className="text-[10px] font-mono text-slate-500 bg-slate-800/50 px-2 py-0.5 rounded border border-slate-800">
+          {filteredSongs.length} {filteredSongs.length === 1 ? 'Song' : 'Songs'}
+        </span>
+      </div>
+
+      {/* Filters */}
+      <div className="space-y-3 pb-2 border-b border-slate-800/50">
+        <div className="flex flex-wrap gap-1.5">
+          {styles.map(style => (
+            <button
+              key={style}
+              onClick={() => setFilter(style)}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                filter === style 
+                  ? 'bg-indigo-500 border-indigo-400 text-white shadow-lg shadow-indigo-500/20' 
+                  : 'bg-slate-800/50 border-slate-800 text-slate-500 hover:border-slate-700 hover:text-slate-300'
+              }`}
+            >
+              {style}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-600">Level:</span>
+          <div className="flex gap-1">
+            {difficulties.map(diff => (
+              <button
+                key={diff}
+                onClick={() => setDifficultyFilter(diff as any)}
+                className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all border ${
+                  difficultyFilter === diff 
+                    ? 'bg-amber-500 border-amber-400 text-white' 
+                    : 'bg-slate-800/30 border-slate-800 text-slate-600 hover:border-slate-700'
+                }`}
+              >
+                {diff === 'all' ? '∞' : diff}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 gap-3">
-        {builtInSongs.map((song) => (
+        {filteredSongs.length > 0 ? filteredSongs.map((song) => (
           <button
             key={song.id}
             onClick={() => onSelect(song)}
@@ -60,7 +114,18 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
               </div>
             </div>
           </button>
-        ))}
+        )) : (
+          <div className="flex flex-col items-center justify-center py-12 px-4 text-center border border-dashed border-slate-800 rounded-2xl bg-slate-900/20">
+            <Music className="w-10 h-10 text-slate-800 mb-3" />
+            <p className="text-slate-500 text-sm font-medium">No songs match your filters</p>
+            <button 
+              onClick={() => { setFilter('all'); setDifficultyFilter('all'); }}
+              className="mt-4 text-xs font-bold text-indigo-400 hover:text-indigo-300 underline underline-offset-4"
+            >
+              Clear all filters
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
