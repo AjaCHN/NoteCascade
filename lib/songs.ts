@@ -71,3 +71,36 @@ export const builtInSongs: Song[] = [
     ...generateMelody('C4:0.5 E4:0.5 G4:0.5 A4:0.5 A#4:0.5 A4:0.5 G4:0.5 E4:0.5 F4:0.5 A4:0.5 C5:0.5 D5:0.5 D#5:0.5 D5:0.5 C5:0.5 A4:0.5 C4:0.5 E4:0.5 G4:0.5 A4:0.5 A#4:0.5 A4:0.5 G4:0.5 E4:0.5 G4:0.5 B4:0.5 D5:0.5 E5:0.5 F4:0.5 A4:0.5 C5:0.5 D5:0.5 C4:0.5 E4:0.5 G4:0.5 A4:0.5 C4:2', 140),
   }
 ];
+
+/**
+ * Parses a MIDI file and converts it into a Song object.
+ */
+export async function parseMidiFile(file: File): Promise<Song> {
+  const arrayBuffer = await file.arrayBuffer();
+  const midi = new Midi(arrayBuffer);
+  
+  const notes: NoteEvent[] = [];
+  midi.tracks.forEach(track => {
+    track.notes.forEach(note => {
+      notes.push({
+        midi: note.midi,
+        time: note.time,
+        duration: note.duration,
+        velocity: note.velocity,
+      });
+    });
+  });
+
+  // Sort notes by time
+  notes.sort((a, b) => a.time - b.time);
+
+  return {
+    id: `custom_${Date.now()}`,
+    title: file.name.replace(/\.[^/.]+$/, ""),
+    artist: 'Custom Upload',
+    style: 'Unknown',
+    difficulty: 3,
+    notes,
+    duration: midi.duration,
+  };
+}

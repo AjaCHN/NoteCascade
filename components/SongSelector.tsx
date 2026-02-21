@@ -3,6 +3,8 @@
 import React from 'react';
 import { Song, builtInSongs } from '../lib/songs';
 import { Music, Star, ChevronRight } from 'lucide-react';
+import { useLocale } from '../lib/store';
+import { translations } from '../lib/i18n';
 
 interface SongSelectorProps {
   onSelect: (song: Song) => void;
@@ -10,11 +12,14 @@ interface SongSelectorProps {
 }
 
 export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
+  const locale = useLocale();
+  const t = translations[locale] || translations.en;
+
   return (
     <div className="flex flex-col space-y-4 p-4">
       <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
         <Music className="w-5 h-5" />
-        Song Library
+        {t.library}
       </h2>
       <div className="grid grid-cols-1 gap-3">
         {builtInSongs.map((song) => (

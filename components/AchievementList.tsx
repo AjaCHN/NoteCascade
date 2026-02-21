@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useAchievements } from '../lib/store';
+import { useAchievements, useLocale } from '../lib/store';
 import { Trophy, Lock, CheckCircle2, Music, Star, Clock, Palette } from 'lucide-react';
 import { motion } from 'motion/react';
+import { translations } from '../lib/i18n';
 
 const iconMap: Record<string, any> = {
   Music,
@@ -15,12 +16,14 @@ const iconMap: Record<string, any> = {
 
 export function AchievementList() {
   const achievements = useAchievements();
+  const locale = useLocale();
+  const t = translations[locale] || translations.en;
 
   return (
     <div className="flex flex-col space-y-4 p-4">
       <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
         <Trophy className="w-5 h-5 text-amber-400" />
-        Achievements
+        {t.achievements}
       </h2>
       <div className="grid grid-cols-1 gap-3">
         {achievements.map((achievement) => {

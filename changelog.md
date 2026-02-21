@@ -2,10 +2,14 @@
 
 ## [1.0.3]
 - Rename application to NoteCascade
-- Add real-time MIDI note visualization in GameCanvas
-- Add 'Next Song' button to switch between songs
-- Add 'Retry' button to reset and replay current song
-- Fix MIDI audio feedback logic to prevent note sticking
+- Add multi-language support (i18n) with persistent locale selection
+- Implement responsive canvas rendering with ResizeObserver
+- Refactor Zustand store with a cleaner action pattern and helper hooks
+- Enhance audio system with Reverb effect and optimized synthesizer settings
+- Redesign MIDI keyboard with smooth motion animations and better visuals
+- Add support for custom MIDI file uploads
+- Improve game HUD with glassmorphism and animated stats
+- Update SEO metadata and semantic HTML structure
 - Update version to 1.0.3
 
 ## [1.0.2]

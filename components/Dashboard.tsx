@@ -1,12 +1,14 @@
 'use client';
 
 import React from 'react';
-import { useAppStore } from '@/lib/store';
+import { useAchievements, useScores, useAppStore } from '../lib/store';
 import { motion } from 'motion/react';
 import { Trophy, Star, Clock, Target, Award, CheckCircle2, Lock } from 'lucide-react';
 
 export function Dashboard() {
-  const { achievements, scores, totalPracticeTime } = useAppStore();
+  const achievements = useAchievements();
+  const scores = useScores();
+  const totalPracticeTime = useAppStore((state) => state.totalPracticeTime);
 
   const totalScore = scores.reduce((acc, s) => acc + s.score, 0);
   const avgAccuracy = scores.length > 0 

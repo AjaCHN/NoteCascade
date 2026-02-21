@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { Locale } from './i18n';
 
 export interface Achievement {
   id: string;
@@ -25,10 +26,12 @@ interface AppState {
   achievements: Achievement[];
   scores: ScoreRecord[];
   totalPracticeTime: number; // in seconds
+  locale: Locale;
   actions: {
     unlockAchievement: (id: string) => void;
     addScore: (score: ScoreRecord) => void;
     incrementPracticeTime: (seconds: number) => void;
+    setLocale: (locale: Locale) => void;
     resetProgress: () => void;
   };
 }
@@ -47,6 +50,7 @@ export const useAppStore = create<AppState>()(
       achievements: INITIAL_ACHIEVEMENTS,
       scores: [],
       totalPracticeTime: 0,
+      locale: 'en',
       actions: {
         unlockAchievement: (id) =>
           set((state) => {
@@ -68,11 +72,13 @@ export const useAppStore = create<AppState>()(
           set((state) => ({
             totalPracticeTime: state.totalPracticeTime + seconds,
           })),
+        setLocale: (locale) => set({ locale }),
         resetProgress: () =>
           set({
             achievements: INITIAL_ACHIEVEMENTS,
             scores: [],
             totalPracticeTime: 0,
+            locale: 'en',
           }),
       },
     }),
@@ -83,6 +89,7 @@ export const useAppStore = create<AppState>()(
         achievements: state.achievements,
         scores: state.scores,
         totalPracticeTime: state.totalPracticeTime,
+        locale: state.locale,
       }),
     }
   )
@@ -91,4 +98,5 @@ export const useAppStore = create<AppState>()(
 // Helper hooks for easier access
 export const useAchievements = () => useAppStore((state) => state.achievements);
 export const useScores = () => useAppStore((state) => state.scores);
+export const useLocale = () => useAppStore((state) => state.locale);
 export const useAppActions = () => useAppStore((state) => state.actions);

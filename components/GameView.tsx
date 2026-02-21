@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Song, NoteEvent } from '@/lib/songs';
-import { useAppStore } from '@/lib/store';
+import { Song, NoteEvent } from '../lib/songs';
+import { useAppStore, useAppActions } from '../lib/store';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 import { Star, Trophy, AlertCircle } from 'lucide-react';
@@ -29,6 +29,7 @@ const KEYBOARD_END = 84;
 
 export function GameView({ song, activeNotes, onEnd }: GameViewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { addScore, unlockAchievement } = useAppActions();
   const [startTime, setStartTime] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -60,7 +61,7 @@ export function GameView({ song, activeNotes, onEnd }: GameViewProps) {
     const totalNotes = song.notes.length;
     const accuracy = ((stats.perfect + stats.good) / totalNotes) * 100;
     
-    useAppStore.getState().addScore({
+    addScore({
       songId: song.id,
       score: stats.score,
       maxScore: totalNotes * 100,
@@ -78,14 +79,14 @@ export function GameView({ song, activeNotes, onEnd }: GameViewProps) {
         spread: 70,
         origin: { y: 0.6 }
       });
-      useAppStore.getState().unlockAchievement('score_90');
+      unlockAchievement('score_90');
     }
     
-    useAppStore.getState().unlockAchievement('first_song');
-    if (combo >= 10) useAppStore.getState().unlockAchievement('perfect_10');
+    unlockAchievement('first_song');
+    if (combo >= 10) unlockAchievement('perfect_10');
 
     setTimeout(onEnd, 3000);
-  }, [song, stats, combo, onEnd]);
+  }, [song, stats, combo, onEnd, addScore, unlockAchievement]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;

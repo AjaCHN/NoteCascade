@@ -4,7 +4,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useMidi } from '../hooks/use-midi';
 import { initAudio, playNote, releaseNote } from '../lib/audio';
 import { Song, builtInSongs } from '../lib/songs';
-import { useAppActions } from '../lib/store';
+import { useAppActions, useLocale } from '../lib/store';
+import { translations, Locale } from '../lib/i18n';
 import { Keyboard } from '../components/Keyboard';
 import { GameCanvas } from '../components/GameCanvas';
 import { SongSelector } from '../components/SongSelector';
@@ -15,7 +16,9 @@ import confetti from 'canvas-confetti';
 
 export default function MidiPlayApp() {
   const { activeNotes, inputs, selectedInputId, setSelectedInputId, error: midiError } = useMidi();
-  const { unlockAchievement, addScore, incrementPracticeTime } = useAppActions();
+  const { unlockAchievement, addScore, incrementPracticeTime, setLocale } = useAppActions();
+  const locale = useLocale();
+  const t = translations[locale] || translations.en;
   
   const [selectedSong, setSelectedSong] = useState<Song>(builtInSongs[0]);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -126,8 +129,8 @@ export default function MidiPlayApp() {
             <KeyboardIcon className="text-white h-6 w-6" />
           </div>
           <div>
-            <h1 id="app-title" className="text-xl font-bold tracking-tight text-white">NoteCascade <span className="text-xs font-mono text-indigo-400 ml-1">v1.0.3</span></h1>
-            <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Master your keys</p>
+            <h1 id="app-title" className="text-xl font-bold tracking-tight text-white">{t.title} <span className="text-xs font-mono text-indigo-400 ml-1">v1.0.3</span></h1>
+            <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">{t.subtitle}</p>
           </div>
         </div>
 
@@ -159,7 +162,7 @@ export default function MidiPlayApp() {
               }`}
             >
               <MusicIcon className="h-4 w-4" />
-              Songs
+              {t.songs}
             </button>
             <button
               id="tab-achievements"
@@ -169,7 +172,7 @@ export default function MidiPlayApp() {
               }`}
             >
               <Trophy className="h-4 w-4" />
-              Awards
+              {t.awards}
             </button>
           </div>
           
@@ -280,18 +283,37 @@ export default function MidiPlayApp() {
             <motion.div 
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-800 p-8 shadow-2xl"
+              className="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-800 p-8 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
             >
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-bold text-white">Settings</h2>
+                <h2 className="text-2xl font-bold text-white">{t.settings}</h2>
                 <button onClick={() => setShowSettings(false)} className="text-slate-500 hover:text-white">
                   <RotateCcw className="h-5 w-5 rotate-45" />
                 </button>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3 block">MIDI Input Device</label>
+                  <label className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3 block">Language</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(Object.keys(translations) as Locale[]).map((lang) => (
+                      <button
+                        key={lang}
+                        onClick={() => setLocale(lang)}
+                        className={`px-3 py-2 rounded-lg text-xs font-bold transition-all border ${
+                          locale === lang 
+                            ? 'bg-indigo-500 border-indigo-400 text-white' 
+                            : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'
+                        }`}
+                      >
+                        {lang.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3 block">{t.midiDevice}</label>
                   <div className="space-y-2">
                     {inputs.length > 0 ? inputs.map(input => (
                       <button
@@ -307,8 +329,8 @@ export default function MidiPlayApp() {
                         {selectedInputId === input.id && <div className="h-2 w-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />}
                       </button>
                     )) : (
-                      <div className="rounded-xl border border-dashed border-slate-800 p-8 text-center text-slate-500">
-                        No MIDI devices detected. Connect a keyboard via USB.
+                      <div className="rounded-xl border border-dashed border-slate-800 p-8 text-center text-slate-500 text-sm">
+                        {t.noDevice}
                       </div>
                     )}
                   </div>
@@ -319,7 +341,7 @@ export default function MidiPlayApp() {
                     onClick={() => setShowSettings(false)}
                     className="w-full rounded-xl bg-indigo-500 py-4 font-bold text-white hover:bg-indigo-400 transition-colors"
                   >
-                    Done
+                    {t.done}
                   </button>
                 </div>
               </div>
