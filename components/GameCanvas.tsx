@@ -115,6 +115,21 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
       const totalNotes = endNote - startNote + 1;
       const keyWidth = width / totalNotes;
 
+      // Draw active note highlights on the "hit line"
+      activeNotes.forEach(midi => {
+        if (midi >= startNote && midi <= endNote) {
+          const x = (midi - startNote) * keyWidth;
+          const gradient = ctx.createLinearGradient(0, height - 20, 0, height - 100);
+          gradient.addColorStop(0, 'rgba(99, 102, 241, 0.6)');
+          gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+          ctx.fillStyle = gradient;
+          ctx.fillRect(x + 1, height - 100, keyWidth - 2, 80);
+          
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.fillRect(x + 2, height - 22, keyWidth - 4, 4);
+        }
+      });
+
       song.notes.forEach((note, idx) => {
         const noteX = (note.midi - startNote) * keyWidth;
         const noteY = height - 20 - (note.time - currentTime) * FALL_SPEED;

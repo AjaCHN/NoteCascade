@@ -15,6 +15,10 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'NoteCascade - Keyboard Practice v1.0.3',
   description: 'A visual/game-like MIDI keyboard practice app with real-time scoring and achievements.',
+  keywords: ['MIDI', 'Piano', 'Practice', 'Music', 'Game', 'Learning'],
+  authors: [{ name: 'Sut' }],
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+  robots: 'index, follow',
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {

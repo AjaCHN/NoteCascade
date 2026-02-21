@@ -9,7 +9,7 @@ import { Keyboard } from '../components/Keyboard';
 import { GameCanvas } from '../components/GameCanvas';
 import { SongSelector } from '../components/SongSelector';
 import { AchievementList } from '../components/AchievementList';
-import { Play, Pause, RotateCcw, Settings, Trophy, Music as MusicIcon, Keyboard as KeyboardIcon } from 'lucide-react';
+import { Play, Pause, RotateCcw, Settings, Trophy, Music as MusicIcon, Keyboard as KeyboardIcon, SkipForward, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 
@@ -28,16 +28,22 @@ export default function MidiPlayApp() {
   const startTimeRef = useRef<number>(0);
 
   // Audio feedback for MIDI
-  useEffect(() => {
-    activeNotes.forEach(note => playNote(note));
-  }, [activeNotes]);
-
-  // Handle note releases
   const prevNotes = useRef<Set<number>>(new Set());
   useEffect(() => {
-    prevNotes.current.forEach(note => {
-      if (!activeNotes.has(note)) releaseNote(note);
+    // Play new notes
+    activeNotes.forEach(note => {
+      if (!prevNotes.current.has(note)) {
+        playNote(note);
+      }
     });
+    
+    // Release removed notes
+    prevNotes.current.forEach(note => {
+      if (!activeNotes.has(note)) {
+        releaseNote(note);
+      }
+    });
+    
     prevNotes.current = new Set(activeNotes);
   }, [activeNotes]);
 
@@ -104,16 +110,23 @@ export default function MidiPlayApp() {
     startTimeRef.current = 0;
   };
 
+  const handleNextSong = () => {
+    const currentIndex = builtInSongs.findIndex(s => s.id === selectedSong.id);
+    const nextIndex = (currentIndex + 1) % builtInSongs.length;
+    setSelectedSong(builtInSongs[nextIndex]);
+    resetSong();
+  };
+
   return (
-    <div className="flex h-screen w-full flex-col bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
+    <div id="notecascade-app" className="flex h-screen w-full flex-col bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
       {/* Header */}
-      <header className="flex h-16 items-center justify-between border-b border-slate-800 px-6 bg-slate-900/50 backdrop-blur-md">
+      <header id="app-header" className="flex h-16 items-center justify-between border-b border-slate-800 px-6 bg-slate-900/50 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
             <KeyboardIcon className="text-white h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-white">NoteCascade <span className="text-xs font-mono text-indigo-400 ml-1">v1.0.3</span></h1>
+            <h1 id="app-title" className="text-xl font-bold tracking-tight text-white">NoteCascade <span className="text-xs font-mono text-indigo-400 ml-1">v1.0.3</span></h1>
             <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Master your keys</p>
           </div>
         </div>
@@ -134,11 +147,12 @@ export default function MidiPlayApp() {
         </div>
       </header>
 
-      <main className="flex flex-1 overflow-hidden">
+      <main id="main-content" className="flex flex-1 overflow-hidden">
         {/* Left Sidebar */}
-        <aside className="w-80 flex flex-col border-r border-slate-800 bg-slate-900/20">
+        <aside id="sidebar" className="w-80 flex flex-col border-r border-slate-800 bg-slate-900/20">
           <div className="flex border-b border-slate-800">
             <button
+              id="tab-songs"
               onClick={() => setActiveTab('songs')}
               className={`flex-1 py-4 text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'songs' ? 'text-indigo-400 border-b-2 border-indigo-400 bg-indigo-400/5' : 'text-slate-500 hover:text-slate-300'
@@ -148,6 +162,7 @@ export default function MidiPlayApp() {
               Songs
             </button>
             <button
+              id="tab-achievements"
               onClick={() => setActiveTab('achievements')}
               className={`flex-1 py-4 text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                 activeTab === 'achievements' ? 'text-indigo-400 border-b-2 border-indigo-400 bg-indigo-400/5' : 'text-slate-500 hover:text-slate-300'
@@ -158,7 +173,7 @@ export default function MidiPlayApp() {
             </button>
           </div>
           
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div id="sidebar-content" className="flex-1 overflow-y-auto custom-scrollbar">
             {activeTab === 'songs' ? (
               <SongSelector 
                 onSelect={(song) => { setSelectedSong(song); resetSong(); }} 
@@ -171,8 +186,8 @@ export default function MidiPlayApp() {
         </aside>
 
         {/* Main Content Area */}
-        <section className="relative flex flex-1 flex-col overflow-hidden">
-          <div className="flex-1 relative">
+        <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden">
+          <div id="game-viewport" className="flex-1 relative">
             <GameCanvas
               song={selectedSong}
               currentTime={currentTime}
@@ -181,7 +196,7 @@ export default function MidiPlayApp() {
               onScoreUpdate={setLastScore}
             />
             
-            <div className="absolute top-6 left-6 pointer-events-none">
+            <div id="song-info" className="absolute top-6 left-6 pointer-events-none">
               <motion.div 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -192,22 +207,48 @@ export default function MidiPlayApp() {
               </motion.div>
             </div>
 
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-6 rounded-2xl bg-slate-900/80 backdrop-blur-xl border border-white/10 p-4 shadow-2xl">
-              <button 
-                onClick={resetSong}
-                className="p-3 text-slate-400 hover:text-white transition-colors"
-              >
-                <RotateCcw className="h-6 w-6" />
-              </button>
+            <div id="game-controls" className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 rounded-2xl bg-slate-900/80 backdrop-blur-xl border border-white/10 p-4 shadow-2xl">
+              <div id="secondary-controls" className="flex items-center gap-2">
+                <button 
+                  id="btn-reset"
+                  onClick={resetSong}
+                  className="p-3 text-slate-400 hover:text-white transition-colors group relative"
+                  title="Reset"
+                >
+                  <RotateCcw className="h-5 w-5" />
+                  <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Reset</span>
+                </button>
+                
+                <button 
+                  id="btn-retry"
+                  onClick={() => { resetSong(); togglePlay(); }}
+                  className="p-3 text-slate-400 hover:text-white transition-colors group relative"
+                  title="Retry"
+                >
+                  <RefreshCw className="h-5 w-5" />
+                  <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Retry</span>
+                </button>
+              </div>
               
               <button
+                id="btn-play-pause"
                 onClick={togglePlay}
                 className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/40 hover:bg-indigo-400 hover:scale-105 active:scale-95 transition-all"
               >
                 {isPlaying ? <Pause className="h-8 w-8 fill-current" /> : <Play className="h-8 w-8 fill-current ml-1" />}
               </button>
 
-              <div className="flex flex-col w-32">
+              <button 
+                id="btn-next-song"
+                onClick={handleNextSong}
+                className="p-3 text-slate-400 hover:text-white transition-colors group relative"
+                title="Next Song"
+              >
+                <SkipForward className="h-5 w-5" />
+                <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Next Song</span>
+              </button>
+
+              <div id="playback-progress" className="flex flex-col w-32 ml-2">
                 <div className="flex justify-between text-[10px] font-mono text-slate-500 mb-1">
                   <span>{Math.floor(currentTime / 60)}:{(currentTime % 60).toFixed(0).padStart(2, '0')}</span>
                   <span>{Math.floor(selectedSong.duration / 60)}:{(selectedSong.duration % 60).toFixed(0).padStart(2, '0')}</span>
@@ -222,7 +263,9 @@ export default function MidiPlayApp() {
             </div>
           </div>
 
-          <Keyboard activeNotes={activeNotes} />
+          <div id="keyboard-container">
+            <Keyboard activeNotes={activeNotes} />
+          </div>
         </section>
       </main>
 
