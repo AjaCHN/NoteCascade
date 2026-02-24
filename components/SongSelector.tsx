@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { Song, builtInSongs } from '../lib/songs';
-import { Music, Star, ChevronRight } from 'lucide-react';
-import { useLocale } from '../lib/store';
+import { Music, Star, ChevronRight, Trophy } from 'lucide-react';
+import { useLocale, useScores } from '../lib/store';
 import { translations } from '../lib/i18n';
 
 interface SongSelectorProps {
@@ -13,6 +13,7 @@ interface SongSelectorProps {
 
 export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   const locale = useLocale();
+  const scores = useScores();
   const t = translations[locale] || translations.en;
   const [filter, setFilter] = React.useState<string>('all');
   const [difficultyFilter, setDifficultyFilter] = React.useState<number | 'all'>('all');
@@ -25,6 +26,12 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
     const difficultyMatch = difficultyFilter === 'all' || song.difficulty === difficultyFilter;
     return styleMatch && difficultyMatch;
   });
+
+  const getHighScore = (songId: string) => {
+    const songScores = scores.filter(s => s.songId === songId);
+    if (songScores.length === 0) return null;
+    return Math.max(...songScores.map(s => s.score));
+  };
 
   return (
     <div className="flex flex-col space-y-4 p-4">
@@ -61,7 +68,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
             {difficulties.map(diff => (
               <button
                 key={diff}
-                onClick={() => setDifficultyFilter(diff as any)}
+                onClick={() => setDifficultyFilter(diff as number | 'all')}
                 className={`w-6 h-6 flex items-center justify-center rounded-md text-[10px] font-bold transition-all border ${
                   difficultyFilter === diff 
                     ? 'bg-amber-500 border-amber-400 text-white' 
@@ -94,6 +101,12 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
                 </span>
                 <span className="text-xs text-slate-500 font-medium">{song.artist}</span>
               </div>
+              {getHighScore(song.id) !== null && (
+                <div className="flex items-center gap-1 mt-1 text-amber-400/80">
+                  <Trophy className="w-3 h-3" />
+                  <span className="text-[10px] font-bold tabular-nums">{getHighScore(song.id)?.toLocaleString()}</span>
+                </div>
+              )}
             </div>
             <div className="flex flex-col items-end gap-2">
               <div className="flex gap-0.5">

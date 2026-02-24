@@ -16,7 +16,7 @@ export function SongList({ onSelect }: SongListProps) {
       try {
         const song = await parseMidiFile(file);
         onSelect(song);
-      } catch (err) {
+      } catch {
         alert('Failed to parse MIDI file. Please try another one.');
       }
     }

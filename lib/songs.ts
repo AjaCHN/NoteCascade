@@ -1,4 +1,5 @@
 import { Midi } from '@tonejs/midi';
+import { Frequency } from 'tone';
 
 export interface NoteEvent {
   midi: number;
@@ -17,12 +18,6 @@ export interface Song {
   duration: number;
 }
 
-const noteToMidi: Record<string, number> = {
-  'C3': 48, 'D3': 50, 'E3': 52, 'F3': 53, 'G3': 55, 'A3': 57, 'B3': 59,
-  'C4': 60, 'D4': 62, 'E4': 64, 'F4': 65, 'G4': 67, 'A4': 69, 'B4': 71,
-  'C5': 72, 'D5': 74, 'E5': 76, 'F5': 77, 'G5': 79, 'A5': 81, 'B5': 83,
-};
-
 function generateMelody(notesStr: string, bpm: number = 120): { notes: NoteEvent[]; duration: number } {
   const beatDuration = 60 / bpm;
   const notes: NoteEvent[] = [];
@@ -33,12 +28,17 @@ function generateMelody(notesStr: string, bpm: number = 120): { notes: NoteEvent
     const beats = parseFloat(beatsStr);
     const duration = beats * beatDuration;
     if (noteName !== 'R') {
-      notes.push({
-        midi: noteToMidi[noteName] || 60,
-        time: currentTime,
-        duration: duration * 0.9,
-        velocity: 0.8,
-      });
+      try {
+        const midi = Frequency(noteName).toMidi();
+        notes.push({
+          midi,
+          time: currentTime,
+          duration: duration * 0.9,
+          velocity: 0.8,
+        });
+      } catch (e) {
+        console.warn(`Could not parse note: ${noteName}`, e);
+      }
     }
     currentTime += duration;
   }

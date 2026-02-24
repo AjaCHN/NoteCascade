@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface KeyboardProps {
-  activeNotes: Set<number>;
+  activeNotes: Map<number, number>;
   startNote?: number;
   endNote?: number;
 }
@@ -32,34 +32,9 @@ export function Keyboard({ activeNotes, startNote = 48, endNote = 84 }: Keyboard
           const isActive = activeNotes.has(key.midi);
           
           if (key.isBlack) {
-            return (
-              <div
-                key={key.midi}
-                className="relative z-20"
-                style={{ width: 0, overflow: 'visible' }}
-              >
-                <motion.div
-                  animate={{
-                    backgroundColor: isActive ? '#6366f1' : '#0f172a',
-                    height: isActive ? '95px' : '100px',
-                    boxShadow: isActive ? '0 0 20px rgba(99, 102, 241, 0.6)' : 'none',
-                  }}
-                  className="absolute -left-3 top-0 w-6 rounded-b-lg border border-slate-900 cursor-pointer transition-colors"
-                >
-                  <AnimatePresence>
-                    {isActive && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-b-lg"
-                      />
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              </div>
-            );
+            return null; // Black keys are rendered relative to white keys
           } else {
+            const blackKey = keys.find(k => k.midi === key.midi + 1 && k.isBlack);
             return (
               <motion.div
                 key={key.midi}
@@ -82,6 +57,28 @@ export function Keyboard({ activeNotes, startNote = 48, endNote = 84 }: Keyboard
                     />
                   )}
                 </AnimatePresence>
+
+                {blackKey && (
+                  <motion.div
+                    animate={{
+                      backgroundColor: activeNotes.has(blackKey.midi) ? '#6366f1' : '#0f172a',
+                      height: activeNotes.has(blackKey.midi) ? '95px' : '100px',
+                      boxShadow: activeNotes.has(blackKey.midi) ? '0 0 20px rgba(99, 102, 241, 0.6)' : 'none',
+                    }}
+                    className="absolute right-0 top-0 w-1/2 h-[100px] rounded-b-lg border border-slate-900 cursor-pointer transition-colors z-20 transform -translate-x-1/2"
+                  >
+                    <AnimatePresence>
+                      {activeNotes.has(blackKey.midi) && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-b-lg"
+                        />
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                )}
               </motion.div>
             );
           }

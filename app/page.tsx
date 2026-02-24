@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useMidi } from '../hooks/use-midi';
 import { initAudio, playNote, releaseNote } from '../lib/audio';
 import { Song, builtInSongs } from '../lib/songs';
-import { useAppActions, useLocale } from '../lib/store';
+import { getNextSong, useAppActions, useLocale } from '../lib/store';
 import { translations, Locale } from '../lib/i18n';
 import { Keyboard } from '../components/Keyboard';
 import { GameCanvas } from '../components/GameCanvas';
@@ -14,9 +14,13 @@ import { Play, Pause, RotateCcw, Settings, Trophy, Music as MusicIcon, Keyboard 
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 
+import { version } from '../package.json';
+
+const SIDEBAR_WIDTH = 'w-80';
+
 export default function MidiPlayApp() {
-  const { activeNotes, inputs, selectedInputId, setSelectedInputId, error: midiError } = useMidi();
-  const { unlockAchievement, addScore, incrementPracticeTime, setLocale } = useAppActions();
+  const { activeNotes, inputs, selectedInputId, setSelectedInputId } = useMidi();
+  const { unlockAchievement, addScore, setLocale } = useAppActions();
   const locale = useLocale();
   const t = translations[locale] || translations.en;
   
@@ -27,6 +31,13 @@ export default function MidiPlayApp() {
   const [activeTab, setActiveTab] = useState<'songs' | 'achievements'>('songs');
   const [lastScore, setLastScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
   const requestRef = useRef<number>(0);
   const startTimeRef = useRef<number>(0);
 
@@ -34,9 +45,9 @@ export default function MidiPlayApp() {
   const prevNotes = useRef<Set<number>>(new Set());
   useEffect(() => {
     // Play new notes
-    activeNotes.forEach(note => {
+    activeNotes.forEach((velocity, note) => {
       if (!prevNotes.current.has(note)) {
-        playNote(note);
+        playNote(note, velocity);
       }
     });
     
@@ -47,24 +58,10 @@ export default function MidiPlayApp() {
       }
     });
     
-    prevNotes.current = new Set(activeNotes);
+    prevNotes.current = new Set(activeNotes.keys());
   }, [activeNotes]);
 
-  const animate = useCallback((time: number) => {
-    if (!startTimeRef.current) startTimeRef.current = time - currentTime * 1000;
-    const elapsed = (time - startTimeRef.current) / 1000;
-    
-    if (elapsed >= selectedSong.duration) {
-      setIsPlaying(false);
-      handleSongEnd();
-      return;
-    }
-
-    setCurrentTime(elapsed);
-    requestRef.current = requestAnimationFrame(animate);
-  }, [currentTime, selectedSong.duration]);
-
-  const handleSongEnd = () => {
+  const handleSongEnd = useCallback(() => {
     const accuracy = (lastScore.perfect + lastScore.good) / (selectedSong.notes.length || 1);
     addScore({
       songId: selectedSong.id,
@@ -88,7 +85,29 @@ export default function MidiPlayApp() {
       origin: { y: 0.6 },
       colors: ['#6366f1', '#10b981', '#f59e0b']
     });
-  };
+  }, [lastScore, selectedSong, addScore, unlockAchievement]);
+
+  const animateRef = useRef<(time: number) => void>(null);
+
+  const animate = useCallback((time: number) => {
+    if (!startTimeRef.current) startTimeRef.current = time - currentTime * 1000;
+    const elapsed = (time - startTimeRef.current) / 1000;
+    
+    if (elapsed >= selectedSong.duration) {
+      setIsPlaying(false);
+      handleSongEnd();
+      return;
+    }
+
+    setCurrentTime(elapsed);
+    if (animateRef.current) {
+      requestRef.current = requestAnimationFrame(animateRef.current);
+    }
+  }, [currentTime, selectedSong.duration, handleSongEnd]);
+
+  useEffect(() => {
+    animateRef.current = animate as (time: number) => void;
+  }, [animate]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -114,11 +133,14 @@ export default function MidiPlayApp() {
   };
 
   const handleNextSong = () => {
-    const currentIndex = builtInSongs.findIndex(s => s.id === selectedSong.id);
-    const nextIndex = (currentIndex + 1) % builtInSongs.length;
-    setSelectedSong(builtInSongs[nextIndex]);
+    const next = getNextSong(selectedSong);
+    setSelectedSong(next);
     resetSong();
   };
+
+  if (!mounted) {
+    return <div className="flex h-screen w-full items-center justify-center bg-slate-950 text-slate-500">Loading...</div>;
+  }
 
   return (
     <div id="notecascade-app" className="flex h-screen w-full flex-col bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
@@ -129,7 +151,7 @@ export default function MidiPlayApp() {
             <KeyboardIcon className="text-white h-6 w-6" />
           </div>
           <div>
-            <h1 id="app-title" className="text-xl font-bold tracking-tight text-white">{t.title} <span className="text-xs font-mono text-indigo-400 ml-1">v1.0.3</span></h1>
+            <h1 id="app-title" className="text-xl font-bold tracking-tight text-white">{t.title} <span className="text-xs font-mono text-indigo-400 ml-1">v{version}</span></h1>
             <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">{t.subtitle}</p>
           </div>
         </div>
@@ -152,7 +174,7 @@ export default function MidiPlayApp() {
 
       <main id="main-content" className="flex flex-1 overflow-hidden">
         {/* Left Sidebar */}
-        <aside id="sidebar" className="w-80 flex flex-col border-r border-slate-800 bg-slate-900/20">
+        <aside id="sidebar" className={`${SIDEBAR_WIDTH} flex flex-col border-r border-slate-800 bg-slate-900/20`}>
           <div className="flex border-b border-slate-800">
             <button
               id="tab-songs"
@@ -176,7 +198,7 @@ export default function MidiPlayApp() {
             </button>
           </div>
           
-          <div id="sidebar-content" className="flex-1 overflow-y-auto custom-scrollbar">
+          <div id="song-selector-container" className="flex-1 overflow-y-auto custom-scrollbar">
             {activeTab === 'songs' ? (
               <SongSelector 
                 onSelect={(song) => { setSelectedSong(song); resetSong(); }} 
@@ -190,13 +212,13 @@ export default function MidiPlayApp() {
 
         {/* Main Content Area */}
         <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden">
-          <div id="game-viewport" className="flex-1 relative">
+          <div id="game-canvas-container" className="flex-1 relative">
             <GameCanvas
               song={selectedSong}
               currentTime={currentTime}
               activeNotes={activeNotes}
               isPlaying={isPlaying}
-              onScoreUpdate={setLastScore}
+              onScoreUpdate={useCallback(setLastScore, [])}
             />
             
             <div id="song-info" className="absolute top-6 left-6 pointer-events-none">
@@ -266,7 +288,7 @@ export default function MidiPlayApp() {
             </div>
           </div>
 
-          <div id="keyboard-container">
+          <div id="keyboard-wrapper">
             <Keyboard activeNotes={activeNotes} />
           </div>
         </section>
@@ -350,21 +372,7 @@ export default function MidiPlayApp() {
         )}
       </AnimatePresence>
 
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #1e293b;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #334155;
-        }
-      `}</style>
+
     </div>
   );
 }

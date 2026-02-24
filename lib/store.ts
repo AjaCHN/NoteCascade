@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Locale } from './i18n';
+import { builtInSongs, Song } from './songs';
 
 export interface Achievement {
   id: string;
@@ -84,7 +85,11 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'notecascade-storage',
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => typeof window !== 'undefined' ? window.localStorage : {
+        getItem: () => null,
+        setItem: () => {},
+        removeItem: () => {},
+      } as unknown as Storage),
       partialize: (state) => ({
         achievements: state.achievements,
         scores: state.scores,
@@ -100,3 +105,12 @@ export const useAchievements = () => useAppStore((state) => state.achievements);
 export const useScores = () => useAppStore((state) => state.scores);
 export const useLocale = () => useAppStore((state) => state.locale);
 export const useAppActions = () => useAppStore((state) => state.actions);
+
+export function getNextSong(currentSong: Song): Song {
+  const currentIndex = builtInSongs.findIndex(s => s.id === currentSong.id);
+  if (currentIndex === -1) {
+    return builtInSongs[0];
+  }
+  const nextIndex = (currentIndex + 1) % builtInSongs.length;
+  return builtInSongs[nextIndex];
+}

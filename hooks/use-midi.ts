@@ -10,7 +10,7 @@ export function useMidi() {
   const [midiAccess, setMidiAccess] = useState<WebMidi.MIDIAccess | null>(null);
   const [inputs, setInputs] = useState<MidiDevice[]>([]);
   const [selectedInputId, setSelectedInputId] = useState<string | null>(null);
-  const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
+  const [activeNotes, setActiveNotes] = useState<Map<number, number>>(new Map());
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -28,12 +28,9 @@ export function useMidi() {
               });
             });
             setInputs(newInputs);
-            setInputs(prev => {
-              if (prev.length > 0 && !selectedInputId) {
-                setSelectedInputId(prev[0].id);
-              }
-              return prev;
-            });
+            if (newInputs.length > 0 && !selectedInputId) {
+              setSelectedInputId(newInputs[0].id);
+            }
           };
           update();
           access.onstatechange = update;
@@ -50,17 +47,17 @@ export function useMidi() {
     const [status, data1, data2] = message.data;
     const command = status >> 4;
     const note = data1;
-    const velocity = data2;
+    const velocity = data2 / 127;
 
     if (command === 9 && velocity > 0) {
       setActiveNotes((prev) => {
-        const next = new Set(prev);
-        next.add(note);
+        const next = new Map(prev);
+        next.set(note, velocity);
         return next;
       });
     } else if (command === 8 || (command === 9 && velocity === 0)) {
       setActiveNotes((prev) => {
-        const next = new Set(prev);
+        const next = new Map(prev);
         next.delete(note);
         return next;
       });

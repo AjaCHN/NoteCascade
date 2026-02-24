@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { useAchievements, useLocale } from '../lib/store';
-import { Trophy, Lock, CheckCircle2, Music, Star, Clock, Palette } from 'lucide-react';
+import { Trophy, Lock, CheckCircle2, Music, Star, Clock, Palette, LucideIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { translations } from '../lib/i18n';
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, LucideIcon> = {
   Music,
   Star,
   Clock,

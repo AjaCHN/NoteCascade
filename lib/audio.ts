@@ -3,6 +3,22 @@ import * as Tone from 'tone';
 let synth: Tone.PolySynth | null = null;
 let reverb: Tone.Reverb | null = null;
 
+const REVERB_SETTINGS = {
+  decay: 2.5,
+  preDelay: 0.01,
+  wet: 0.3
+};
+
+const SYNTH_SETTINGS: any = {
+  oscillator: { type: 'triangle' } as Partial<Tone.OmniOscillatorOptions>,
+  envelope: { 
+    attack: 0.02, 
+    decay: 0.1, 
+    sustain: 0.3, 
+    release: 1.2 
+  },
+};
+
 /**
  * Initializes the audio system with a professional-grade synthesizer and reverb.
  */
@@ -10,21 +26,9 @@ export async function initAudio() {
   await Tone.start();
   
   if (!synth) {
-    reverb = new Tone.Reverb({
-      decay: 2.5,
-      preDelay: 0.01,
-      wet: 0.3
-    }).toDestination();
+    reverb = new Tone.Reverb(REVERB_SETTINGS).toDestination();
 
-    synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: 'triangle' },
-      envelope: { 
-        attack: 0.02, 
-        decay: 0.1, 
-        sustain: 0.3, 
-        release: 1.2 
-      },
-    }).connect(reverb);
+    synth = new Tone.PolySynth(Tone.Synth, SYNTH_SETTINGS).connect(reverb);
   }
 }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Song } from '../lib/songs';
 import { useLocale } from '../lib/store';
 import { translations } from '../lib/i18n';
@@ -9,19 +9,33 @@ import { translations } from '../lib/i18n';
 interface GameCanvasProps {
   song: Song;
   currentTime: number;
-  activeNotes: Set<number>;
+  activeNotes: Map<number, number>;
   onScoreUpdate: (score: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => void;
   isPlaying: boolean;
+}
+
+interface Feedback {
+  id: number;
+  text: string;
+  type: 'perfect' | 'good' | 'miss' | 'wrong';
+  x: number;
+  y: number;
 }
 
 const FALL_SPEED = 200;
 const PERFECT_THRESHOLD = 0.1;
 const GOOD_THRESHOLD = 0.25;
+const START_NOTE = 48;
+const END_NOTE = 84;
+const HIT_LINE_Y = 20;
+const NOTE_HIT_Y_OFFSET = 150;
+const ACTIVE_NOTE_GLOW_HEIGHT = 130;
 
 export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPlaying }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [score, setScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const processedNotes = useRef<Set<number>>(new Set());
   const lastActiveNotes = useRef<Set<number>>(new Set());
@@ -29,29 +43,48 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
   const locale = useLocale();
   const t = translations[locale] || translations.en;
 
+  const addFeedback = (text: string, type: Feedback['type'], midi: number) => {
+    const keyWidth = dimensions.width / (END_NOTE - START_NOTE + 1);
+    const x = (midi - START_NOTE) * keyWidth + keyWidth / 2;
+    const id = Date.now() + Math.random();
+    setFeedbacks((prev) => [...prev, { id, text, type, x, y: dimensions.height - HIT_LINE_Y - 50 }]);
+    setTimeout(() => {
+      setFeedbacks((prev) => prev.filter((f) => f.id !== id));
+    }, 1000);
+  };
+
   // Handle responsive canvas sizing
   useEffect(() => {
     if (!containerRef.current) return;
     
+    let timeoutId: NodeJS.Timeout;
+
     const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const { width, height } = entry.contentRect;
-        setDimensions({ width, height });
-        if (canvasRef.current) {
-          canvasRef.current.width = width;
-          canvasRef.current.height = height;
+      // Debounce the resize to prevent the "ResizeObserver loop completed with undelivered notifications" error
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        for (const entry of entries) {
+          const { width, height } = entry.contentRect;
+          setDimensions({ width, height });
+          if (canvasRef.current) {
+            canvasRef.current.width = width;
+            canvasRef.current.height = height;
+          }
         }
-      }
+      }, 50);
     });
 
     observer.observe(containerRef.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   useEffect(() => {
     if (!isPlaying) return;
 
-    activeNotes.forEach(midi => {
+    activeNotes.forEach((velocity, midi) => {
       if (!lastActiveNotes.current.has(midi)) {
         const match = song.notes.find((n, idx) => 
           !processedNotes.current.has(idx) && 
@@ -60,28 +93,53 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
         );
 
         if (match) {
-          const diff = Math.abs(match.time - currentTime);
+          const timeDiff = currentTime - match.time; // positive if late, negative if early
+          const absTimeDiff = Math.abs(timeDiff);
           const idx = song.notes.indexOf(match);
           processedNotes.current.add(idx);
 
+          let type: Feedback['type'] = 'good';
+          let points = 50;
+          let text = 'GOOD';
+
+          if (absTimeDiff < PERFECT_THRESHOLD) {
+            type = 'perfect';
+            points = 100;
+            text = 'PERFECT';
+          } else if (timeDiff < 0) {
+            text = 'EARLY';
+          } else {
+            text = 'LATE';
+          }
+
+          const velocityDiff = velocity - match.velocity;
+          if (Math.abs(velocityDiff) > 0.3) {
+            text += velocityDiff > 0 ? '\nTOO HARD' : '\nTOO SOFT';
+            points = Math.floor(points * 0.8);
+          }
+
           setScore(prev => {
-            const isPerfect = diff < PERFECT_THRESHOLD;
-            const points = isPerfect ? 100 : 50;
             const newScore = {
               ...prev,
-              perfect: prev.perfect + (isPerfect ? 1 : 0),
-              good: prev.good + (isPerfect ? 0 : 1),
+              perfect: prev.perfect + (type === 'perfect' ? 1 : 0),
+              good: prev.good + (type === 'perfect' ? 0 : 1),
               currentScore: prev.currentScore + points
             };
             onScoreUpdate(newScore);
             return newScore;
           });
+
+          addFeedback(text, type, midi);
         } else {
-          setScore(prev => {
-            const newScore = { ...prev, wrong: prev.wrong + 1, currentScore: Math.max(0, prev.currentScore - 10) };
-            onScoreUpdate(newScore);
-            return newScore;
-          });
+          // Only penalize if it's within the playable range
+          if (midi >= START_NOTE && midi <= END_NOTE) {
+            setScore(prev => {
+              const newScore = { ...prev, wrong: prev.wrong + 1, currentScore: Math.max(0, prev.currentScore - 10) };
+              onScoreUpdate(newScore);
+              return newScore;
+            });
+            addFeedback('WRONG', 'wrong', midi);
+          }
         }
       }
     });
@@ -94,14 +152,16 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
           onScoreUpdate(newScore);
           return newScore;
         });
+        addFeedback('MISS', 'miss', n.midi);
       }
     });
 
-    lastActiveNotes.current = new Set(activeNotes);
+    lastActiveNotes.current = new Set(activeNotes.keys());
   }, [currentTime, activeNotes, song, isPlaying, onScoreUpdate]);
 
   useEffect(() => {
     if (currentTime === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setScore({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
       processedNotes.current = new Set();
     }
@@ -123,7 +183,7 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
       ctx.lineWidth = 1;
       const gridSpacing = 0.5 * FALL_SPEED;
-      for (let y = height - 20; y > 0; y -= gridSpacing) {
+      for (let y = height - HIT_LINE_Y; y > 0; y -= gridSpacing) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(width, y);
@@ -134,12 +194,12 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
       ctx.strokeStyle = 'rgba(99, 102, 241, 0.8)';
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.moveTo(0, height - 20);
-      ctx.lineTo(width, height - 20);
+      ctx.moveTo(0, height - HIT_LINE_Y);
+      ctx.lineTo(width, height - HIT_LINE_Y);
       ctx.stroke();
 
-      const startNote = 48;
-      const endNote = 84;
+      const startNote = START_NOTE;
+      const endNote = END_NOTE;
       const totalNotes = endNote - startNote + 1;
       const keyWidth = width / totalNotes;
 
@@ -147,21 +207,21 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
       activeNotes.forEach(midi => {
         if (midi >= startNote && midi <= endNote) {
           const x = (midi - startNote) * keyWidth;
-          const gradient = ctx.createLinearGradient(0, height - 20, 0, height - 150);
+          const gradient = ctx.createLinearGradient(0, height - HIT_LINE_Y, 0, height - NOTE_HIT_Y_OFFSET);
           gradient.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
           gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
           ctx.fillStyle = gradient;
-          ctx.fillRect(x + 1, height - 150, keyWidth - 2, 130);
+          ctx.fillRect(x + 1, height - NOTE_HIT_Y_OFFSET, keyWidth - 2, ACTIVE_NOTE_GLOW_HEIGHT);
           
           ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-          ctx.fillRect(x + 2, height - 22, keyWidth - 4, 4);
+          ctx.fillRect(x + 2, height - HIT_LINE_Y - 2, keyWidth - 4, 4);
         }
       });
 
       // Draw falling notes
       song.notes.forEach((note, idx) => {
         const noteX = (note.midi - startNote) * keyWidth;
-        const noteY = height - 20 - (note.time - currentTime) * FALL_SPEED;
+        const noteY = height - HIT_LINE_Y - (note.time - currentTime) * FALL_SPEED;
         const noteHeight = note.duration * FALL_SPEED;
 
         if (noteY + noteHeight > 0 && noteY < height) {
@@ -231,6 +291,29 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Feedbacks */}
+      <div className="absolute inset-0 pointer-events-none z-30">
+        <AnimatePresence>
+          {feedbacks.map((f) => (
+            <motion.div
+              key={f.id}
+              initial={{ y: f.y, x: f.x, opacity: 0, scale: 0.5 }}
+              animate={{ y: f.y - 100, opacity: 1, scale: 1.2 }}
+              exit={{ opacity: 0 }}
+              className={`absolute -translate-x-1/2 text-center font-black text-xl italic drop-shadow-lg ${
+                f.type === 'perfect' ? 'text-yellow-400' : 
+                f.type === 'good' ? 'text-emerald-400' : 
+                f.type === 'miss' ? 'text-rose-500' : 'text-orange-500'
+              }`}
+            >
+              {f.text.split('\n').map((line, i) => (
+                <div key={i} className={i > 0 ? 'text-sm opacity-80' : ''}>{line}</div>
+              ))}
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   );

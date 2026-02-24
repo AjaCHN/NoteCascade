@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { useAchievements, useScores, useAppStore } from '../lib/store';
-import { motion } from 'motion/react';
 import { Trophy, Star, Clock, Target, Award, CheckCircle2, Lock } from 'lucide-react';
 
 export function Dashboard() {
@@ -91,7 +90,7 @@ export function Dashboard() {
                 <p className="text-sm text-slate-400">{achievement.description}</p>
                 {achievement.unlockedAt && (
                   <div className="text-[10px] text-indigo-400 font-mono mt-1 uppercase">
-                    Unlocked {new Date(achievement.unlockedAt).toLocaleDateString()}
+                    Unlocked {new Date(achievement.unlockedAt).toLocaleDateString('en-CA')}
                   </div>
                 )}
               </div>
@@ -124,7 +123,7 @@ export function Dashboard() {
                 {scores.slice().reverse().slice(0, 5).map((score, idx) => (
                   <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
                     <td className="px-6 py-4 text-sm text-slate-400">
-                      {new Date(score.date).toLocaleDateString()}
+                      {new Date(score.date).toLocaleDateString('en-CA')}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-white">
                       {score.songId.startsWith('custom_') ? 'Custom Song' : score.songId}

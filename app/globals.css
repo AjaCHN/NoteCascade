@@ -1,11 +1,16 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-:root {
-  --font-sans: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
 }
-
-body {
-  font-family: var(--font-sans);
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #334155;
 }
