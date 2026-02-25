@@ -26,7 +26,7 @@ export function Keyboard({ activeNotes, startNote = 48, endNote = 84 }: Keyboard
   }, [startNote, endNote]);
 
   return (
-    <div id="piano-keyboard" className="relative flex h-40 w-full justify-center overflow-hidden rounded-b-2xl border-t-8 border-slate-900 bg-slate-950 select-none shadow-2xl">
+    <div id="piano-keyboard" className="relative flex h-28 md:h-40 w-full justify-center overflow-hidden rounded-b-2xl border-t-4 md:border-t-8 border-slate-900 bg-slate-950 select-none shadow-2xl">
       <div className="flex relative w-full max-w-7xl px-4">
         {keys.map((key) => {
           const isActive = activeNotes.has(key.midi);
@@ -62,10 +62,10 @@ export function Keyboard({ activeNotes, startNote = 48, endNote = 84 }: Keyboard
                   <motion.div
                     animate={{
                       backgroundColor: activeNotes.has(blackKey.midi) ? '#6366f1' : '#0f172a',
-                      height: activeNotes.has(blackKey.midi) ? '95px' : '100px',
+                      height: activeNotes.has(blackKey.midi) ? '58%' : '62%',
                       boxShadow: activeNotes.has(blackKey.midi) ? '0 0 20px rgba(99, 102, 241, 0.6)' : 'none',
                     }}
-                    className="absolute right-0 top-0 w-1/2 h-[100px] rounded-b-lg border border-slate-900 cursor-pointer transition-colors z-20 transform -translate-x-1/2"
+                    className="absolute right-0 top-0 w-1/2 rounded-b-lg border border-slate-900 cursor-pointer transition-colors z-20 transform -translate-x-1/2"
                   >
                     <AnimatePresence>
                       {activeNotes.has(blackKey.midi) && (
