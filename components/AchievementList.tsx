@@ -46,9 +46,9 @@ export function AchievementList() {
               </div>
               <div className="flex flex-col">
                 <span className={`font-semibold ${isUnlocked ? 'text-slate-100' : 'text-slate-400'}`}>
-                  {achievement.title}
+                  {t[`ach_${achievement.id}_title`] || achievement.title}
                 </span>
-                <span className="text-xs text-slate-500">{achievement.description}</span>
+                <span className="text-xs text-slate-500">{t[`ach_${achievement.id}_desc`] || achievement.description}</span>
               </div>
               {isUnlocked && (
                 <motion.div

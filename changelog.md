@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.5]
+- 修复样式表问题 (Fix stylesheet issues)
+- 提取源码字符串并同步至对应翻译文件 (Extract source strings and sync to translation files)
+- 更新版本号至 1.0.5
+
 ## [1.0.4]
 - Expand built-in song library with new pieces: Happy Birthday, Jingle Bells, Minuet in G, and Prelude in E Minor
 - Add style and difficulty filtering to the Song Library

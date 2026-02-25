@@ -41,7 +41,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
           {t.library}
         </h2>
         <span className="text-[10px] font-mono text-slate-500 bg-slate-800/50 px-2 py-0.5 rounded border border-slate-800">
-          {filteredSongs.length} {filteredSongs.length === 1 ? 'Song' : 'Songs'}
+          {filteredSongs.length} {filteredSongs.length === 1 ? t.song : t.songsCount}
         </span>
       </div>
 
@@ -63,7 +63,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-600">Level:</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-600">{t.level}</span>
           <div className="flex gap-1">
             {difficulties.map(diff => (
               <button
@@ -122,7 +122,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
                 ))}
               </div>
               <div className="flex items-center gap-1 text-slate-500 group-hover:text-indigo-400 transition-colors">
-                <span className="text-[10px] font-bold uppercase tracking-tighter">Play</span>
+                <span className="text-[10px] font-bold uppercase tracking-tighter">{t.play}</span>
                 <ChevronRight className={`h-4 w-4 transition-transform group-hover:translate-x-1`} />
               </div>
             </div>
@@ -130,12 +130,12 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
         )) : (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center border border-dashed border-slate-800 rounded-2xl bg-slate-900/20">
             <Music className="w-10 h-10 text-slate-800 mb-3" />
-            <p className="text-slate-500 text-sm font-medium">No songs match your filters</p>
+            <p className="text-slate-500 text-sm font-medium">{t.noSongs}</p>
             <button 
               onClick={() => { setFilter('all'); setDifficultyFilter('all'); }}
               className="mt-4 text-xs font-bold text-indigo-400 hover:text-indigo-300 underline underline-offset-4"
             >
-              Clear all filters
+              {t.clearFilters}
             </button>
           </div>
         )}

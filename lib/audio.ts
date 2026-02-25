@@ -9,6 +9,7 @@ const REVERB_SETTINGS = {
   wet: 0.3
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SYNTH_SETTINGS: any = {
   oscillator: { type: 'triangle' } as Partial<Tone.OmniOscillatorOptions>,
   envelope: { 

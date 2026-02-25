@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Song } from '../lib/songs';
 import { useLocale } from '../lib/store';
@@ -43,7 +43,7 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
   const locale = useLocale();
   const t = translations[locale] || translations.en;
 
-  const addFeedback = (text: string, type: Feedback['type'], midi: number) => {
+  const addFeedback = useCallback((text: string, type: Feedback['type'], midi: number) => {
     const keyWidth = dimensions.width / (END_NOTE - START_NOTE + 1);
     const x = (midi - START_NOTE) * keyWidth + keyWidth / 2;
     const id = Date.now() + Math.random();
@@ -51,7 +51,7 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
     setTimeout(() => {
       setFeedbacks((prev) => prev.filter((f) => f.id !== id));
     }, 1000);
-  };
+  }, [dimensions]);
 
   // Handle responsive canvas sizing
   useEffect(() => {
@@ -157,7 +157,7 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
     });
 
     lastActiveNotes.current = new Set(activeNotes.keys());
-  }, [currentTime, activeNotes, song, isPlaying, onScoreUpdate]);
+  }, [currentTime, activeNotes, song, isPlaying, onScoreUpdate, addFeedback]);
 
   useEffect(() => {
     if (currentTime === 0) {
@@ -266,7 +266,7 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col"
           >
-            <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-1">Current Score</div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-1">{t.currentScore}</div>
             <div className="text-6xl font-black text-white tabular-nums drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
               {score.currentScore.toLocaleString()}
             </div>

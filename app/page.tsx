@@ -14,7 +14,9 @@ import { Play, Pause, RotateCcw, Settings, Trophy, Music as MusicIcon, Keyboard 
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 
-import { version } from '../package.json';
+import pkg from '../package.json';
+
+const { version } = pkg;
 
 const SIDEBAR_WIDTH = 'w-80';
 
@@ -139,7 +141,7 @@ export default function MidiPlayApp() {
   };
 
   if (!mounted) {
-    return <div className="flex h-screen w-full items-center justify-center bg-slate-950 text-slate-500">Loading...</div>;
+    return <div className="flex h-screen w-full items-center justify-center bg-slate-950 text-slate-500">{t.loading}</div>;
   }
 
   return (
@@ -160,7 +162,7 @@ export default function MidiPlayApp() {
           <div className="hidden md:flex items-center gap-2 rounded-full bg-slate-800/50 px-4 py-1.5 border border-slate-700">
             <div className={`h-2 w-2 rounded-full ${selectedInputId ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
             <span className="text-xs font-medium text-slate-300">
-              {selectedInputId ? inputs.find(i => i.id === selectedInputId)?.name : 'No MIDI Device'}
+              {selectedInputId ? inputs.find(i => i.id === selectedInputId)?.name : t.noDevice}
             </span>
           </div>
           <button 
@@ -218,7 +220,7 @@ export default function MidiPlayApp() {
               currentTime={currentTime}
               activeNotes={activeNotes}
               isPlaying={isPlaying}
-              onScoreUpdate={useCallback(setLastScore, [])}
+              onScoreUpdate={setLastScore}
             />
             
             <div id="song-info" className="absolute top-6 left-6 pointer-events-none">
@@ -241,7 +243,7 @@ export default function MidiPlayApp() {
                   title="Reset"
                 >
                   <RotateCcw className="h-5 w-5" />
-                  <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Reset</span>
+                  <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">{t.reset}</span>
                 </button>
                 
                 <button 
@@ -251,7 +253,7 @@ export default function MidiPlayApp() {
                   title="Retry"
                 >
                   <RefreshCw className="h-5 w-5" />
-                  <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Retry</span>
+                  <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">{t.retry}</span>
                 </button>
               </div>
               
@@ -270,7 +272,7 @@ export default function MidiPlayApp() {
                 title="Next Song"
               >
                 <SkipForward className="h-5 w-5" />
-                <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">Next Song</span>
+                <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">{t.nextSong}</span>
               </button>
 
               <div id="playback-progress" className="flex flex-col w-32 ml-2">
@@ -316,7 +318,7 @@ export default function MidiPlayApp() {
 
               <div className="space-y-8">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3 block">Language</label>
+                  <label className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3 block">{t.language}</label>
                   <div className="grid grid-cols-2 gap-2">
                     {(Object.keys(translations) as Locale[]).map((lang) => (
                       <button
