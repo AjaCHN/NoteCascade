@@ -5,11 +5,11 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useMidi } from '../hooks/use-midi';
-import { initAudio, playNote } from '../lib/audio';
-import { Song, builtInSongs } from '../lib/songs';
-import { getNextSong, useAppActions, useLocale, useTheme, useKeyboardRange, useShowNoteNames, Theme } from '../lib/store';
-import { translations, Locale } from '../lib/translations';
+import { useMidi } from './hooks/use-midi';
+import { initAudio, playNote } from './lib/audio';
+import { Song, builtInSongs } from './lib/songs';
+import { getNextSong, useAppActions, useLocale, useTheme, useKeyboardRange, useShowNoteNames, Theme } from './lib/store';
+import { translations, Locale } from './lib/translations';
 import { Keyboard } from './components/Keyboard';
 import { GameCanvas } from './components/GameCanvas';
 import { SongSelector } from './components/SongSelector';

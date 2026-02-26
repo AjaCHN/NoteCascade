@@ -1,12 +1,12 @@
 'use client';
 
 import React from 'react';
-import { Song, builtInSongs, parseMidiFile } from '../../lib/songs';
+import { Song, builtInSongs, parseMidiFile } from '../lib/songs';
 import { motion } from 'motion/react';
 import { Music, Upload, Star, Clock, ChevronRight } from 'lucide-react';
 
-import { useLocale } from '../../lib/store';
-import { translations } from '../../lib/translations';
+import { useLocale } from '../lib/store';
+import { translations } from '../lib/translations';
 
 interface SongListProps {
   onSelect: (song: Song) => void;

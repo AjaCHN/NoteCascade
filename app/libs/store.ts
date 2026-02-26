@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { Locale } from '../../lib/translations';
-import { builtInSongs, Song } from '../../lib/songs';
+import { Locale } from '../lib/translations';
+import { builtInSongs, Song } from '../lib/songs';
 
 export interface Achievement {
   id: string;
