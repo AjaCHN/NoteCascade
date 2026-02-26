@@ -1,15 +1,21 @@
 'use client';
 
 import React from 'react';
-import { Song, builtInSongs, parseMidiFile } from '@/lib/songs';
+import { Song, builtInSongs, parseMidiFile } from '../../lib/songs';
 import { motion } from 'motion/react';
 import { Music, Upload, Star, Clock, ChevronRight } from 'lucide-react';
+
+import { useLocale } from '../../lib/store';
+import { translations } from '../../lib/translations';
 
 interface SongListProps {
   onSelect: (song: Song) => void;
 }
 
 export function SongList({ onSelect }: SongListProps) {
+  const locale = useLocale();
+  const t = translations[locale] || translations.en;
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -17,7 +23,7 @@ export function SongList({ onSelect }: SongListProps) {
         const song = await parseMidiFile(file);
         onSelect(song);
       } catch {
-        alert('Failed to parse MIDI file. Please try another one.');
+        alert(t.midiParseError);
       }
     }
   };
@@ -27,12 +33,12 @@ export function SongList({ onSelect }: SongListProps) {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-white flex items-center gap-2">
           <Music className="text-indigo-400" />
-          Song Library
+          {t.songLibrary}
         </h2>
         
         <label className="group relative flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg cursor-pointer transition-all border border-slate-700 overflow-hidden">
           <Upload size={18} />
-          <span>Import MIDI</span>
+          <span>{t.importMidi}</span>
           <input type="file" accept=".mid,.midi" className="hidden" onChange={handleFileUpload} />
           <motion.div 
             className="absolute inset-0 bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -75,7 +81,7 @@ export function SongList({ onSelect }: SongListProps) {
                 {Math.floor(song.duration / 60)}:{(song.duration % 60).toString().padStart(2, '0')}
               </div>
               <div className="flex items-center gap-1 text-indigo-400 font-bold">
-                PRACTICE <ChevronRight size={14} />
+                {t.practice} <ChevronRight size={14} />
               </div>
             </div>
           </motion.div>

@@ -2,9 +2,9 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Song } from '@/lib/songs';
-import { useLocale } from '@/lib/store';
-import { translations } from '@/lib/translations';
+import { Song } from '../../lib/songs';
+import { useLocale } from '../../lib/store';
+import { translations } from '../../lib/translations';
 
 interface GameCanvasProps {
   song: Song;
@@ -121,14 +121,14 @@ export function GameCanvas({
             points = 100;
             text = t.perfect.toUpperCase();
           } else if (timeDiff < 0) {
-            text = t.early || 'EARLY';
+            text = t.early;
           } else {
-            text = t.late || 'LATE';
+            text = t.late;
           }
 
           const velocityDiff = velocity - match.velocity;
           if (Math.abs(velocityDiff) > 0.3) {
-            text += velocityDiff > 0 ? `\n${t.tooHard || 'TOO HARD'}` : `\n${t.tooSoft || 'TOO SOFT'}`;
+            text += velocityDiff > 0 ? `\n${t.tooHard}` : `\n${t.tooSoft}`;
             points = Math.floor(points * 0.8);
           }
 
@@ -174,7 +174,7 @@ export function GameCanvas({
     });
 
     lastActiveNotes.current = new Set(activeNotes.keys());
-  }, [currentTime, activeNotes, song, isPlaying, onScoreUpdate, addFeedback, t]);
+  }, [currentTime, activeNotes, song, isPlaying, onScoreUpdate, addFeedback, t, START_NOTE, END_NOTE]);
 
   useEffect(() => {
     if (currentTime === 0) {
@@ -293,9 +293,9 @@ export function GameCanvas({
       ctx.fillStyle = 'rgba(148, 163, 184, 0.6)';
       ctx.font = 'bold 9px Inter';
       ctx.textAlign = 'center';
-      ctx.fillText((t.early || 'EARLY').toUpperCase(), barX, barY + 24);
-      ctx.fillText((t.late || 'LATE').toUpperCase(), barX + barWidth, barY + 24);
-      ctx.fillText((t.perfect || 'PERFECT').toUpperCase(), barX + barWidth / 2, barY + 24);
+      ctx.fillText(t.early.toUpperCase(), barX, barY + 24);
+      ctx.fillText(t.late.toUpperCase(), barX + barWidth, barY + 24);
+      ctx.fillText(t.perfect.toUpperCase(), barX + barWidth / 2, barY + 24);
 
       // ... (rest of drawing code)
 
@@ -364,7 +364,7 @@ export function GameCanvas({
 
     render();
     return () => cancelAnimationFrame(animationFrameId);
-  }, [song, currentTime, dimensions, activeNotes, t]);
+  }, [song, currentTime, dimensions, activeNotes, t, START_NOTE, END_NOTE, showNoteNames, theme]);
 
   return (
     <div ref={containerRef} className={`relative h-full w-full overflow-hidden ${theme === 'light' ? 'bg-slate-50' : 'bg-slate-950'}`}>

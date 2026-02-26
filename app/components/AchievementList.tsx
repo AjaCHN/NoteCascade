@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useAchievements, useLocale } from '@/lib/store';
+import { useAchievements, useLocale } from '../../lib/store';
 import { Trophy, Lock, CheckCircle2, Music, Star, Clock, Palette, LucideIcon, Flame, Zap, Crown, Sun, Moon } from 'lucide-react';
 import { motion } from 'motion/react';
-import { translations } from '@/lib/translations';
+import { translations } from '../../lib/translations';
 
 const iconMap: Record<string, LucideIcon> = {
   Music,
@@ -72,7 +72,7 @@ export function AchievementList() {
               {!isUnlocked && maxProgress !== undefined && (
                 <div className="space-y-2">
                   <div className="flex justify-between text-[8px] font-black uppercase tracking-[0.2em] text-slate-600">
-                    <span>Progress</span>
+                    <span>{t.progress}</span>
                     <span>{Math.floor(progress)} / {maxProgress}</span>
                   </div>
                   <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden border border-white/5">

@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Song, builtInSongs, parseMidiFile } from '@/lib/songs';
+import { Song, builtInSongs, parseMidiFile } from '../../lib/songs';
 import { Music, Star, ChevronRight, Trophy, Lock, Upload } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useLocale, useScores, useAchievements } from '@/lib/store';
-import { translations } from '@/lib/translations';
+import { useLocale, useScores, useAchievements } from '../../lib/store';
+import { translations } from '../../lib/translations';
 
 interface SongSelectorProps {
   onSelect: (song: Song) => void;
@@ -22,8 +22,8 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   const [isUploading, setIsUploading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const styles = ['all', ...Array.from(new Set(builtInSongs.map(s => s.style)))];
-  const difficulties = ['all', 1, 2, 3, 4, 5];
+  const styles = [t.all, ...Array.from(new Set(builtInSongs.map(s => s.style)))];
+  const difficulties = [t.all, 1, 2, 3, 4, 5];
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -35,7 +35,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
       onSelect(song);
     } catch (error) {
       console.error('Failed to parse MIDI:', error);
-      alert('Failed to parse MIDI file. Please try another one.');
+      alert(t.midiParseError);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -75,8 +75,8 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   };
 
   const filteredSongs = builtInSongs.filter(song => {
-    const styleMatch = filter === 'all' || song.style === filter;
-    const difficultyMatch = difficultyFilter === 'all' || song.difficulty === difficultyFilter;
+    const styleMatch = filter === t.all || song.style === filter;
+    const difficultyMatch = difficultyFilter === t.all || song.difficulty === difficultyFilter;
     return styleMatch && difficultyMatch;
   });
 
@@ -145,7 +145,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
                     : 'bg-white/5 border-white/5 text-slate-600 hover:border-white/10'
                 }`}
               >
-                {diff === 'all' ? '∞' : diff}
+                {diff === t.all ? '∞' : diff}
               </button>
             ))}
           </div>

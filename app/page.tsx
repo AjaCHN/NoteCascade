@@ -10,10 +10,10 @@ import { initAudio, playNote } from '../lib/audio';
 import { Song, builtInSongs } from '../lib/songs';
 import { getNextSong, useAppActions, useLocale, useTheme, useKeyboardRange, useShowNoteNames, Theme } from '../lib/store';
 import { translations, Locale } from '../lib/translations';
-import { Keyboard } from '../components/Keyboard';
-import { GameCanvas } from '../components/GameCanvas';
-import { SongSelector } from '../components/SongSelector';
-import { AchievementList } from '../components/AchievementList';
+import { Keyboard } from './components/Keyboard';
+import { GameCanvas } from './components/GameCanvas';
+import { SongSelector } from './components/SongSelector';
+import { AchievementList } from './components/AchievementList';
 import { 
   Play, Pause, RotateCcw, Settings, Trophy, Music as MusicIcon, 
   Keyboard as KeyboardIcon, SkipForward, RefreshCw, Menu, X,
@@ -601,7 +601,7 @@ export default function MidiPlayApp() {
                           rel="noopener noreferrer"
                           className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
                         >
-                          GitHub <ExternalLink className="h-3 w-3" />
+                          {t.github} <ExternalLink className="h-3 w-3" />
                         </a>
                       </div>
                     </div>

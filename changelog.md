@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.1.1
+- Refactored project structure by moving hooks and lib directories to root, and components to app/components.
+- Updated all import paths to reflect the new directory structure.
+- Recreated missing Keyboard.tsx component.
+
 ## v1.1.0
 - Added theme system (Dark, Light, Cyber, Classic)
 - Enhanced settings modal with dynamic keyboard range selection
