@@ -27,6 +27,8 @@ export interface ScoreRecord {
   date: number;
 }
 
+export type Theme = 'dark' | 'light' | 'cyber' | 'classic';
+
 interface AppState {
   achievements: Achievement[];
   scores: ScoreRecord[];
@@ -36,11 +38,17 @@ interface AppState {
   totalNotesHit: number;
   songsCompleted: number;
   locale: Locale;
+  theme: Theme;
+  keyboardRange: { start: number; end: number };
+  showNoteNames: boolean;
   actions: {
     unlockAchievement: (id: string) => void;
     addScore: (score: ScoreRecord) => void;
     incrementPracticeTime: (seconds: number) => void;
     setLocale: (locale: Locale) => void;
+    setTheme: (theme: Theme) => void;
+    setKeyboardRange: (start: number, end: number) => void;
+    setShowNoteNames: (show: boolean) => void;
     resetProgress: () => void;
     checkAchievements: () => void;
     updateStreak: () => void;
@@ -71,6 +79,9 @@ export const useAppStore = create<AppState>()(
       totalNotesHit: 0,
       songsCompleted: 0,
       locale: 'en',
+      theme: 'dark',
+      keyboardRange: { start: 48, end: 84 },
+      showNoteNames: true,
       actions: {
         unlockAchievement: (id) =>
           set((state) => {
@@ -182,6 +193,9 @@ export const useAppStore = create<AppState>()(
           }
         },
         setLocale: (locale) => set({ locale }),
+        setTheme: (theme) => set({ theme }),
+        setKeyboardRange: (start, end) => set({ keyboardRange: { start, end } }),
+        setShowNoteNames: (showNoteNames) => set({ showNoteNames }),
         resetProgress: () =>
           set({
             achievements: INITIAL_ACHIEVEMENTS,
@@ -192,6 +206,9 @@ export const useAppStore = create<AppState>()(
             totalNotesHit: 0,
             songsCompleted: 0,
             locale: 'en',
+            theme: 'dark',
+            keyboardRange: { start: 48, end: 84 },
+            showNoteNames: true,
           }),
       },
     }),
@@ -211,6 +228,9 @@ export const useAppStore = create<AppState>()(
         totalNotesHit: state.totalNotesHit,
         songsCompleted: state.songsCompleted,
         locale: state.locale,
+        theme: state.theme,
+        keyboardRange: state.keyboardRange,
+        showNoteNames: state.showNoteNames,
       }),
       merge: (persistedState, currentState) => {
         // Merge logic to ensure new achievements are added to persisted state
@@ -240,6 +260,9 @@ export const useAppStore = create<AppState>()(
 export const useAchievements = () => useAppStore((state) => state.achievements);
 export const useScores = () => useAppStore((state) => state.scores);
 export const useLocale = () => useAppStore((state) => state.locale);
+export const useTheme = () => useAppStore((state) => state.theme);
+export const useKeyboardRange = () => useAppStore((state) => state.keyboardRange);
+export const useShowNoteNames = () => useAppStore((state) => state.showNoteNames);
 export const useAppActions = () => useAppStore((state) => state.actions);
 
 export function getNextSong(currentSong: Song): Song {

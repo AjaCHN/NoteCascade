@@ -4,13 +4,18 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useMidi } from '../hooks/use-midi';
 import { initAudio, playNote } from '../lib/audio';
 import { Song, builtInSongs } from '../lib/songs';
-import { getNextSong, useAppActions, useLocale } from '../lib/store';
+import { getNextSong, useAppActions, useLocale, useTheme, useKeyboardRange, useShowNoteNames, Theme } from '../lib/store';
 import { translations, Locale } from '../lib/i18n';
 import { Keyboard } from '../components/Keyboard';
 import { GameCanvas } from '../components/GameCanvas';
 import { SongSelector } from '../components/SongSelector';
 import { AchievementList } from '../components/AchievementList';
-import { Play, Pause, RotateCcw, Settings, Trophy, Music as MusicIcon, Keyboard as KeyboardIcon, SkipForward, RefreshCw, Menu, X } from 'lucide-react';
+import { 
+  Play, Pause, RotateCcw, Settings, Trophy, Music as MusicIcon, 
+  Keyboard as KeyboardIcon, SkipForward, RefreshCw, Menu, X,
+  Palette, Monitor, Info, Globe, ChevronDown, Check, ExternalLink,
+  Zap, Clock, Star, Crown, Flame, Palette as PaletteIcon, Sun, Moon
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 
@@ -20,8 +25,14 @@ const { version } = pkg;
 
 export default function MidiPlayApp() {
   const { activeNotes, inputs, selectedInputId, setSelectedInputId } = useMidi();
-  const { addScore, setLocale, incrementPracticeTime, updateStreak } = useAppActions();
+  const { 
+    addScore, setLocale, incrementPracticeTime, updateStreak, 
+    setTheme, setKeyboardRange, setShowNoteNames 
+  } = useAppActions();
   const locale = useLocale();
+  const theme = useTheme();
+  const keyboardRange = useKeyboardRange();
+  const showNoteNames = useShowNoteNames();
   const t = translations[locale] || translations.en;
   
   const [selectedSong, setSelectedSong] = useState<Song>(builtInSongs[0]);
@@ -145,43 +156,56 @@ export default function MidiPlayApp() {
   }
 
   return (
-    <div id="notecascade-app" className="flex h-dvh w-full flex-col bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30 overflow-hidden relative">
+    <div 
+      id="notecascade-app" 
+      data-theme={theme}
+      className="flex h-dvh w-full flex-col theme-bg-primary theme-text-primary font-sans selection:bg-indigo-500/30 overflow-hidden relative transition-colors duration-500"
+    >
       {/* Background Atmosphere */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-indigo-500/10 blur-[120px] rounded-full" />
-        <div className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-purple-500/10 blur-[120px] rounded-full" />
+        <div className={`absolute -top-[20%] -left-[10%] w-[60%] h-[60%] blur-[120px] rounded-full transition-colors duration-1000 ${
+          theme === 'cyber' ? 'bg-green-500/10' : theme === 'classic' ? 'bg-amber-500/10' : 'bg-indigo-500/10'
+        }`} />
+        <div className={`absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] blur-[120px] rounded-full transition-colors duration-1000 ${
+          theme === 'cyber' ? 'bg-fuchsia-500/10' : theme === 'classic' ? 'bg-orange-500/10' : 'bg-purple-500/10'
+        }`} />
         <div className="scanline-effect opacity-30" />
       </div>
 
       {/* Header */}
-      <header id="app-header" className="flex h-14 md:h-16 shrink-0 items-center justify-between border-b border-white/5 px-4 md:px-6 bg-slate-950/40 backdrop-blur-xl z-50">
+      <header id="app-header" className="flex h-14 md:h-16 shrink-0 items-center justify-between border-b theme-border px-4 md:px-6 glass-panel z-50">
         <div className="flex items-center gap-3">
           <button 
-            className="md:hidden p-2 -ml-2 text-slate-400 hover:text-white transition-colors"
+            className="md:hidden p-2 -ml-2 theme-text-secondary hover:theme-text-primary transition-colors"
             onClick={() => setShowSidebar(!showSidebar)}
           >
             {showSidebar ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
           
-          <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20 glow-indigo">
+          <div className={`flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-xl shadow-lg glow-indigo transition-all ${
+            theme === 'cyber' ? 'bg-green-500' : theme === 'classic' ? 'bg-amber-700' : 'bg-gradient-to-br from-indigo-500 to-purple-600'
+          }`}>
             <KeyboardIcon className="text-white h-5 w-5 md:h-6 md:w-6" />
           </div>
           <div>
-            <h1 id="app-title" className="text-lg md:text-xl font-bold tracking-tight text-white text-glow">{t.title} <span className="text-[10px] font-mono text-indigo-400 ml-1 opacity-70">v{version}</span></h1>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold hidden md:block opacity-80">{t.subtitle}</p>
+            <h1 id="app-title" className="text-lg md:text-xl font-bold tracking-tight theme-text-primary text-glow">
+              {t.title} 
+              <span className="text-[10px] font-mono text-indigo-400 ml-1 opacity-70">v{version}</span>
+            </h1>
+            <p className="text-[10px] uppercase tracking-[0.2em] theme-text-secondary font-bold hidden md:block opacity-80">{t.subtitle}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
-          <div className="hidden md:flex items-center gap-2 rounded-full bg-white/5 px-4 py-1.5 border border-white/5 backdrop-blur-md">
+          <div className="hidden md:flex items-center gap-2 rounded-full bg-white/5 px-4 py-1.5 border theme-border backdrop-blur-md">
             <div className={`h-2 w-2 rounded-full ${selectedInputId ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]'}`} />
-            <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400">
+            <span className="text-[10px] uppercase tracking-widest font-bold theme-text-secondary">
               {selectedInputId ? inputs.find(i => i.id === selectedInputId)?.name : t.noDevice}
             </span>
           </div>
           <button 
             onClick={() => setShowSettings(!showSettings)}
-            className="rounded-full p-2 hover:bg-white/10 transition-all text-slate-400 hover:text-white border border-transparent hover:border-white/10"
+            className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
           >
             <Settings className="h-5 w-5" />
           </button>
@@ -193,17 +217,17 @@ export default function MidiPlayApp() {
         <aside 
           id="sidebar" 
           className={`
-            absolute inset-y-0 left-0 z-40 w-full md:w-80 bg-slate-950/95 md:bg-transparent
-            flex flex-col border-r border-white/5 transition-transform duration-300 ease-in-out
+            absolute inset-y-0 left-0 z-40 w-full md:w-80 theme-bg-primary md:bg-transparent
+            flex flex-col border-r theme-border transition-transform duration-300 ease-in-out
             ${showSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0 md:relative'}
           `}
         >
-          <div className="flex border-b border-white/5 bg-white/2 backdrop-blur-md">
+          <div className="flex border-b theme-border bg-white/2 backdrop-blur-md">
             <button
               id="tab-songs"
               onClick={() => setActiveTab('songs')}
               className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${
-                activeTab === 'songs' ? 'text-indigo-400 border-b-2 border-indigo-400 bg-indigo-400/5' : 'text-slate-500 hover:text-slate-300'
+                activeTab === 'songs' ? 'text-indigo-400 border-b-2 border-indigo-400 bg-indigo-400/5' : 'theme-text-secondary hover:theme-text-primary'
               }`}
             >
               <MusicIcon className="h-4 w-4" />
@@ -213,7 +237,7 @@ export default function MidiPlayApp() {
               id="tab-achievements"
               onClick={() => setActiveTab('achievements')}
               className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${
-                activeTab === 'achievements' ? 'text-indigo-400 border-b-2 border-indigo-400 bg-indigo-400/5' : 'text-slate-500 hover:text-slate-300'
+                activeTab === 'achievements' ? 'text-indigo-400 border-b-2 border-indigo-400 bg-indigo-400/5' : 'theme-text-secondary hover:theme-text-primary'
               }`}
             >
               <Trophy className="h-4 w-4" />
@@ -246,6 +270,9 @@ export default function MidiPlayApp() {
               activeNotes={activeNotes}
               isPlaying={isPlaying}
               onScoreUpdate={setLastScore}
+              keyboardRange={keyboardRange}
+              showNoteNames={showNoteNames}
+              theme={theme}
             />
             
             <div id="song-info" className="absolute top-4 left-4 md:top-8 md:left-8 pointer-events-none z-10">
@@ -255,22 +282,22 @@ export default function MidiPlayApp() {
                 key={selectedSong.id}
                 className="space-y-1"
               >
-                <h2 className="text-2xl md:text-5xl font-black text-white text-glow tracking-tighter leading-none">{selectedSong.title}</h2>
+                <h2 className="text-2xl md:text-5xl font-black theme-text-primary text-glow tracking-tighter leading-none">{selectedSong.title}</h2>
                 <div className="flex items-center gap-3">
                   <p className="text-sm md:text-lg text-indigo-400 font-bold uppercase tracking-widest opacity-90">{selectedSong.artist}</p>
-                  <div className="h-4 w-px bg-white/10" />
-                  <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-[0.2em]">{selectedSong.style}</p>
+                  <div className="h-4 w-px theme-border" />
+                  <p className="text-[10px] md:text-xs theme-text-secondary font-bold uppercase tracking-[0.2em]">{selectedSong.style}</p>
                 </div>
               </motion.div>
             </div>
 
-            <div id="game-controls" className="absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2 md:gap-6 rounded-[2rem] bg-slate-900/40 backdrop-blur-2xl border border-white/10 p-2 md:p-4 shadow-2xl z-20 max-w-[95%] glow-indigo">
+            <div id="game-controls" className="absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2 md:gap-6 rounded-[2rem] theme-bg-secondary/40 backdrop-blur-2xl border theme-border p-2 md:p-4 shadow-2xl z-20 max-w-[95%] glow-indigo transition-all duration-500">
               <div id="secondary-controls" className="flex items-center gap-1 md:gap-2 pl-2">
                 <button 
                   id="btn-reset"
                   onClick={resetSong}
-                  className="p-2 md:p-3 text-slate-500 hover:text-white transition-all hover:bg-white/5 rounded-full"
-                  title="Reset"
+                  className="p-2 md:p-3 theme-text-secondary hover:theme-text-primary transition-all hover:bg-white/5 rounded-full"
+                  title={t.reset}
                 >
                   <RotateCcw className="h-4 w-4 md:h-5 md:w-5" />
                 </button>
@@ -278,8 +305,8 @@ export default function MidiPlayApp() {
                 <button 
                   id="btn-retry"
                   onClick={() => { resetSong(); togglePlay(); }}
-                  className="p-2 md:p-3 text-slate-500 hover:text-white transition-all hover:bg-white/5 rounded-full"
-                  title="Retry"
+                  className="p-2 md:p-3 theme-text-secondary hover:theme-text-primary transition-all hover:bg-white/5 rounded-full"
+                  title={t.retry}
                 >
                   <RefreshCw className="h-4 w-4 md:h-5 md:w-5" />
                 </button>
@@ -296,18 +323,18 @@ export default function MidiPlayApp() {
               <button 
                 id="btn-next-song"
                 onClick={handleNextSong}
-                className="p-2 md:p-3 text-slate-500 hover:text-white transition-all hover:bg-white/5 rounded-full"
-                title="Next Song"
+                className="p-2 md:p-3 theme-text-secondary hover:theme-text-primary transition-all hover:bg-white/5 rounded-full"
+                title={t.nextSong}
               >
                 <SkipForward className="h-4 w-4 md:h-5 md:w-5" />
               </button>
 
               <div id="playback-progress" className="flex flex-col w-24 md:w-48 pr-4">
-                <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">
+                <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest theme-text-secondary mb-2">
                   <span>{Math.floor(currentTime / 60)}:{(currentTime % 60).toFixed(0).padStart(2, '0')}</span>
                   <span>{Math.floor(selectedSong.duration / 60)}:{(selectedSong.duration % 60).toFixed(0).padStart(2, '0')}</span>
                 </div>
-                <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden border border-white/5">
+                <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden border theme-border">
                   <motion.div 
                     className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
                     style={{ width: `${(currentTime / (selectedSong.duration || 1)) * 100}%` }}
@@ -318,8 +345,13 @@ export default function MidiPlayApp() {
           </div>
 
           <div id="keyboard-wrapper" className="shrink-0 relative z-20">
-            <div className="absolute inset-x-0 -top-8 h-8 bg-gradient-to-t from-slate-950 to-transparent pointer-events-none" />
-            <Keyboard activeNotes={activeNotes} />
+            <div className="absolute inset-x-0 -top-8 h-8 bg-gradient-to-t theme-bg-primary to-transparent pointer-events-none" />
+            <Keyboard 
+              activeNotes={activeNotes} 
+              startNote={keyboardRange.start} 
+              endNote={keyboardRange.end} 
+              showNoteNames={showNoteNames}
+            />
           </div>
         </section>
       </main>
@@ -396,75 +428,191 @@ export default function MidiPlayApp() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
           >
             <motion.div 
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-800 p-8 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
+              className="w-full max-w-2xl rounded-[2.5rem] theme-bg-primary border theme-border p-6 md:p-10 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
             >
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-bold text-white">{t.settings}</h2>
-                <button onClick={() => setShowSettings(false)} className="text-slate-500 hover:text-white">
-                  <RotateCcw className="h-5 w-5 rotate-45" />
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
+                    <Settings className="h-6 w-6" />
+                  </div>
+                  <h2 className="text-2xl font-bold theme-text-primary">{t.settings}</h2>
+                </div>
+                <button 
+                  onClick={() => setShowSettings(false)} 
+                  className="p-2 rounded-full hover:bg-white/5 theme-text-secondary hover:theme-text-primary transition-all"
+                >
+                  <X className="h-6 w-6" />
                 </button>
               </div>
 
-              <div className="space-y-8">
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-4 block">{t.language}</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(Object.keys(translations) as Locale[]).map((lang) => (
-                      <button
-                        key={lang}
-                        onClick={() => setLocale(lang)}
-                        className={`px-3 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all border ${
-                          locale === lang 
-                            ? 'bg-indigo-500 border-indigo-400 text-white shadow-lg shadow-indigo-500/20' 
-                            : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/10 hover:bg-white/10'
-                        }`}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Left Column: General Settings */}
+                <div className="space-y-8">
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Globe className="h-4 w-4 text-indigo-400" />
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.language}</label>
+                    </div>
+                    <div className="relative group">
+                      <select 
+                        value={locale}
+                        onChange={(e) => setLocale(e.target.value as Locale)}
+                        className="w-full appearance-none theme-bg-secondary border theme-border rounded-2xl px-5 py-4 theme-text-primary font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all cursor-pointer"
                       >
-                        {lang.toUpperCase()}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                        {(Object.keys(translations) as Locale[]).map((lang) => (
+                          <option key={lang} value={lang}>{lang.toUpperCase()}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 h-5 w-5 theme-text-secondary pointer-events-none group-hover:theme-text-primary transition-colors" />
+                    </div>
+                  </section>
 
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-4 block">{t.midiDevice}</label>
-                  <div className="space-y-2">
-                    {inputs.length > 0 ? inputs.map(input => (
-                      <button
-                        key={input.id}
-                        onClick={() => setSelectedInputId(input.id)}
-                        className={`w-full flex items-center justify-between rounded-2xl p-4 border transition-all ${
-                          selectedInputId === input.id 
-                            ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400 shadow-lg shadow-indigo-500/10' 
-                            : 'border-white/5 bg-white/5 text-slate-400 hover:border-white/10 hover:bg-white/10'
-                        }`}
-                      >
-                        <div className="flex flex-col items-start">
-                          <span className="font-bold text-sm">{input.name}</span>
-                          <span className="text-[10px] uppercase tracking-widest text-slate-500">{input.manufacturer}</span>
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Palette className="h-4 w-4 text-indigo-400" />
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.theme}</label>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {(['dark', 'light', 'cyber', 'classic'] as Theme[]).map((tName) => (
+                        <button
+                          key={tName}
+                          onClick={() => setTheme(tName)}
+                          className={`flex items-center justify-between px-4 py-3 rounded-2xl border transition-all ${
+                            theme === tName 
+                              ? 'border-indigo-500 bg-indigo-500/10 theme-text-primary shadow-lg shadow-indigo-500/10' 
+                              : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-border-primary'
+                          }`}
+                        >
+                          <span className="text-xs font-bold capitalize">{t[`theme_${tName}`] || tName}</span>
+                          {theme === tName && <Check className="h-4 w-4 text-indigo-400" />}
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <KeyboardIcon className="h-4 w-4 text-indigo-400" />
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.keyboardRange}</label>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex justify-between text-[10px] theme-text-secondary font-bold">
+                          <span>{keyboardRange.start}</span>
+                          <span>{keyboardRange.end}</span>
                         </div>
-                        {selectedInputId === input.id && <div className="h-2 w-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />}
-                      </button>
-                    )) : (
-                      <div className="rounded-2xl border border-dashed border-white/10 p-10 text-center text-slate-500 text-sm font-medium">
-                        {t.noDevice}
+                        <div className="grid grid-cols-4 gap-2">
+                          {[25, 49, 61, 88].map(keys => (
+                            <button
+                              key={keys}
+                              onClick={() => {
+                                if (keys === 25) setKeyboardRange(48, 72);
+                                if (keys === 49) setKeyboardRange(36, 84);
+                                if (keys === 61) setKeyboardRange(36, 96);
+                                if (keys === 88) setKeyboardRange(21, 108);
+                              }}
+                              className="px-2 py-2 rounded-xl border theme-border theme-bg-secondary text-[10px] font-bold theme-text-secondary hover:theme-text-primary transition-all"
+                            >
+                              {keys}{t.keys}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between p-4 rounded-2xl theme-bg-secondary border theme-border">
+                      <span className="text-xs font-bold theme-text-primary">{t.showNoteNames}</span>
+                      <button 
+                        onClick={() => setShowNoteNames(!showNoteNames)}
+                        className={`w-12 h-6 rounded-full transition-all relative ${showNoteNames ? 'bg-indigo-500' : 'bg-slate-700'}`}
+                      >
+                        <motion.div 
+                          animate={{ x: showNoteNames ? 26 : 4 }}
+                          className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"
+                        />
+                      </button>
+                    </div>
+                  </section>
                 </div>
 
-                <div className="pt-6 border-t border-white/5">
-                  <button 
-                    onClick={() => setShowSettings(false)}
-                    className="w-full rounded-2xl bg-indigo-500 py-4 font-bold text-white hover:bg-indigo-400 transition-all shadow-xl shadow-indigo-500/20 active:scale-[0.98]"
-                  >
-                    {t.done}
-                  </button>
+                {/* Right Column: MIDI & Info */}
+                <div className="space-y-8">
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Monitor className="h-4 w-4 text-indigo-400" />
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.midiDevice}</label>
+                    </div>
+                    <div className="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
+                      {inputs.length > 0 ? inputs.map(input => (
+                        <button
+                          key={input.id}
+                          onClick={() => setSelectedInputId(input.id)}
+                          className={`w-full flex items-center justify-between rounded-2xl p-4 border transition-all ${
+                            selectedInputId === input.id 
+                              ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400' 
+                              : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-border-primary'
+                          }`}
+                        >
+                          <div className="flex flex-col items-start">
+                            <span className="font-bold text-sm">{input.name}</span>
+                            <span className="text-[10px] uppercase tracking-widest opacity-50">{input.manufacturer}</span>
+                          </div>
+                          {selectedInputId === input.id && <Check className="h-4 w-4" />}
+                        </button>
+                      )) : (
+                        <div className="rounded-2xl border border-dashed theme-border p-8 text-center theme-text-secondary text-xs italic">
+                          {t.noDevice}
+                        </div>
+                      )}
+                    </div>
+                  </section>
+
+                  <section className="p-6 rounded-3xl theme-bg-secondary border theme-border">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Info className="h-4 w-4 text-indigo-400" />
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.appInfo}</label>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs theme-text-secondary">{t.version}</span>
+                        <span className="text-xs font-mono font-bold theme-text-primary">v{version}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs theme-text-secondary">{t.developer}</span>
+                        <span className="text-xs font-bold theme-text-primary">Sut</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs theme-text-secondary">{t.midiStatus}</span>
+                        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${selectedInputId ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
+                          {selectedInputId ? t.connected : t.disconnected}
+                        </span>
+                      </div>
+                      <div className="pt-3 mt-3 border-t theme-border flex justify-center">
+                        <a 
+                          href="https://github.com/sutchan" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
+                        >
+                          GitHub <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </div>
+                    </div>
+                  </section>
                 </div>
+              </div>
+
+              <div className="mt-10 flex justify-end">
+                <button 
+                  onClick={() => setShowSettings(false)}
+                  className="px-10 py-4 rounded-2xl bg-indigo-500 font-bold text-white hover:bg-indigo-400 transition-all shadow-xl shadow-indigo-500/20 active:scale-[0.98]"
+                >
+                  {t.done}
+                </button>
               </div>
             </motion.div>
           </motion.div>

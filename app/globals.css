@@ -6,17 +6,69 @@
   --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+@layer base {
+  :root {
+    --bg-primary: #020617;
+    --bg-secondary: #0f172a;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent: #6366f1;
+  }
+
+  [data-theme='light'] {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #f1f5f9;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --accent: #4f46e5;
+  }
+
+  [data-theme='cyber'] {
+    --bg-primary: #050505;
+    --bg-secondary: #1a1a1a;
+    --text-primary: #00ff00;
+    --text-secondary: #008800;
+    --accent: #ff00ff;
+  }
+
+  [data-theme='classic'] {
+    --bg-primary: #2d1b0d;
+    --bg-secondary: #3d2b1d;
+    --text-primary: #fef3c7;
+    --text-secondary: #d97706;
+    --accent: #b45309;
+  }
+}
+
 @layer utilities {
+  .theme-bg-primary { background-color: var(--bg-primary); }
+  .theme-bg-secondary { background-color: var(--bg-secondary); }
+  .theme-text-primary { color: var(--text-primary); }
+  .theme-text-secondary { color: var(--text-secondary); }
+  .theme-border { border-color: rgba(255, 255, 255, 0.1); }
+  [data-theme='light'] .theme-border { border-color: rgba(0, 0, 0, 0.1); }
+  
   .glass-panel {
-    @apply bg-slate-900/40 backdrop-blur-xl border border-white/5;
+    @apply backdrop-blur-xl border border-white/5;
+    background-color: rgba(15, 23, 42, 0.4);
+  }
+  [data-theme='light'] .glass-panel {
+    background-color: rgba(255, 255, 255, 0.4);
+    @apply border-black/5;
   }
   
   .glow-indigo {
     box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
   }
+  [data-theme='cyber'] .glow-indigo {
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+  }
   
   .text-glow {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+  [data-theme='cyber'] .text-glow {
+    text-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
   }
 }
 

@@ -7,6 +7,7 @@ interface KeyboardProps {
   activeNotes: Map<number, number>;
   startNote?: number;
   endNote?: number;
+  showNoteNames?: boolean;
 }
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -14,7 +15,7 @@ const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 
 /**
  * A visually appealing MIDI keyboard component with real-time feedback.
  */
-export function Keyboard({ activeNotes, startNote = 48, endNote = 84 }: KeyboardProps) {
+export function Keyboard({ activeNotes, startNote = 48, endNote = 84, showNoteNames = true }: KeyboardProps) {
   const keys = useMemo(() => {
     const result = [];
     for (let i = startNote; i <= endNote; i++) {
@@ -48,7 +49,7 @@ export function Keyboard({ activeNotes, startNote = 48, endNote = 84 }: Keyboard
                 className="relative z-10 flex flex-1 h-full flex-col justify-end rounded-b-xl border-x border-b border-slate-200 pb-4 text-center transition-all cursor-pointer"
               >
                 <span className="text-[10px] font-black text-slate-300 uppercase tracking-tighter mb-1">
-                  {key.noteName}
+                  {showNoteNames ? key.noteName : ''}
                 </span>
                 <AnimatePresence>
                   {isActive && (
