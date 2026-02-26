@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Song, builtInSongs, parseMidiFile } from '../libs/songs';
+import { Song, builtInSongs, parseMidiFile } from '@/lib/songs';
 import { Music, Star, ChevronRight, Trophy, Lock, Upload } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useLocale, useScores, useAchievements } from '../libs/store';
-import { translations } from '../i18n';
+import { useLocale, useScores, useAchievements } from '@/lib/store';
+import { translations } from '@/lib/translations';
 
 interface SongSelectorProps {
   onSelect: (song: Song) => void;

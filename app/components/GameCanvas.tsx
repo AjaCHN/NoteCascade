@@ -2,9 +2,9 @@
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Song } from '../libs/songs';
-import { useLocale } from '../libs/store';
-import { translations } from '../i18n';
+import { Song } from '@/lib/songs';
+import { useLocale } from '@/lib/store';
+import { translations } from '@/lib/translations';
 
 interface GameCanvasProps {
   song: Song;

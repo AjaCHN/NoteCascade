@@ -75,7 +75,7 @@ export function AchievementList() {
                     <span>Progress</span>
                     <span>{Math.floor(progress)} / {maxProgress}</span>
                   </div>
-                  <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden border border-white/5">
+                  <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden border-white/5">
                     <motion.div 
                       className="h-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"
                       initial={{ width: 0 }}
