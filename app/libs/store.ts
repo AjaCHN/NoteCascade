@@ -1,10 +1,6 @@
-/**
- * @file lib/store.ts
- * @version v1.1.0
- */
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { Locale } from './i18n';
+import { Locale } from '../i18n';
 import { builtInSongs, Song } from './songs';
 
 export interface Achievement {

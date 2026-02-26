@@ -1,3 +1,7 @@
+/**
+ * @file components/Keyboard.tsx
+ * @version v1.1.0
+ */
 'use client';
 
 import React, { useMemo } from 'react';

@@ -1,31 +1,14 @@
 # Changelog
 
-## [1.0.5]
-- 修复样式表问题 (Fix stylesheet issues)
-- 提取源码字符串并同步至对应翻译文件 (Extract source strings and sync to translation files)
-- 更新版本号至 1.0.5
+## v1.1.0
+- Added theme system (Dark, Light, Cyber, Classic)
+- Enhanced settings modal with dynamic keyboard range selection
+- Added note name toggle for falling notes and keyboard
+- Improved UI with icons and responsive sidebar
+- Updated translations for zh-CN and zh-TW
+- Added app information and MIDI status in settings
 
-## [1.0.4]
-- Expand built-in song library with new pieces: Happy Birthday, Jingle Bells, Minuet in G, and Prelude in E Minor
-- Add style and difficulty filtering to the Song Library
-- Improve SongSelector UI with filter chips and empty state handling
-- Update version to 1.0.4
-
-## [1.0.3]
-- Rename application to NoteCascade
-- Add multi-language support (i18n) with persistent locale selection
-- Implement responsive canvas rendering with ResizeObserver
-- Refactor Zustand store with a cleaner action pattern and helper hooks
-- Enhance audio system with Reverb effect and optimized synthesizer settings
-- Redesign MIDI keyboard with smooth motion animations and better visuals
-- Add support for custom MIDI file uploads
-- Improve game HUD with glassmorphism and animated stats
-- Update SEO metadata and semantic HTML structure
-- Update version to 1.0.3
-
-## [1.0.2]
-- Fix useRef initialization error in page.tsx
-- Initial implementation of MidiPlay application
-- Support for MIDI input and audio feedback
-- Waterfall-style game canvas with scoring
-- Achievement and song selection systems
+## v1.0.5
+- Initial release with MIDI support and basic gameplay
+- Song library and achievement system
+- Multi-language support

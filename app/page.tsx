@@ -1,3 +1,7 @@
+/**
+ * @file app/page.tsx
+ * @version v1.1.0
+ */
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -13,8 +17,7 @@ import { AchievementList } from '../components/AchievementList';
 import { 
   Play, Pause, RotateCcw, Settings, Trophy, Music as MusicIcon, 
   Keyboard as KeyboardIcon, SkipForward, RefreshCw, Menu, X,
-  Palette, Monitor, Info, Globe, ChevronDown, Check, ExternalLink,
-  Zap, Clock, Star, Crown, Flame, Palette as PaletteIcon, Sun, Moon
+  Palette, Monitor, Info, Globe, ChevronDown, Check, ExternalLink
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
@@ -219,7 +222,7 @@ export default function MidiPlayApp() {
           className={`
             absolute inset-y-0 left-0 z-40 w-full md:w-80 theme-bg-primary md:bg-transparent
             flex flex-col border-r theme-border transition-transform duration-300 ease-in-out
-            ${showSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0 md:relative'}
+            ${showSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           `}
         >
           <div className="flex border-b theme-border bg-white/2 backdrop-blur-md">
@@ -262,7 +265,7 @@ export default function MidiPlayApp() {
         </aside>
 
         {/* Main Content Area */}
-        <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden w-full bg-transparent">
+        <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden w-full bg-transparent md:pl-80">
           <div id="game-canvas-container" className="flex-1 relative min-h-0">
             <GameCanvas
               song={selectedSong}

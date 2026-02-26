@@ -1,14 +1,10 @@
-/**
- * @file components/GameCanvas.tsx
- * @version v1.1.0
- */
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Song } from '../lib/songs';
-import { useLocale } from '../lib/store';
-import { translations } from '../lib/i18n';
+import { Song } from '../libs/songs';
+import { useLocale } from '../libs/store';
+import { translations } from '../i18n';
 
 interface GameCanvasProps {
   song: Song;
@@ -178,7 +174,7 @@ export function GameCanvas({
     });
 
     lastActiveNotes.current = new Set(activeNotes.keys());
-  }, [currentTime, activeNotes, song, isPlaying, onScoreUpdate, addFeedback, t, START_NOTE, END_NOTE]);
+  }, [currentTime, activeNotes, song, isPlaying, onScoreUpdate, addFeedback, t]);
 
   useEffect(() => {
     if (currentTime === 0) {
@@ -368,7 +364,7 @@ export function GameCanvas({
 
     render();
     return () => cancelAnimationFrame(animationFrameId);
-  }, [song, currentTime, dimensions, activeNotes, t, START_NOTE, END_NOTE, showNoteNames, theme]);
+  }, [song, currentTime, dimensions, activeNotes, t]);
 
   return (
     <div ref={containerRef} className={`relative h-full w-full overflow-hidden ${theme === 'light' ? 'bg-slate-50' : 'bg-slate-950'}`}>

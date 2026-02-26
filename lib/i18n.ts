@@ -1,3 +1,7 @@
+/**
+ * @file lib/i18n.ts
+ * @version v1.1.0
+ */
 export type Locale = 'en' | 'zh-CN' | 'zh-TW' | 'es' | 'ar' | 'fr' | 'pt-BR' | 'de' | 'ja' | 'ko' | 'ru';
 
 export const translations: Record<Locale, Record<string, string>> = {
@@ -211,6 +215,20 @@ export const translations: Record<Locale, Record<string, string>> = {
     maxCombo: '最高連擊',
     practiceTime: '練習時長',
     continue: '繼續',
+    theme: '主題',
+    theme_dark: '深色',
+    theme_light: '淺色',
+    theme_cyber: '賽博',
+    theme_classic: '經典',
+    keyboardRange: '鍵盤範圍',
+    keys: '鍵',
+    showNoteNames: '顯示音名',
+    appInfo: '應用資訊',
+    version: '版本',
+    developer: '開發者',
+    midiStatus: 'MIDI 狀態',
+    connected: '已連接',
+    disconnected: '未連接',
   },
   es: {
     title: 'NoteCascade',
