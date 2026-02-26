@@ -1,4 +1,5 @@
 {
+  "id": "notecascade-v1",
   "name": "NoteCascade",
   "description": "A visual/game-like MIDI keyboard practice app with real-time scoring and achievements."
 }

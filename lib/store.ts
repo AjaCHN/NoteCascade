@@ -23,6 +23,7 @@ export interface ScoreRecord {
   good: number;
   miss: number;
   wrong: number;
+  maxCombo: number;
   date: number;
 }
 

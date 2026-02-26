@@ -39,21 +39,24 @@ export function Keyboard({ activeNotes, startNote = 48, endNote = 84 }: Keyboard
               <motion.div
                 key={key.midi}
                 animate={{
-                  backgroundColor: isActive ? '#e2e8f0' : '#ffffff',
-                  boxShadow: isActive ? 'inset 0 0 15px rgba(99, 102, 241, 0.3)' : 'none',
+                  backgroundColor: isActive ? '#f8fafc' : '#ffffff',
+                  boxShadow: isActive 
+                    ? 'inset 0 -10px 20px rgba(99, 102, 241, 0.2), 0 0 15px rgba(99, 102, 241, 0.1)' 
+                    : 'inset 0 -5px 0 rgba(0,0,0,0.05)',
+                  y: isActive ? 2 : 0
                 }}
-                className="relative z-10 flex flex-1 h-full flex-col justify-end rounded-b-xl border border-slate-200 pb-4 text-center transition-colors cursor-pointer"
+                className="relative z-10 flex flex-1 h-full flex-col justify-end rounded-b-xl border-x border-b border-slate-200 pb-4 text-center transition-all cursor-pointer"
               >
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                <span className="text-[10px] font-black text-slate-300 uppercase tracking-tighter mb-1">
                   {key.noteName}
                 </span>
                 <AnimatePresence>
                   {isActive && (
                     <motion.div
-                      initial={{ scaleY: 0 }}
-                      animate={{ scaleY: 1 }}
-                      exit={{ scaleY: 0 }}
-                      className="absolute inset-x-0 bottom-0 h-1 bg-indigo-500 rounded-b-xl origin-bottom"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      className="absolute inset-x-2 bottom-2 h-1 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.8)]"
                     />
                   )}
                 </AnimatePresence>
@@ -61,22 +64,16 @@ export function Keyboard({ activeNotes, startNote = 48, endNote = 84 }: Keyboard
                 {blackKey && (
                   <motion.div
                     animate={{
-                      backgroundColor: activeNotes.has(blackKey.midi) ? '#6366f1' : '#0f172a',
-                      height: activeNotes.has(blackKey.midi) ? '58%' : '62%',
-                      boxShadow: activeNotes.has(blackKey.midi) ? '0 0 20px rgba(99, 102, 241, 0.6)' : 'none',
+                      backgroundColor: activeNotes.has(blackKey.midi) ? '#6366f1' : '#1e293b',
+                      height: activeNotes.has(blackKey.midi) ? '56%' : '60%',
+                      boxShadow: activeNotes.has(blackKey.midi) 
+                        ? '0 10px 20px rgba(99, 102, 241, 0.4), inset 0 -4px 0 rgba(0,0,0,0.2)' 
+                        : '0 4px 6px rgba(0,0,0,0.3), inset 0 -4px 0 rgba(0,0,0,0.4)',
+                      y: activeNotes.has(blackKey.midi) ? 2 : 0
                     }}
-                    className="absolute right-0 top-0 w-1/2 rounded-b-lg border border-slate-900 cursor-pointer transition-colors z-20 transform -translate-x-1/2"
+                    className="absolute right-0 top-0 w-3/5 rounded-b-lg border border-slate-950 cursor-pointer transition-all z-20 transform -translate-x-1/2"
                   >
-                    <AnimatePresence>
-                      {activeNotes.has(blackKey.midi) && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-b-lg"
-                        />
-                      )}
-                    </AnimatePresence>
+                    <div className="absolute inset-x-1 top-1 h-1/2 bg-gradient-to-b from-white/10 to-transparent rounded-t-sm" />
                   </motion.div>
                 )}
               </motion.div>

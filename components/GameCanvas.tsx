@@ -39,6 +39,7 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const processedNotes = useRef<Set<number>>(new Set());
   const lastActiveNotes = useRef<Set<number>>(new Set());
+  const recentHits = useRef<{ timeDiff: number; timestamp: number; type: Feedback['type'] }[]>([]);
 
   const locale = useLocale();
   const t = translations[locale] || translations.en;
@@ -100,23 +101,26 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
 
           let type: Feedback['type'] = 'good';
           let points = 50;
-          let text = 'GOOD';
+          let text = t.good.toUpperCase();
 
           if (absTimeDiff < PERFECT_THRESHOLD) {
             type = 'perfect';
             points = 100;
-            text = 'PERFECT';
+            text = t.perfect.toUpperCase();
           } else if (timeDiff < 0) {
-            text = 'EARLY';
+            text = t.early || 'EARLY';
           } else {
-            text = 'LATE';
+            text = t.late || 'LATE';
           }
 
           const velocityDiff = velocity - match.velocity;
           if (Math.abs(velocityDiff) > 0.3) {
-            text += velocityDiff > 0 ? '\nTOO HARD' : '\nTOO SOFT';
+            text += velocityDiff > 0 ? `\n${t.tooHard || 'TOO HARD'}` : `\n${t.tooSoft || 'TOO SOFT'}`;
             points = Math.floor(points * 0.8);
           }
+
+          // Add to recent hits for timing bar
+          recentHits.current.push({ timeDiff, timestamp: Date.now(), type });
 
           setScore(prev => {
             const newScore = {
@@ -138,7 +142,7 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
               onScoreUpdate(newScore);
               return newScore;
             });
-            addFeedback('WRONG', 'wrong', midi);
+            addFeedback(t.wrong.toUpperCase(), 'wrong', midi);
           }
         }
       }
@@ -152,18 +156,19 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
           onScoreUpdate(newScore);
           return newScore;
         });
-        addFeedback('MISS', 'miss', n.midi);
+        addFeedback(t.miss.toUpperCase(), 'miss', n.midi);
       }
     });
 
     lastActiveNotes.current = new Set(activeNotes.keys());
-  }, [currentTime, activeNotes, song, isPlaying, onScoreUpdate, addFeedback]);
+  }, [currentTime, activeNotes, song, isPlaying, onScoreUpdate, addFeedback, t]);
 
   useEffect(() => {
     if (currentTime === 0) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setScore({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
       processedNotes.current = new Set();
+      recentHits.current = [];
     }
   }, [currentTime, song]);
 
@@ -190,9 +195,16 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
         ctx.stroke();
       }
 
-      // Draw hit line
-      ctx.strokeStyle = 'rgba(99, 102, 241, 0.8)';
-      ctx.lineWidth = 4;
+      // Draw hit line with glow
+      ctx.strokeStyle = 'rgba(99, 102, 241, 0.3)';
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.moveTo(0, height - HIT_LINE_Y);
+      ctx.lineTo(width, height - HIT_LINE_Y);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(99, 102, 241, 1)';
+      ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(0, height - HIT_LINE_Y);
       ctx.lineTo(width, height - HIT_LINE_Y);
@@ -202,6 +214,61 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
       const endNote = END_NOTE;
       const totalNotes = endNote - startNote + 1;
       const keyWidth = width / totalNotes;
+
+      // Draw active note highlights on the "hit line"
+      // ... (existing code)
+
+      // Draw timing bar
+      const barWidth = 300;
+      const barHeight = 6;
+      const barX = (width - barWidth) / 2;
+      const barY = height - 80;
+
+      // Background
+      ctx.fillStyle = 'rgba(30, 41, 59, 0.8)';
+      ctx.roundRect(barX, barY, barWidth, barHeight, 3);
+      ctx.fill();
+
+      // Center marker (Perfect)
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.fillRect(barX + barWidth / 2 - 1, barY - 4, 2, barHeight + 8);
+
+      // Good threshold markers
+      // Actually map timeDiff to pixels. Max range is +/- GOOD_THRESHOLD
+      
+      // Draw recent hits
+      const now = Date.now();
+      recentHits.current = recentHits.current.filter(h => now - h.timestamp < 2000);
+      
+      recentHits.current.forEach(hit => {
+        const age = now - hit.timestamp;
+        const opacity = 1 - age / 2000;
+        
+        // Map timeDiff (-GOOD_THRESHOLD to +GOOD_THRESHOLD) to x position
+        // timeDiff < 0 is early (left), > 0 is late (right)
+        const normalizedDiff = Math.max(-1, Math.min(1, hit.timeDiff / GOOD_THRESHOLD));
+        const hitX = barX + barWidth / 2 + (normalizedDiff * barWidth / 2);
+        
+        ctx.fillStyle = hit.type === 'perfect' 
+          ? `rgba(52, 211, 153, ${opacity})` // Emerald
+          : hit.type === 'good' 
+            ? `rgba(96, 165, 250, ${opacity})` // Blue
+            : `rgba(251, 191, 36, ${opacity})`; // Amber
+
+        ctx.beginPath();
+        ctx.arc(hitX, barY + barHeight / 2, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Labels
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.8)';
+      ctx.font = '10px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText((t.early || 'EARLY').toUpperCase(), barX, barY + 20);
+      ctx.fillText((t.late || 'LATE').toUpperCase(), barX + barWidth, barY + 20);
+      ctx.fillText((t.perfect || 'PERFECT').toUpperCase(), barX + barWidth / 2, barY + 20);
+
+      // ... (rest of drawing code)
 
       // Draw active note highlights on the "hit line"
       activeNotes.forEach(midi => {
@@ -254,39 +321,39 @@ export function GameCanvas({ song, currentTime, activeNotes, onScoreUpdate, isPl
 
     render();
     return () => cancelAnimationFrame(animationFrameId);
-  }, [song, currentTime, dimensions, activeNotes]);
+  }, [song, currentTime, dimensions, activeNotes, t]);
 
   return (
     <div ref={containerRef} className="relative h-full w-full overflow-hidden bg-slate-950">
       <canvas ref={canvasRef} className="h-full w-full" />
-      <div id="game-stats-overlay" className="pointer-events-none absolute inset-0 flex flex-col p-8">
+      <div id="game-stats-overlay" className="pointer-events-none absolute inset-0 flex flex-col p-8 md:p-12">
         <div className="flex justify-between items-start w-full">
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col"
           >
-            <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-1">{t.currentScore}</div>
-            <div className="text-6xl font-black text-white tabular-nums drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+            <div className="text-[10px] uppercase tracking-[0.3em] text-slate-500 font-black mb-2">{t.currentScore}</div>
+            <div className="text-6xl md:text-8xl font-black text-white tabular-nums drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] tracking-tighter">
               {score.currentScore.toLocaleString()}
             </div>
           </motion.div>
 
           <div className="flex flex-col gap-3">
             {[
-              { label: t.perfect, value: score.perfect, color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-400/20' },
-              { label: t.good, value: score.good, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
-              { label: t.miss, value: score.miss, color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'border-amber-400/20' },
-              { label: t.wrong, value: score.wrong, color: 'text-rose-400', bg: 'bg-rose-400/10', border: 'border-rose-400/20' },
+              { label: t.perfect, value: score.perfect, color: 'text-emerald-400', bg: 'bg-emerald-400/5', border: 'border-emerald-400/10' },
+              { label: t.good, value: score.good, color: 'text-blue-400', bg: 'bg-blue-400/5', border: 'border-blue-400/10' },
+              { label: t.miss, value: score.miss, color: 'text-amber-400', bg: 'bg-amber-400/5', border: 'border-amber-400/10' },
+              { label: t.wrong, value: score.wrong, color: 'text-rose-400', bg: 'bg-rose-400/5', border: 'border-rose-400/10' },
             ].map((stat) => (
               <motion.div 
                 key={stat.label}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className={`flex items-center justify-between gap-4 px-4 py-2 rounded-xl border ${stat.bg} ${stat.border} backdrop-blur-md min-w-[140px]`}
+                className={`flex items-center justify-between gap-6 px-5 py-2.5 rounded-2xl border ${stat.bg} ${stat.border} backdrop-blur-xl min-w-[160px] shadow-lg`}
               >
-                <span className={`text-[10px] uppercase tracking-wider font-bold ${stat.color}`}>{stat.label}</span>
-                <span className="text-xl font-black text-white tabular-nums">{stat.value}</span>
+                <span className={`text-[10px] uppercase tracking-widest font-black ${stat.color}`}>{stat.label}</span>
+                <span className="text-2xl font-black text-white tabular-nums">{stat.value}</span>
               </motion.div>
             ))}
           </div>

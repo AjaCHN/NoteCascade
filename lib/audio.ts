@@ -36,10 +36,14 @@ export async function initAudio() {
 /**
  * Plays a MIDI note with the specified velocity.
  */
-export function playNote(midiNote: number, velocity: number = 0.8) {
+export function playNote(midiNote: number, velocity: number = 0.8, duration?: number) {
   if (!synth) return;
   const freq = Tone.Frequency(midiNote, 'midi').toFrequency();
-  synth.triggerAttack(freq, Tone.now(), velocity);
+  if (duration) {
+    synth.triggerAttackRelease(freq, duration, Tone.now(), velocity);
+  } else {
+    synth.triggerAttack(freq, Tone.now(), velocity);
+  }
 }
 
 /**
