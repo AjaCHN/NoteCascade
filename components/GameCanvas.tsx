@@ -8,7 +8,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Song } from '../lib/songs';
 import { useLocale } from '../lib/store';
-import { translations } from '../lib/i18n';
+import { translations } from '../lib/translations';
 
 interface GameCanvasProps {
   song: Song;

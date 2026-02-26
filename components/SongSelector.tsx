@@ -5,7 +5,7 @@ import { Song, builtInSongs, parseMidiFile } from '../lib/songs';
 import { Music, Star, ChevronRight, Trophy, Lock, Upload } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useLocale, useScores, useAchievements } from '../lib/store';
-import { translations } from '../lib/i18n';
+import { translations } from '../lib/translations';
 
 interface SongSelectorProps {
   onSelect: (song: Song) => void;

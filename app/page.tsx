@@ -9,7 +9,7 @@ import { useMidi } from '../hooks/use-midi';
 import { initAudio, playNote } from '../lib/audio';
 import { Song, builtInSongs } from '../lib/songs';
 import { getNextSong, useAppActions, useLocale, useTheme, useKeyboardRange, useShowNoteNames, Theme } from '../lib/store';
-import { translations, Locale } from '../lib/i18n';
+import { translations, Locale } from '../lib/translations';
 import { Keyboard } from '../components/Keyboard';
 import { GameCanvas } from '../components/GameCanvas';
 import { SongSelector } from '../components/SongSelector';
@@ -265,7 +265,7 @@ export default function MidiPlayApp() {
         </aside>
 
         {/* Main Content Area */}
-        <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden w-full bg-transparent">
+        <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden bg-transparent">
           <div id="game-canvas-container" className="flex-1 relative min-h-0">
             <GameCanvas
               song={selectedSong}

@@ -4,7 +4,7 @@
  */
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { Locale } from './i18n';
+import { Locale } from './translations';
 import { builtInSongs, Song } from './songs';
 
 export interface Achievement {
