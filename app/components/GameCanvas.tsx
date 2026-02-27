@@ -100,13 +100,13 @@ export function GameCanvas({
 
     activeNotes.forEach((velocity, midi) => {
       if (!lastActiveNotes.current.has(midi)) {
-        const match = song.notes.find((n, idx) => 
+        const match = song.notes?.find((n, idx) => 
           !processedNotes.current.has(idx) && 
           n.midi === midi && 
           Math.abs(n.time - currentTime) < GOOD_THRESHOLD
         );
 
-        if (match) {
+        if (match && song.notes) {
           const timeDiff = currentTime - match.time; // positive if late, negative if early
           const absTimeDiff = Math.abs(timeDiff);
           const idx = song.notes.indexOf(match);
@@ -161,7 +161,7 @@ export function GameCanvas({
       }
     });
 
-    song.notes.forEach((n, idx) => {
+    song.notes?.forEach((n, idx) => {
       if (!processedNotes.current.has(idx) && n.time < currentTime - GOOD_THRESHOLD) {
         processedNotes.current.add(idx);
         setScore(prev => {
@@ -316,7 +316,7 @@ export function GameCanvas({
       });
 
       // Draw falling notes
-      song.notes.forEach((note, idx) => {
+      song.notes?.forEach((note, idx) => {
         const noteX = (note.midi - startNote) * keyWidth;
         const noteY = height - HIT_LINE_Y - (note.time - currentTime) * FALL_SPEED;
         const noteHeight = note.duration * FALL_SPEED;

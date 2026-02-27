@@ -22,7 +22,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   const [isUploading, setIsUploading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const styles = [t.all, ...Array.from(new Set(builtInSongs.map(s => s.style)))];
+  const styles = [t.all, ...Array.from(new Set(builtInSongs.map(s => s.style).filter((s): s is string => !!s)))];
   const difficulties = [t.all, 1, 2, 3, 4, 5];
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,7 +64,8 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
     
     if (condition.type === 'achievement') {
       const achievement = achievements.find(a => a.id === condition.value);
-      return `${t.unlockCondition}: ${achievement?.title || condition.value}`;
+      const achievementTitle = achievement ? (t[`ach_${achievement.id}_title`] || achievement.title) : condition.value;
+      return `${t.unlockCondition}: ${achievementTitle}`;
     }
     
     if (condition.type === 'score') {
@@ -128,7 +129,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
                   : 'bg-white/5 border-white/5 text-slate-500 hover:border-white/10 hover:text-slate-300'
               }`}
             >
-              {style}
+              {style === t.all ? style : (t[`style_${style.toLowerCase()}`] || style)}
             </button>
           ))}
         </div>
@@ -179,7 +180,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
               <div className="flex flex-col items-start gap-2 relative z-10">
                 <div className="flex items-center gap-2">
                   <span className={`font-black text-xl tracking-tight leading-none ${unlocked ? 'text-white' : 'text-slate-600'}`}>
-                    {song.title}
+                    {t[`song_${song.id}`] || song.title}
                   </span>
                   {!unlocked && <Lock className="w-3.5 h-3.5 text-slate-600" />}
                 </div>
@@ -188,9 +189,9 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
                   <span className={`text-[9px] uppercase tracking-[0.2em] font-black px-2 py-0.5 rounded-md border ${
                     unlocked ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/20' : 'bg-slate-900 text-slate-700 border-slate-800'
                   }`}>
-                    {song.style}
+                    {song.style ? (t[`style_${song.style.toLowerCase()}`] || song.style) : ''}
                   </span>
-                  <span className="text-xs text-slate-500 font-bold uppercase tracking-widest opacity-80">{song.artist}</span>
+                  <span className="text-xs text-slate-500 font-bold uppercase tracking-widest opacity-80">{t[`artist_${song.artist.toLowerCase()}`] || song.artist}</span>
                 </div>
                 
                 {unlocked ? (

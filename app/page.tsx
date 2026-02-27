@@ -74,7 +74,7 @@ export default function MidiPlayApp() {
     const totalNotes = lastScore.perfect + lastScore.good + lastScore.miss + lastScore.wrong;
     const accuracy = totalNotes > 0 ? (lastScore.perfect + lastScore.good) / totalNotes : 0;
 
-    const maxScore = selectedSong.notes.length * 100;
+    const maxScore = (selectedSong.notes?.length || 0) * 100;
 
     addScore({
       songId: selectedSong.id,
@@ -99,14 +99,14 @@ export default function MidiPlayApp() {
     
     updateStreak();
     setShowResult(true);
-  }, [lastScore, updateStreak, addScore, selectedSong.id, selectedSong.notes.length]);
+  }, [lastScore, updateStreak, addScore, selectedSong.id, selectedSong.notes?.length]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPlaying) {
       interval = setInterval(() => {
         setCurrentTime((prev) => {
-          if (prev >= selectedSong.duration) {
+          if (prev >= (selectedSong.duration || 0)) {
             setIsPlaying(false);
             handleSongEnd();
             return 0;
@@ -122,7 +122,7 @@ export default function MidiPlayApp() {
   useEffect(() => {
     if (!isPlaying) return;
     
-    selectedSong.notes.forEach(note => {
+    selectedSong.notes?.forEach(note => {
       if (note.time >= currentTime && note.time < currentTime + 0.1) {
         playNote(note.midi, note.velocity, note.duration);
       }
@@ -133,7 +133,7 @@ export default function MidiPlayApp() {
     if (isPlaying) {
       setIsPlaying(false);
     } else {
-      if (currentTime >= selectedSong.duration) {
+      if (currentTime >= (selectedSong.duration || 0)) {
         setCurrentTime(0);
       }
       setIsPlaying(true);
@@ -285,11 +285,11 @@ export default function MidiPlayApp() {
                 key={selectedSong.id}
                 className="space-y-1"
               >
-                <h2 className="text-2xl md:text-5xl font-black theme-text-primary text-glow tracking-tighter leading-none">{selectedSong.title}</h2>
+                <h2 className="text-2xl md:text-5xl font-black theme-text-primary text-glow tracking-tighter leading-none">{t[`song_${selectedSong.id}`] || selectedSong.title}</h2>
                 <div className="flex items-center gap-3">
-                  <p className="text-sm md:text-lg text-indigo-400 font-bold uppercase tracking-widest opacity-90">{selectedSong.artist}</p>
+                  <p className="text-sm md:text-lg text-indigo-400 font-bold uppercase tracking-widest opacity-90">{t[`artist_${selectedSong.artist.toLowerCase()}`] || selectedSong.artist}</p>
                   <div className="h-4 w-px theme-border" />
-                  <p className="text-[10px] md:text-xs theme-text-secondary font-bold uppercase tracking-[0.2em]">{selectedSong.style}</p>
+                  <p className="text-[10px] md:text-xs theme-text-secondary font-bold uppercase tracking-[0.2em]">{selectedSong.style ? (t[`style_${selectedSong.style.toLowerCase()}`] || selectedSong.style) : ''}</p>
                 </div>
               </motion.div>
             </div>
@@ -335,7 +335,7 @@ export default function MidiPlayApp() {
               <div id="playback-progress" className="flex flex-col w-24 md:w-48 pr-4">
                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest theme-text-secondary mb-2">
                   <span>{Math.floor(currentTime / 60)}:{(currentTime % 60).toFixed(0).padStart(2, '0')}</span>
-                  <span>{Math.floor(selectedSong.duration / 60)}:{(selectedSong.duration % 60).toFixed(0).padStart(2, '0')}</span>
+                  <span>{Math.floor((selectedSong.duration || 0) / 60)}:{((selectedSong.duration || 0) % 60).toFixed(0).padStart(2, '0')}</span>
                 </div>
                 <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden border theme-border">
                   <motion.div 
@@ -378,7 +378,7 @@ export default function MidiPlayApp() {
                   <Trophy className="h-10 w-10" />
                 </div>
                 <h2 className="text-3xl md:text-4xl font-black text-white mb-2">{t.result}</h2>
-                <p className="text-slate-400 font-medium">{selectedSong.title} - {selectedSong.artist}</p>
+                <p className="text-slate-400 font-medium">{t[`song_${selectedSong.id}`] || selectedSong.title} - {t[`artist_${selectedSong.artist.toLowerCase()}`] || selectedSong.artist}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-10">
