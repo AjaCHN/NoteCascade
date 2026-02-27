@@ -58,9 +58,19 @@ export default function MidiPlayApp() {
   const [activeTab, setActiveTab] = useState<'songs' | 'achievements'>('songs');
   const [lastScore, setLastScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
   const [volume, setVolumeState] = useState(80);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
   const [mounted, setMounted] = useState(false);
   const { isSupported } = useMidi();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setWindowWidth(window.innerWidth);
+      const handleResize = () => setWindowWidth(window.innerWidth);
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
 
   useEffect(() => {
     if (!isSupported && mounted) {
@@ -87,6 +97,12 @@ export default function MidiPlayApp() {
     setMounted(true);
     setVolume(volume);
     setAudioInstrument(instrument);
+
+    // Mobile adaptation
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setKeyboardRange(48, 64); // ~1.5 octaves for mobile (C3 - E4)
+      setShowSidebar(false);
+    }
 
     const KEYBOARD_MAP: Record<string, number> = {
       'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59, // C3 - B3
@@ -288,6 +304,15 @@ export default function MidiPlayApp() {
     }
   }, [selectedSong, resetSong]);
 
+  // Calculate minimum width for game canvas based on key count
+  const isBlackKey = (midi: number) => [1, 3, 6, 8, 10].includes(midi % 12);
+  const whiteKeyCount = Array.from({ length: keyboardRange.end - keyboardRange.start + 1 }, (_, i) => keyboardRange.start + i)
+      .filter(midi => !isBlackKey(midi)).length;
+  // On mobile, ensure keys are at least 32px wide. On desktop, fit to screen.
+  const minCanvasWidth = windowWidth < 768 
+    ? Math.max(windowWidth, whiteKeyCount * 32) 
+    : '100%';
+
   if (!mounted) {
     return <div className="flex h-dvh w-full items-center justify-center bg-slate-950 text-slate-500">{t.loading}</div>;
   }
@@ -427,36 +452,38 @@ export default function MidiPlayApp() {
         </aside>
 
         {/* Main Content Area */}
-        <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden bg-transparent">
-          <div id="game-canvas-container" className="flex-1 relative min-h-0">
-            <GameCanvas
-              song={selectedSong}
-              currentTime={currentTime}
-              activeNotes={activeNotes}
-              isPlaying={isPlaying}
-              onScoreUpdate={setLastScore}
-              keyboardRange={keyboardRange}
-              showNoteNames={showNoteNames}
-              theme={theme}
-            />
-          </div>
+        <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden bg-transparent overflow-x-auto custom-scrollbar">
+          <div className="flex-1 flex flex-col min-h-0 relative" style={{ minWidth: typeof minCanvasWidth === 'number' ? `${minCanvasWidth}px` : minCanvasWidth }}>
+            <div id="game-canvas-container" className="flex-1 relative min-h-0">
+              <GameCanvas
+                song={selectedSong}
+                currentTime={currentTime}
+                activeNotes={activeNotes}
+                isPlaying={isPlaying}
+                onScoreUpdate={setLastScore}
+                keyboardRange={keyboardRange}
+                showNoteNames={showNoteNames}
+                theme={theme}
+              />
+            </div>
 
-          <div id="keyboard-wrapper" className="shrink-0 relative z-20">
-            <div className="absolute inset-x-0 -top-8 h-8 bg-gradient-to-t theme-bg-primary to-transparent pointer-events-none" />
-            <Keyboard 
-              activeNotes={activeNotes} 
-              startNote={keyboardRange.start} 
-              endNote={keyboardRange.end} 
-              showNoteNames={showNoteNames}
-              showKeymap={showKeymap}
-              keyMap={{
-                'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59,
-                'q': 60, '2': 61, 'w': 62, '3': 63, 'e': 64, 'r': 65, '5': 66, 't': 67, '6': 68, 'y': 69, '7': 70, 'u': 71,
-                'i': 72, '9': 73, 'o': 74, '0': 75, 'p': 76
-              }}
-              onNoteOn={(midi) => setActiveNotes(prev => new Map(prev).set(midi, 0.7))}
-              onNoteOff={(midi) => setActiveNotes(prev => { const next = new Map(prev); next.delete(midi); return next; })}
-            />
+            <div id="keyboard-wrapper" className="shrink-0 relative z-20 h-24 md:h-32">
+              <div className="absolute inset-x-0 -top-8 h-8 bg-gradient-to-t theme-bg-primary to-transparent pointer-events-none" />
+              <Keyboard 
+                activeNotes={activeNotes} 
+                startNote={keyboardRange.start} 
+                endNote={keyboardRange.end} 
+                showNoteNames={showNoteNames}
+                showKeymap={showKeymap}
+                keyMap={{
+                  'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59,
+                  'q': 60, '2': 61, 'w': 62, '3': 63, 'e': 64, 'r': 65, '5': 66, 't': 67, '6': 68, 'y': 69, '7': 70, 'u': 71,
+                  'i': 72, '9': 73, 'o': 74, '0': 75, 'p': 76
+                }}
+                onNoteOn={(midi) => setActiveNotes(prev => new Map(prev).set(midi, 0.7))}
+                onNoteOff={(midi) => setActiveNotes(prev => { const next = new Map(prev); next.delete(midi); return next; })}
+              />
+            </div>
           </div>
         </section>
       </main>
@@ -533,12 +560,12 @@ export default function MidiPlayApp() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm md:p-4"
           >
             <motion.div 
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="w-full max-w-4xl rounded-[2.5rem] theme-bg-primary border theme-border p-6 md:p-10 shadow-2xl max-h-[90vh] flex flex-col"
+              className="w-full max-w-4xl h-full md:h-auto md:max-h-[90vh] md:rounded-[2.5rem] theme-bg-primary border theme-border p-6 md:p-10 shadow-2xl flex flex-col"
             >
               <div className="flex items-center justify-between mb-8 shrink-0">
                 <div className="flex items-center gap-3">

@@ -117,7 +117,7 @@ export function Keyboard({
   return (
     <div 
       ref={containerRef}
-      className="relative flex h-32 w-full bg-black border-t border-white/10 select-none touch-none"
+      className="relative flex h-full w-full bg-black border-t border-white/10 select-none touch-none"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
