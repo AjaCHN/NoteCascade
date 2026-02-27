@@ -28,7 +28,10 @@ import pkg from '../package.json';
 const { version } = pkg;
 
 export default function MidiPlayApp() {
-  const { activeNotes, setActiveNotes, inputs, outputs, selectedInputId, setSelectedInputId, lastMessage } = useMidi();
+  const { 
+    activeNotes, setActiveNotes, inputs, outputs, selectedInputId, setSelectedInputId, lastMessage,
+    midiChannel, setMidiChannel, velocityCurve, setVelocityCurve, transpose, setTranspose
+  } = useMidi();
   const { 
     addScore, setLocale, incrementPracticeTime, updateStreak, 
     setTheme, setInstrument, setPlayMode, setKeyboardRange, setShowNoteNames, setShowKeymap,
@@ -790,6 +793,74 @@ export default function MidiPlayApp() {
                           {t.noDevice}
                         </div>
                       )}
+                    </div>
+                  </section>
+
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Settings className="h-4 w-4 text-indigo-400" />
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">MIDI Configuration</label>
+                    </div>
+                    <div className="space-y-4 p-4 rounded-2xl theme-bg-secondary border theme-border">
+                      {/* Channel */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold theme-text-primary">Channel</span>
+                        <div className="relative">
+                          <select 
+                            value={midiChannel}
+                            onChange={(e) => setMidiChannel(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
+                            className="appearance-none bg-slate-700 text-white text-xs font-bold rounded-lg pl-3 pr-8 py-2 border-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                          >
+                            <option value="all">All Channels</option>
+                            {Array.from({length: 16}, (_, i) => i + 1).map(ch => (
+                              <option key={ch} value={ch}>Channel {ch}</option>
+                            ))}
+                          </select>
+                          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400 pointer-events-none" />
+                        </div>
+                      </div>
+
+                      {/* Velocity Curve */}
+                      <div className="space-y-2">
+                        <span className="text-xs font-bold theme-text-primary">Velocity Curve</span>
+                        <div className="grid grid-cols-4 gap-2">
+                          {(['linear', 'log', 'exp', 'fixed'] as const).map(curve => (
+                            <button
+                              key={curve}
+                              onClick={() => setVelocityCurve(curve)}
+                              className={`px-2 py-2 rounded-xl text-[10px] font-bold uppercase transition-all border ${
+                                velocityCurve === curve
+                                  ? 'bg-indigo-500 border-indigo-400 text-white shadow-md'
+                                  : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-600'
+                              }`}
+                            >
+                              {curve}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Transpose */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold theme-text-primary">Transpose</span>
+                        <div className="flex items-center gap-3 bg-slate-800 rounded-xl p-1">
+                          <button 
+                            onClick={() => setTranspose(Math.max(-12, transpose - 1))}
+                            className="w-8 h-8 rounded-lg bg-slate-700 text-white flex items-center justify-center hover:bg-slate-600 transition-colors"
+                          >
+                            -
+                          </button>
+                          <span className="text-sm font-mono font-bold w-8 text-center text-white">
+                            {transpose > 0 ? `+${transpose}` : transpose}
+                          </span>
+                          <button 
+                            onClick={() => setTranspose(Math.min(12, transpose + 1))}
+                            className="w-8 h-8 rounded-lg bg-slate-700 text-white flex items-center justify-center hover:bg-slate-600 transition-colors"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </section>
 

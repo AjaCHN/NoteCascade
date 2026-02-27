@@ -1,8 +1,8 @@
 /**
  * @file hooks/use-midi.ts
- * @version v1.2.0
+ * @version v1.3.0
  */
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 export interface MidiDevice {
   id: string;
@@ -18,62 +18,112 @@ export interface MidiMessage {
   timestamp: number;
 }
 
+export type VelocityCurve = 'linear' | 'log' | 'exp' | 'fixed';
+
 export function useMidi() {
   const [inputs, setInputs] = useState<MidiDevice[]>([]);
   const [outputs, setOutputs] = useState<MidiDevice[]>([]);
   const [selectedInputId, setSelectedInputId] = useState<string | null>(null);
+  const [midiChannel, setMidiChannel] = useState<number | 'all'>('all');
+  const [velocityCurve, setVelocityCurve] = useState<VelocityCurve>('linear');
+  const [transpose, setTranspose] = useState<number>(0);
   const [lastMessage, setLastMessage] = useState<MidiMessage | null>(null);
   const [isSupported, setIsSupported] = useState<boolean>(true);
   const [activeNotes, setActiveNotes] = useState<Map<number, number>>(new Map());
 
-  // Use a ref to keep track of the latest selectedInputId inside the event listeners
-  // This prevents needing to re-bind listeners every time the selection changes
-  const selectedInputIdRef = useRef(selectedInputId);
-  
+  // Use refs to keep track of latest settings inside event listeners
+  const settingsRef = useRef({
+    selectedInputId,
+    midiChannel,
+    velocityCurve,
+    transpose
+  });
+
   useEffect(() => {
-    selectedInputIdRef.current = selectedInputId;
-  }, [selectedInputId]);
+    settingsRef.current = {
+      selectedInputId,
+      midiChannel,
+      velocityCurve,
+      transpose
+    };
+  }, [selectedInputId, midiChannel, velocityCurve, transpose]);
+
+  const applyVelocityCurve = useCallback((velocity: number, curve: VelocityCurve): number => {
+    const norm = velocity / 127;
+    switch (curve) {
+      case 'log':
+        return Math.pow(norm, 0.5) * 127; // More sensitive
+      case 'exp':
+        return Math.pow(norm, 2) * 127; // Less sensitive (requires harder hit)
+      case 'fixed':
+        return 100; // Fixed velocity
+      case 'linear':
+      default:
+        return velocity;
+    }
+  }, []);
 
   useEffect(() => {
     let midiAccess: WebMidi.MIDIAccess | null = null;
 
     const onMidiMessage = (event: WebMidi.MIDIMessageEvent) => {
-      // If a specific input is selected, ignore messages from other inputs
+      const { selectedInputId, midiChannel, velocityCurve, transpose } = settingsRef.current;
+
+      // Filter by Input Device
       const inputId = (event.target as WebMidi.MIDIInput)?.id;
-      if (selectedInputIdRef.current && inputId && inputId !== selectedInputIdRef.current) {
+      if (selectedInputId && inputId && inputId !== selectedInputId) {
         return;
       }
 
-      const [command, note, velocity] = event.data;
-      const status = command & 0xf0;
-      const channel = command & 0x0f;
+      const [statusByte, data1, data2] = event.data;
+      const command = statusByte & 0xf0;
+      const channel = (statusByte & 0x0f) + 1; // 1-16
 
-      setLastMessage({
-        command,
-        note,
-        velocity,
-        channel,
-        timestamp: event.timeStamp,
-      });
-
-      // Note On
-      if (status === 0x90 && velocity > 0) {
-        setActiveNotes(prev => {
-          const next = new Map(prev);
-          next.set(note, velocity / 127);
-          return next;
-        });
+      // Filter by Channel
+      if (midiChannel !== 'all' && channel !== midiChannel) {
+        return;
       }
-      // Note Off
-      else if (status === 0x80 || (status === 0x90 && velocity === 0)) {
-        setActiveNotes(prev => {
-          const next = new Map(prev);
-          next.delete(note);
-          return next;
+
+      // Handle Note On/Off
+      if (command === 0x90 || command === 0x80) {
+        let note = data1;
+        let velocity = data2;
+
+        // Apply Transpose
+        note = Math.max(0, Math.min(127, note + transpose));
+
+        // Apply Velocity Curve
+        if (command === 0x90 && velocity > 0) {
+          velocity = Math.round(applyVelocityCurve(velocity, velocityCurve));
+        }
+
+        setLastMessage({
+          command,
+          note,
+          velocity,
+          channel,
+          timestamp: event.timeStamp,
         });
+
+        // Note On (Velocity > 0)
+        if (command === 0x90 && velocity > 0) {
+          setActiveNotes(prev => {
+            const next = new Map(prev);
+            next.set(note, velocity / 127);
+            return next;
+          });
+        }
+        // Note Off (Velocity 0 or Note Off command)
+        else {
+          setActiveNotes(prev => {
+            const next = new Map(prev);
+            next.delete(note);
+            return next;
+          });
+        }
       }
       // All Notes Off (CC 123) or Reset All Controllers (CC 121)
-      else if (status === 0xB0 && (note === 123 || note === 121)) {
+      else if (command === 0xB0 && (data1 === 123 || data1 === 121)) {
         setActiveNotes(new Map());
       }
     };
@@ -101,30 +151,30 @@ export function useMidi() {
       setInputs(inputList);
       setOutputs(outputList);
 
-      // Auto-select first input if none selected, or if the currently selected one is disconnected
+      // Auto-select logic
       if (inputList.length > 0) {
-        if (!selectedInputIdRef.current || !inputList.find(i => i.id === selectedInputIdRef.current)) {
+        // If nothing selected, or selected is gone, pick first
+        if (!settingsRef.current.selectedInputId || !inputList.find(i => i.id === settingsRef.current.selectedInputId)) {
           setSelectedInputId(inputList[0].id);
         }
       } else {
         setSelectedInputId(null);
-        setActiveNotes(new Map()); // Clear notes if all devices disconnected
       }
     };
 
     const bindListeners = (access: WebMidi.MIDIAccess) => {
       access.inputs.forEach((input) => {
-        // Remove existing listener to avoid duplicates
-        input.onmidimessage = null;
-        // Attach new listener
         input.onmidimessage = onMidiMessage;
       });
     };
 
-    const onStateChange = () => {
+    const onStateChange = (e: WebMidi.MIDIConnectionEvent) => {
       if (midiAccess) {
         updateDevices(midiAccess);
-        bindListeners(midiAccess);
+        // Re-bind listener for the specific port that changed
+        if (e.port.type === 'input') {
+           (e.port as WebMidi.MIDIInput).onmidimessage = onMidiMessage;
+        }
       }
     };
 
@@ -135,7 +185,6 @@ export function useMidi() {
       }
 
       try {
-        // Request MIDI access without sysex first, as it requires fewer permissions
         const access = await navigator.requestMIDIAccess({ sysex: false }) as unknown as WebMidi.MIDIAccess;
         midiAccess = access;
         setIsSupported(true);
@@ -158,13 +207,19 @@ export function useMidi() {
         });
       }
     };
-  }, []); // Empty dependency array, we use refs for dynamic values
+  }, []); // Empty dependency array
 
   return {
     inputs,
     outputs,
     selectedInputId,
     setSelectedInputId,
+    midiChannel,
+    setMidiChannel,
+    velocityCurve,
+    setVelocityCurve,
+    transpose,
+    setTranspose,
     lastMessage,
     isSupported,
     activeNotes,
