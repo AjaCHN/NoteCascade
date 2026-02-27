@@ -1,3 +1,7 @@
+/**
+ * @file lib/store.ts
+ * @version v1.2.0
+ */
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Locale } from './translations';
@@ -28,6 +32,8 @@ export interface ScoreRecord {
 }
 
 export type Theme = 'dark' | 'light' | 'cyber' | 'classic';
+export type Instrument = 'piano' | 'synth' | 'epiano' | 'strings';
+export type PlayMode = 'perform' | 'demo';
 
 interface AppState {
   achievements: Achievement[];
@@ -39,6 +45,8 @@ interface AppState {
   songsCompleted: number;
   locale: Locale;
   theme: Theme;
+  instrument: Instrument;
+  playMode: PlayMode;
   keyboardRange: { start: number; end: number };
   showNoteNames: boolean;
   showKeymap: boolean;
@@ -51,6 +59,8 @@ interface AppState {
     incrementPracticeTime: (seconds: number) => void;
     setLocale: (locale: Locale) => void;
     setTheme: (theme: Theme) => void;
+    setInstrument: (instrument: Instrument) => void;
+    setPlayMode: (mode: PlayMode) => void;
     setKeyboardRange: (start: number, end: number) => void;
     setShowNoteNames: (show: boolean) => void;
     setShowKeymap: (show: boolean) => void;
@@ -88,6 +98,8 @@ export const useAppStore = create<AppState>()(
       songsCompleted: 0,
       locale: 'en',
       theme: 'dark',
+      instrument: 'piano',
+      playMode: 'perform',
       keyboardRange: { start: 48, end: 84 },
       showNoteNames: true,
       showKeymap: true,
@@ -206,6 +218,8 @@ export const useAppStore = create<AppState>()(
         },
         setLocale: (locale) => set({ locale }),
         setTheme: (theme) => set({ theme }),
+        setInstrument: (instrument) => set({ instrument }),
+        setPlayMode: (playMode) => set({ playMode }),
         setKeyboardRange: (start, end) => set({ keyboardRange: { start, end } }),
         setShowNoteNames: (showNoteNames) => set({ showNoteNames }),
         setShowKeymap: (showKeymap) => set({ showKeymap }),
@@ -223,6 +237,8 @@ export const useAppStore = create<AppState>()(
             songsCompleted: 0,
             locale: 'en',
             theme: 'dark',
+            instrument: 'piano',
+            playMode: 'perform',
             keyboardRange: { start: 48, end: 84 },
             showNoteNames: true,
             showKeymap: true,
@@ -285,6 +301,8 @@ export const useAchievements = () => useAppStore((state) => state.achievements);
 export const useScores = () => useAppStore((state) => state.scores);
 export const useLocale = () => useAppStore((state) => state.locale);
 export const useTheme = () => useAppStore((state) => state.theme);
+export const useInstrument = () => useAppStore((state) => state.instrument);
+export const usePlayMode = () => useAppStore((state) => state.playMode);
 export const useKeyboardRange = () => useAppStore((state) => state.keyboardRange);
 export const useShowNoteNames = () => useAppStore((state) => state.showNoteNames);
 export const useShowKeymap = () => useAppStore((state) => state.showKeymap);

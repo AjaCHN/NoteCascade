@@ -1,9 +1,20 @@
+/**
+ * @file lib/audio.ts
+ * @version v1.2.0
+ */
 import * as Tone from 'tone';
 
 let synth: Tone.PolySynth | null = null;
 let piano: Tone.Sampler | null = null;
+let epiano: Tone.PolySynth | null = null;
+let strings: Tone.PolySynth | null = null;
 let masterVolume: Tone.Volume | null = null;
 let metronomeSynth: Tone.MembraneSynth | null = null;
+let currentInstrument: string = 'piano';
+
+export const setAudioInstrument = (instrument: string) => {
+  currentInstrument = instrument;
+};
 
 export const initAudio = async () => {
   await Tone.start();
@@ -52,7 +63,32 @@ export const initAudio = async () => {
   }
 
   if (!synth) {
-    synth = new Tone.PolySynth(Tone.Synth).connect(masterVolume);
+    synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: "triangle" },
+      envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 }
+    }).connect(masterVolume);
+  }
+
+  if (!epiano) {
+    epiano = new Tone.PolySynth(Tone.FMSynth, {
+      harmonicity: 3,
+      modulationIndex: 10,
+      detune: 0,
+      oscillator: { type: "sine" },
+      envelope: { attack: 0.01, decay: 0.2, sustain: 0.5, release: 0.5 },
+      modulation: { type: "square" },
+      modulationEnvelope: { attack: 0.01, decay: 0.2, sustain: 0.5, release: 0.5 }
+    }).connect(masterVolume);
+  }
+
+  if (!strings) {
+    strings = new Tone.PolySynth(Tone.AMSynth, {
+      harmonicity: 2.5,
+      oscillator: { type: "sawtooth" },
+      envelope: { attack: 0.1, decay: 0.3, sustain: 0.8, release: 1.5 },
+      modulation: { type: "square" },
+      modulationEnvelope: { attack: 0.5, decay: 0, sustain: 1, release: 0.5 }
+    }).connect(masterVolume);
   }
 
   if (!metronomeSynth) {
@@ -119,27 +155,63 @@ export const setVolume = (value: number) => {
 };
 
 export const startNote = (note: string | number, velocity: number = 0.7) => {
-  if (piano && piano.loaded) {
-    piano.triggerAttack(note, undefined, velocity);
-  } else if (synth) {
-    synth.triggerAttack(note, undefined, velocity);
+  const noteToPlay = typeof note === 'number' ? Tone.Frequency(note, "midi").toNote() : note;
+  let played = false;
+  
+  if (currentInstrument === 'piano' && piano?.loaded) {
+    piano.triggerAttack(noteToPlay, undefined, velocity);
+    played = true;
+  } else if (currentInstrument === 'epiano' && epiano) {
+    epiano.triggerAttack(noteToPlay, undefined, velocity);
+    played = true;
+  } else if (currentInstrument === 'strings' && strings) {
+    strings.triggerAttack(noteToPlay, undefined, velocity);
+    played = true;
+  } 
+  
+  if (!played && synth) {
+    synth.triggerAttack(noteToPlay, undefined, velocity);
   }
 };
 
 export const playNote = (note: string | number, duration: string | number = '8n', velocity: number = 0.7) => {
-  if (piano && piano.loaded) {
-    piano.triggerAttackRelease(note, duration, velocity);
-  } else if (synth) {
-    synth.triggerAttackRelease(note, duration, velocity);
+  const noteToPlay = typeof note === 'number' ? Tone.Frequency(note, "midi").toNote() : note;
+  let played = false;
+
+  if (currentInstrument === 'piano' && piano?.loaded) {
+    piano.triggerAttackRelease(noteToPlay, duration, velocity);
+    played = true;
+  } else if (currentInstrument === 'epiano' && epiano) {
+    epiano.triggerAttackRelease(noteToPlay, duration, velocity);
+    played = true;
+  } else if (currentInstrument === 'strings' && strings) {
+    strings.triggerAttackRelease(noteToPlay, duration, velocity);
+    played = true;
+  } 
+  
+  if (!played && synth) {
+    synth.triggerAttackRelease(noteToPlay, duration, velocity);
   }
 };
 
 export const stopNote = (note: string | number) => {
-    if (piano && piano.loaded) {
-        piano.triggerRelease(note);
-    } else if (synth) {
-        synth.triggerRelease(note);
-    }
+  const noteToPlay = typeof note === 'number' ? Tone.Frequency(note, "midi").toNote() : note;
+  let played = false;
+
+  if (currentInstrument === 'piano' && piano?.loaded) {
+    piano.triggerRelease(noteToPlay);
+    played = true;
+  } else if (currentInstrument === 'epiano' && epiano) {
+    epiano.triggerRelease(noteToPlay);
+    played = true;
+  } else if (currentInstrument === 'strings' && strings) {
+    strings.triggerRelease(noteToPlay);
+    played = true;
+  } 
+  
+  if (!played && synth) {
+    synth.triggerRelease(noteToPlay);
+  }
 };
 
 export const getAudioContext = () => {

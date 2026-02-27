@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { Song, builtInSongs, parseMidiFile } from '../lib/songs';
-import { Music, Star, ChevronRight, Trophy, Lock, Upload } from 'lucide-react';
-import { motion } from 'motion/react';
-import { useLocale, useScores, useAchievements } from '../lib/store';
+import { Music, Star, ChevronRight, Trophy, Lock, Upload, PlayCircle, Mic2, Filter, X, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { useLocale, useScores, useAchievements, usePlayMode, useAppActions, PlayMode } from '../lib/store';
 import { translations } from '../lib/translations';
 
 interface SongSelectorProps {
@@ -16,10 +16,14 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   const locale = useLocale();
   const scores = useScores();
   const achievements = useAchievements();
+  const playMode = usePlayMode();
+  const { setPlayMode } = useAppActions();
   const t = translations[locale] || translations.en;
+  
   const [filter, setFilter] = React.useState<string>('all');
   const [difficultyFilter, setDifficultyFilter] = React.useState<number | 'all'>('all');
   const [isUploading, setIsUploading] = React.useState(false);
+  const [showFilters, setShowFilters] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const styles = ['all', ...Array.from(new Set(builtInSongs.map(s => s.style).filter((s): s is string => !!s)))];
@@ -87,70 +91,141 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
     return Math.max(...songScores.map(s => s.score));
   };
 
+  const activeFiltersCount = (filter !== 'all' ? 1 : 0) + (difficultyFilter !== 'all' ? 1 : 0);
+
   return (
     <div className="flex flex-col space-y-4 p-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-black theme-text-primary flex items-center gap-3 text-glow">
-          <Music className="w-6 h-6 text-indigo-500 dark:text-indigo-400" />
-          {t.library}
-        </h2>
-        <div className="flex items-center gap-3">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-            accept=".mid,.midi"
-            className="hidden"
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-            className="p-2 rounded-xl theme-bg-secondary theme-border theme-text-secondary hover:theme-text-primary hover:theme-border-primary transition-all shadow-lg"
-            title={t.uploadMidi}
-          >
-            <Upload className={`w-4 h-4 ${isUploading ? 'animate-bounce' : ''}`} />
-          </button>
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary theme-bg-secondary px-3 py-1 rounded-full theme-border">
-            {filteredSongs.length} {filteredSongs.length === 1 ? t.song : t.songsCount}
-          </span>
-        </div>
-      </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-black theme-text-primary flex items-center gap-3 text-glow">
+            <Music className="w-6 h-6 text-indigo-500 dark:text-indigo-400" />
+            {t.library}
+          </h2>
+          
+          <div className="flex items-center gap-2">
+             {/* Play Mode Switch */}
+            <div className="flex bg-slate-200 dark:bg-slate-800 rounded-xl p-1 mr-2">
+              {(['perform', 'demo'] as PlayMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setPlayMode(mode)}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
+                    playMode === mode
+                      ? 'bg-white dark:bg-slate-700 text-indigo-500 dark:text-indigo-400 shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                  }`}
+                  title={t[`mode_${mode}`]}
+                >
+                  {mode === 'perform' ? <Mic2 className="w-3 h-3" /> : <PlayCircle className="w-3 h-3" />}
+                  <span className="hidden sm:inline">{t[`mode_${mode}`]}</span>
+                </button>
+              ))}
+            </div>
 
-      {/* Filters */}
-      <div className="space-y-4 pb-4 border-b theme-border">
-        <div className="flex flex-wrap gap-2">
-          {styles.map(style => (
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept=".mid,.midi"
+              className="hidden"
+            />
             <button
-              key={style}
-              onClick={() => setFilter(style)}
-              className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all border ${
-                filter === style 
-                  ? 'bg-indigo-500 border-indigo-400 text-white shadow-lg shadow-indigo-500/20' 
-                  : 'theme-bg-secondary theme-border theme-text-secondary hover:theme-border-primary hover:theme-text-primary'
-              }`}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="p-2 rounded-xl theme-bg-secondary theme-border theme-text-secondary hover:theme-text-primary hover:theme-border-primary transition-all shadow-sm"
+              title={t.uploadMidi}
             >
-              {style === 'all' ? t.all : (t[`style_${style.toLowerCase()}`] || style)}
+              <Upload className={`w-4 h-4 ${isUploading ? 'animate-bounce' : ''}`} />
             </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.level}</span>
-          <div className="flex gap-1.5">
-            {difficulties.map(diff => (
-              <button
-                key={diff}
-                onClick={() => setDifficultyFilter(diff as number | 'all')}
-                className={`w-8 h-8 flex items-center justify-center rounded-xl text-[10px] font-bold transition-all border ${
-                  difficultyFilter === diff 
-                    ? 'bg-amber-500 border-amber-400 text-white shadow-lg shadow-amber-500/20' 
-                    : 'theme-bg-secondary theme-border theme-text-secondary hover:theme-border-primary hover:theme-text-primary'
-                }`}
-              >
-                {diff === 'all' ? '∞' : diff}
-              </button>
-            ))}
+            
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`p-2 rounded-xl border transition-all shadow-sm relative ${
+                showFilters || activeFiltersCount > 0
+                  ? 'bg-indigo-500 border-indigo-400 text-white'
+                  : 'theme-bg-secondary theme-border theme-text-secondary hover:theme-text-primary hover:theme-border-primary'
+              }`}
+              title="Filters"
+            >
+              <Filter className="w-4 h-4" />
+              {activeFiltersCount > 0 && !showFilters && (
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900" />
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Collapsible Filters */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="p-4 rounded-2xl theme-bg-secondary theme-border border space-y-4">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">Style</span>
+                    {filter !== 'all' && (
+                      <button 
+                        onClick={() => setFilter('all')}
+                        className="text-[10px] text-rose-500 font-bold hover:underline"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {styles.map(style => (
+                      <button
+                        key={style}
+                        onClick={() => setFilter(style)}
+                        className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all border ${
+                          filter === style 
+                            ? 'bg-indigo-500 border-indigo-400 text-white shadow-md' 
+                            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-indigo-500/50'
+                        }`}
+                      >
+                        {style === 'all' ? t.all : (t[`style_${style.toLowerCase()}`] || style)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.level}</span>
+                    {difficultyFilter !== 'all' && (
+                      <button 
+                        onClick={() => setDifficultyFilter('all')}
+                        className="text-[10px] text-rose-500 font-bold hover:underline"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex gap-1.5">
+                    {difficulties.map(diff => (
+                      <button
+                        key={diff}
+                        onClick={() => setDifficultyFilter(diff as number | 'all')}
+                        className={`w-8 h-8 flex items-center justify-center rounded-xl text-[10px] font-bold transition-all border ${
+                          difficultyFilter === diff 
+                            ? 'bg-amber-500 border-amber-400 text-white shadow-md' 
+                            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-amber-500/50'
+                        }`}
+                      >
+                        {diff === 'all' ? '∞' : diff}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="grid grid-cols-1 gap-3">

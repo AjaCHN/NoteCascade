@@ -1,6 +1,6 @@
 /**
  * @file lib/i18n.ts
- * @version v1.1.0
+ * @version v1.2.0
  */
 import { en } from './locales/en';
 import { zhCN } from './locales/zh-CN';

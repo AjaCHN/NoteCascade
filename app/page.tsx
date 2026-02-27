@@ -1,14 +1,14 @@
 /**
  * @file app/page.tsx
- * @version v1.1.2
+ * @version v1.2.0
  */
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useMidi } from './hooks/use-midi';
-import { initAudio, playNote, setVolume, setMetronome, startTransport, stopTransport } from './lib/audio';
+import { initAudio, playNote, startNote, stopNote, setVolume, setMetronome, startTransport, stopTransport, setAudioInstrument } from './lib/audio';
 import { Song, builtInSongs } from './lib/songs';
-import { getNextSong, useAppActions, useLocale, useTheme, useKeyboardRange, useShowNoteNames, useShowKeymap, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, Theme } from './lib/store';
+import { getNextSong, useAppActions, useLocale, useTheme, useInstrument, usePlayMode, useKeyboardRange, useShowNoteNames, useShowKeymap, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, Theme, Instrument, PlayMode } from './lib/store';
 import { translations, Locale } from './lib/translations';
 import { Keyboard } from './components/Keyboard';
 import { GameCanvas } from './components/GameCanvas';
@@ -17,7 +17,7 @@ import { AchievementList } from './components/AchievementList';
 import { 
   Play, Pause, RotateCcw, Settings, Trophy, Music as MusicIcon, 
   Keyboard as KeyboardIcon, SkipForward, RefreshCw, Menu, X,
-  Palette, Monitor, Info, Globe, ChevronDown, Check, ExternalLink, Volume2
+  Palette, Monitor, Info, Globe, ChevronDown, Check, ExternalLink, Volume2, Mic2, PlayCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
@@ -27,14 +27,16 @@ import pkg from '../package.json';
 const { version } = pkg;
 
 export default function MidiPlayApp() {
-  const { activeNotes, setActiveNotes, inputs, outputs, selectedInputId, setSelectedInputId } = useMidi();
+  const { activeNotes, setActiveNotes, inputs, outputs, selectedInputId, setSelectedInputId, lastMessage } = useMidi();
   const { 
     addScore, setLocale, incrementPracticeTime, updateStreak, 
-    setTheme, setKeyboardRange, setShowNoteNames, setShowKeymap,
+    setTheme, setInstrument, setPlayMode, setKeyboardRange, setShowNoteNames, setShowKeymap,
     setMetronomeEnabled, setMetronomeBpm, setMetronomeBeats
   } = useAppActions();
   const locale = useLocale();
   const theme = useTheme();
+  const instrument = useInstrument();
+  const playMode = usePlayMode();
   const keyboardRange = useKeyboardRange();
   const showNoteNames = useShowNoteNames();
   const showKeymap = useShowKeymap();
@@ -54,11 +56,33 @@ export default function MidiPlayApp() {
   const [volume, setVolumeState] = useState(80);
 
   const [mounted, setMounted] = useState(false);
+  const { isSupported } = useMidi();
+
+  useEffect(() => {
+    if (!isSupported && mounted) {
+      // Could show a toast here, but for now we'll just log it or maybe show a small banner
+      console.warn('Web MIDI API is not supported in this browser.');
+    }
+  }, [isSupported, mounted]);
+
+  useEffect(() => {
+    if (lastMessage) {
+      initAudio(); // Try to initialize audio on MIDI input
+      const { command, note, velocity } = lastMessage;
+      const status = command & 0xf0;
+      if (status === 0x90 && velocity > 0) {
+        startNote(note, velocity / 127);
+      } else if (status === 0x80 || (status === 0x90 && velocity === 0)) {
+        stopNote(note);
+      }
+    }
+  }, [lastMessage]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     setVolume(volume);
+    setAudioInstrument(instrument);
 
     const KEYBOARD_MAP: Record<string, number> = {
       'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59, // C3 - B3
@@ -111,7 +135,17 @@ export default function MidiPlayApp() {
     };
   }, [setActiveNotes]);
 
+  useEffect(() => {
+    setAudioInstrument(instrument);
+  }, [instrument]);
+
   const handleSongEnd = useCallback(() => {
+    if (playMode === 'demo') {
+      setIsPlaying(false);
+      setCurrentTime(0);
+      return;
+    }
+
     const totalNotes = lastScore.perfect + lastScore.good + lastScore.miss + lastScore.wrong;
     const accuracy = totalNotes > 0 ? (lastScore.perfect + lastScore.good) / totalNotes : 0;
 
@@ -140,7 +174,7 @@ export default function MidiPlayApp() {
     
     updateStreak();
     setShowResult(true);
-  }, [lastScore, updateStreak, addScore, selectedSong.id, selectedSong.notes?.length]);
+  }, [lastScore, updateStreak, addScore, selectedSong.id, selectedSong.notes?.length, playMode]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -149,11 +183,13 @@ export default function MidiPlayApp() {
         setCurrentTime((prev) => {
           return prev + 0.1;
         });
-        incrementPracticeTime(0.1);
+        if (playMode === 'perform') {
+          incrementPracticeTime(0.1);
+        }
       }, 100);
     }
     return () => clearInterval(interval);
-  }, [isPlaying, incrementPracticeTime]);
+  }, [isPlaying, incrementPracticeTime, playMode]);
 
   useEffect(() => {
     if (isPlaying && currentTime >= (selectedSong.duration || 0)) {
@@ -167,11 +203,24 @@ export default function MidiPlayApp() {
     if (!isPlaying) return;
     
     selectedSong.notes?.forEach(note => {
-      if (note.time >= currentTime && note.time < currentTime + 0.1) {
-        playNote(note.midi, note.velocity, note.duration);
+      if (playMode === 'demo') {
+        // Play sound and simulate key press
+        if (note.time >= currentTime && note.time < currentTime + 0.1) {
+          playNote(note.midi, note.velocity, note.duration);
+          setActiveNotes(prev => new Map(prev).set(note.midi, note.velocity));
+        }
+        
+        // Simulate key release
+        if (note.time + note.duration >= currentTime && note.time + note.duration < currentTime + 0.1) {
+          setActiveNotes(prev => {
+            const next = new Map(prev);
+            next.delete(note.midi);
+            return next;
+          });
+        }
       }
     });
-  }, [currentTime, isPlaying, selectedSong]);
+  }, [currentTime, isPlaying, selectedSong, playMode, setActiveNotes]);
 
   useEffect(() => {
     setMetronome(metronomeEnabled, metronomeBpm, metronomeBeats);
@@ -512,6 +561,29 @@ export default function MidiPlayApp() {
                         >
                           <span className="text-xs font-bold capitalize">{t[`theme_${tName}`] || tName}</span>
                           {theme === tName && <Check className="h-4 w-4 text-indigo-400" />}
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Mic2 className="h-4 w-4 text-indigo-400" />
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.instrument}</label>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {(['piano', 'synth', 'epiano', 'strings'] as Instrument[]).map((inst) => (
+                        <button
+                          key={inst}
+                          onClick={() => setInstrument(inst)}
+                          className={`flex items-center justify-between px-4 py-3 rounded-2xl border transition-all ${
+                            instrument === inst 
+                              ? 'border-indigo-500 bg-indigo-500/10 theme-text-primary shadow-lg shadow-indigo-500/10' 
+                              : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-border-primary'
+                          }`}
+                        >
+                          <span className="text-xs font-bold capitalize">{t[`inst_${inst}`] || inst}</span>
+                          {instrument === inst && <Check className="h-4 w-4 text-indigo-400" />}
                         </button>
                       ))}
                     </div>

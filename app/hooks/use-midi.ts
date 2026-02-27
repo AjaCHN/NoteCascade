@@ -1,3 +1,7 @@
+/**
+ * @file hooks/use-midi.ts
+ * @version v1.2.0
+ */
 import { useEffect, useState, useRef } from 'react';
 
 export interface MidiDevice {
@@ -35,7 +39,8 @@ export function useMidi() {
 
     const onMidiMessage = (event: WebMidi.MIDIMessageEvent) => {
       // If a specific input is selected, ignore messages from other inputs
-      if (selectedInputIdRef.current && event.currentTarget && (event.currentTarget as WebMidi.MIDIInput).id !== selectedInputIdRef.current) {
+      const inputId = (event.target as WebMidi.MIDIInput)?.id;
+      if (selectedInputIdRef.current && inputId && inputId !== selectedInputIdRef.current) {
         return;
       }
 
@@ -96,10 +101,12 @@ export function useMidi() {
       setInputs(inputList);
       setOutputs(outputList);
 
-      // Auto-select first input if none selected and devices are available
-      if (inputList.length > 0 && !selectedInputIdRef.current) {
-        setSelectedInputId(inputList[0].id);
-      } else if (inputList.length === 0) {
+      // Auto-select first input if none selected, or if the currently selected one is disconnected
+      if (inputList.length > 0) {
+        if (!selectedInputIdRef.current || !inputList.find(i => i.id === selectedInputIdRef.current)) {
+          setSelectedInputId(inputList[0].id);
+        }
+      } else {
         setSelectedInputId(null);
         setActiveNotes(new Map()); // Clear notes if all devices disconnected
       }

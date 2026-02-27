@@ -19,9 +19,40 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: `NoteCascade - Keyboard Practice v${version}`,
   description: 'A visual/game-like MIDI keyboard practice app with real-time scoring and achievements.',
-  keywords: ['MIDI', 'Piano', 'Practice', 'Music', 'Game', 'Learning'],
-  authors: [{ name: 'Sut' }],
+  keywords: ['MIDI', 'Piano', 'Practice', 'Music', 'Game', 'Learning', 'Keyboard', 'Synthesizer'],
+  authors: [{ name: 'Sut', url: 'https://github.com/sutchan' }],
+  creator: 'Sut',
+  publisher: 'Sut',
   robots: 'index, follow',
+  openGraph: {
+    title: `NoteCascade - Keyboard Practice v${version}`,
+    description: 'A visual/game-like MIDI keyboard practice app with real-time scoring and achievements.',
+    url: 'https://notecascade.app',
+    siteName: 'NoteCascade',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'NoteCascade Preview',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `NoteCascade - Keyboard Practice v${version}`,
+    description: 'A visual/game-like MIDI keyboard practice app with real-time scoring and achievements.',
+    creator: '@sutchan',
+    images: ['/og-image.png'],
+  },
+  other: {
+    'geo.region': 'US',
+    'geo.placename': 'Global',
+    'geo.position': '37.7749;-122.4194',
+    'ICBM': '37.7749, -122.4194',
+  },
 };
 
 export const viewport: Viewport = {
