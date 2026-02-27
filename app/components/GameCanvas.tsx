@@ -185,6 +185,8 @@ export function GameCanvas({
     }
   }, [currentTime, song]);
 
+  const activeNoteStartTimes = useRef<Map<number, number>>(new Map());
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -238,8 +240,59 @@ export function GameCanvas({
       const totalNotes = endNote - startNote + 1;
       const keyWidth = width / totalNotes;
 
-      // Draw active note highlights on the "hit line"
-      // ... (existing code)
+      // Update active note start times
+      activeNotes.forEach((_, midi) => {
+        if (!activeNoteStartTimes.current.has(midi)) {
+          activeNoteStartTimes.current.set(midi, Date.now());
+        }
+      });
+      for (const midi of activeNoteStartTimes.current.keys()) {
+        if (!activeNotes.has(midi)) {
+          activeNoteStartTimes.current.delete(midi);
+        }
+      }
+
+      // Draw active note columns (visual feedback)
+      activeNotes.forEach((velocity, midi) => {
+        if (midi >= startNote && midi <= endNote) {
+          const x = (midi - startNote) * keyWidth;
+          const startTime = activeNoteStartTimes.current.get(midi) || Date.now();
+          const duration = Date.now() - startTime;
+          
+          // Column grows upwards based on duration
+          const growHeight = Math.min(height - 50, 100 + duration * 0.8);
+          
+          const gradient = ctx.createLinearGradient(0, height - HIT_LINE_Y, 0, height - HIT_LINE_Y - growHeight);
+          const glowColor = theme === 'cyber' ? '0, 255, 0' : theme === 'classic' ? '217, 119, 6' : '99, 102, 241';
+          
+          // Opacity based on velocity
+          const baseOpacity = 0.2 + (velocity * 0.6);
+          
+          gradient.addColorStop(0, `rgba(${glowColor}, ${baseOpacity})`);
+          gradient.addColorStop(1, `rgba(${glowColor}, 0)`);
+          
+          ctx.fillStyle = gradient;
+          ctx.fillRect(x + 1, height - HIT_LINE_Y - growHeight, keyWidth - 2, growHeight);
+          
+          // Particles at the top of the column
+          if (velocity > 0.4) {
+             ctx.fillStyle = theme === 'light' ? `rgba(0, 0, 0, ${velocity * 0.5})` : `rgba(255, 255, 255, ${velocity * 0.8})`;
+             const particleCount = Math.floor(velocity * 5);
+             for(let i=0; i < particleCount; i++) {
+                 const px = x + Math.random() * keyWidth;
+                 const py = height - HIT_LINE_Y - growHeight + Math.random() * 30;
+                 const size = Math.random() * 2 + 1;
+                 ctx.globalAlpha = Math.random();
+                 ctx.fillRect(px, py, size, size);
+                 ctx.globalAlpha = 1.0;
+             }
+          }
+          
+          // Hit bar highlight
+          ctx.fillStyle = theme === 'light' ? `rgba(0, 0, 0, ${0.8 * velocity})` : `rgba(255, 255, 255, ${0.8 * velocity})`;
+          ctx.fillRect(x + 2, height - HIT_LINE_Y - 2, keyWidth - 4, 4);
+        }
+      });
 
       // Draw timing bar
       const barWidth = 300;
@@ -298,22 +351,6 @@ export function GameCanvas({
       ctx.fillText(t.perfect.toUpperCase(), barX + barWidth / 2, barY + 24);
 
       // ... (rest of drawing code)
-
-      // Draw active note highlights on the "hit line"
-      activeNotes.forEach((velocity, midi) => {
-        if (midi >= startNote && midi <= endNote) {
-          const x = (midi - startNote) * keyWidth;
-          const gradient = ctx.createLinearGradient(0, height - HIT_LINE_Y, 0, height - NOTE_HIT_Y_OFFSET);
-          const glowColor = theme === 'cyber' ? '0, 255, 0' : theme === 'classic' ? '217, 119, 6' : '99, 102, 241';
-          gradient.addColorStop(0, `rgba(${glowColor}, ${0.4 * velocity})`);
-          gradient.addColorStop(1, `rgba(${glowColor}, 0)`);
-          ctx.fillStyle = gradient;
-          ctx.fillRect(x + 1, height - NOTE_HIT_Y_OFFSET, keyWidth - 2, ACTIVE_NOTE_GLOW_HEIGHT);
-          
-          ctx.fillStyle = theme === 'light' ? `rgba(0, 0, 0, ${0.8 * velocity})` : `rgba(255, 255, 255, ${0.8 * velocity})`;
-          ctx.fillRect(x + 2, height - HIT_LINE_Y - 2, keyWidth - 4, 4);
-        }
-      });
 
       // Draw falling notes
       song.notes?.forEach((note, idx) => {
