@@ -175,10 +175,12 @@ export const startNote = (note: string | number, velocity: number = 0.7) => {
 };
 
 export const playNote = (note: string | number, duration: string | number = '8n', velocity: number = 0.7) => {
+  // console.log('playNote called with:', note, duration, velocity);
   const noteToPlay = typeof note === 'number' ? Tone.Frequency(note, "midi").toNote() : note;
   let played = false;
 
   if (currentInstrument === 'piano' && piano?.loaded) {
+    // console.log('Playing with piano:', noteToPlay);
     piano.triggerAttackRelease(noteToPlay, duration, velocity);
     played = true;
   } else if (currentInstrument === 'epiano' && epiano) {
@@ -190,6 +192,7 @@ export const playNote = (note: string | number, duration: string | number = '8n'
   } 
   
   if (!played && synth) {
+    // console.log('Fallback to synth:', noteToPlay);
     synth.triggerAttackRelease(noteToPlay, duration, velocity);
   }
 };

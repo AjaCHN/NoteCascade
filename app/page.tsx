@@ -202,16 +202,25 @@ export default function MidiPlayApp() {
   useEffect(() => {
     if (!isPlaying) return;
     
+    // console.log('Checking notes at time:', currentTime, 'Mode:', playMode);
+
     selectedSong.notes?.forEach(note => {
       if (playMode === 'demo') {
+        // Use a small epsilon for floating point comparison
+        const EPSILON = 0.001;
+        const timeStart = currentTime - EPSILON;
+        const timeEnd = currentTime + 0.1 - EPSILON;
+
         // Play sound and simulate key press
-        if (note.time >= currentTime && note.time < currentTime + 0.1) {
+        if (note.time >= timeStart && note.time < timeEnd) {
+          // console.log('Playing note:', note.midi, 'at time:', note.time);
           playNote(note.midi, note.velocity, note.duration);
           setActiveNotes(prev => new Map(prev).set(note.midi, note.velocity));
         }
         
         // Simulate key release
-        if (note.time + note.duration >= currentTime && note.time + note.duration < currentTime + 0.1) {
+        const noteEndTime = note.time + note.duration;
+        if (noteEndTime >= timeStart && noteEndTime < timeEnd) {
           setActiveNotes(prev => {
             const next = new Map(prev);
             next.delete(note.midi);
@@ -226,11 +235,12 @@ export default function MidiPlayApp() {
     setMetronome(metronomeEnabled, metronomeBpm, metronomeBeats);
   }, [metronomeEnabled, metronomeBpm, metronomeBeats]);
 
-  const togglePlay = useCallback(() => {
+  const togglePlay = useCallback(async () => {
     if (isPlaying) {
       setIsPlaying(false);
       stopTransport();
     } else {
+      await initAudio(); // Ensure audio context is ready
       if (currentTime >= (selectedSong.duration || 0)) {
         setCurrentTime(0);
       }
