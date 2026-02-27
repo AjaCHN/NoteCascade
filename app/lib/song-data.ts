@@ -1,4 +1,4 @@
-import { Note, Song } from './songs';
+import type { Note, Song } from './songs';
 
 function parseMelody(melody: string, bpm: number = 120): { notes: Note[], duration: number } {
   const notes: Note[] = [];

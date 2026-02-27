@@ -311,8 +311,10 @@ export default function MidiPlayApp() {
               showNoteNames={showNoteNames}
               theme={theme}
             />
+          </div>
 
-            <div id="game-controls" className="absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2 md:gap-6 rounded-[2rem] theme-bg-secondary/40 backdrop-blur-2xl border theme-border p-2 md:p-4 shadow-2xl z-20 max-w-[95%] glow-indigo transition-all duration-500">
+          <div className="shrink-0 flex justify-center items-center py-2 md:py-4 z-20 relative">
+            <div id="game-controls" className="flex items-center gap-2 md:gap-6 rounded-[2rem] theme-bg-secondary/40 backdrop-blur-2xl border theme-border p-2 md:p-4 shadow-2xl max-w-[95%] glow-indigo transition-all duration-500">
               <div id="secondary-controls" className="flex items-center gap-1 md:gap-2 pl-2">
                 <button 
                   id="btn-reset"

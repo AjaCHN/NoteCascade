@@ -22,8 +22,8 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   const [isUploading, setIsUploading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const styles = [t.all, ...Array.from(new Set(builtInSongs.map(s => s.style).filter((s): s is string => !!s)))];
-  const difficulties = [t.all, 1, 2, 3, 4, 5];
+  const styles = ['all', ...Array.from(new Set(builtInSongs.map(s => s.style).filter((s): s is string => !!s)))];
+  const difficulties = ['all', 1, 2, 3, 4, 5];
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -76,8 +76,8 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   };
 
   const filteredSongs = builtInSongs.filter(song => {
-    const styleMatch = filter === t.all || song.style === filter;
-    const difficultyMatch = difficultyFilter === t.all || song.difficulty === difficultyFilter;
+    const styleMatch = filter === 'all' || song.style === filter;
+    const difficultyMatch = difficultyFilter === 'all' || song.difficulty === difficultyFilter;
     return styleMatch && difficultyMatch;
   });
 
@@ -129,7 +129,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
                   : 'bg-white/5 border-white/5 text-slate-500 hover:border-white/10 hover:text-slate-300'
               }`}
             >
-              {style === t.all ? style : (t[`style_${style.toLowerCase()}`] || style)}
+              {style === 'all' ? t.all : (t[`style_${style.toLowerCase()}`] || style)}
             </button>
           ))}
         </div>
@@ -146,7 +146,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
                     : 'bg-white/5 border-white/5 text-slate-600 hover:border-white/10'
                 }`}
               >
-                {diff === t.all ? '∞' : diff}
+                {diff === 'all' ? '∞' : diff}
               </button>
             ))}
           </div>
