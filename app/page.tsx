@@ -27,7 +27,7 @@ import pkg from '../package.json';
 const { version } = pkg;
 
 export default function MidiPlayApp() {
-  const { activeNotes, inputs, selectedInputId, setSelectedInputId } = useMidi();
+  const { activeNotes, setActiveNotes, inputs, outputs, selectedInputId, setSelectedInputId } = useMidi();
   const { 
     addScore, setLocale, incrementPracticeTime, updateStreak, 
     setTheme, setKeyboardRange, setShowNoteNames 
@@ -277,22 +277,6 @@ export default function MidiPlayApp() {
               showNoteNames={showNoteNames}
               theme={theme}
             />
-            
-            <div id="song-info" className="absolute top-4 left-4 md:top-8 md:left-8 pointer-events-none z-10">
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                key={selectedSong.id}
-                className="space-y-1"
-              >
-                <h2 className="text-2xl md:text-5xl font-black theme-text-primary text-glow tracking-tighter leading-none">{t[`song_${selectedSong.id}`] || selectedSong.title}</h2>
-                <div className="flex items-center gap-3">
-                  <p className="text-sm md:text-lg text-indigo-400 font-bold uppercase tracking-widest opacity-90">{t[`artist_${selectedSong.artist.toLowerCase()}`] || selectedSong.artist}</p>
-                  <div className="h-4 w-px theme-border" />
-                  <p className="text-[10px] md:text-xs theme-text-secondary font-bold uppercase tracking-[0.2em]">{selectedSong.style ? (t[`style_${selectedSong.style.toLowerCase()}`] || selectedSong.style) : ''}</p>
-                </div>
-              </motion.div>
-            </div>
 
             <div id="game-controls" className="absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2 md:gap-6 rounded-[2rem] theme-bg-secondary/40 backdrop-blur-2xl border theme-border p-2 md:p-4 shadow-2xl z-20 max-w-[95%] glow-indigo transition-all duration-500">
               <div id="secondary-controls" className="flex items-center gap-1 md:gap-2 pl-2">
@@ -354,6 +338,8 @@ export default function MidiPlayApp() {
               startNote={keyboardRange.start} 
               endNote={keyboardRange.end} 
               showNoteNames={showNoteNames}
+              onNoteOn={(midi) => setActiveNotes(prev => new Map(prev).set(midi, 0.7))}
+              onNoteOff={(midi) => setActiveNotes(prev => { const next = new Map(prev); next.delete(midi); return next; })}
             />
           </div>
         </section>
@@ -549,7 +535,7 @@ export default function MidiPlayApp() {
                       <Monitor className="h-4 w-4 text-indigo-400" />
                       <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.midiDevice}</label>
                     </div>
-                    <div className="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
+                    <div className="space-y-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-2">
                       {inputs.length > 0 ? inputs.map(input => (
                         <button
                           key={input.id}
@@ -562,10 +548,34 @@ export default function MidiPlayApp() {
                         >
                           <div className="flex flex-col items-start">
                             <span className="font-bold text-sm">{input.name}</span>
-                            <span className="text-[10px] uppercase tracking-widest opacity-50">{input.manufacturer}</span>
+                            <span className="text-[10px] uppercase tracking-widest opacity-50">{input.manufacturer || 'Unknown'}</span>
                           </div>
                           {selectedInputId === input.id && <Check className="h-4 w-4" />}
                         </button>
+                      )) : (
+                        <div className="rounded-2xl border border-dashed theme-border p-8 text-center theme-text-secondary text-xs italic">
+                          {t.noDevice}
+                        </div>
+                      )}
+                    </div>
+                  </section>
+
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Monitor className="h-4 w-4 text-indigo-400" />
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.midiOutputDevice || 'MIDI Output'}</label>
+                    </div>
+                    <div className="space-y-2 max-h-[150px] overflow-y-auto custom-scrollbar pr-2">
+                      {outputs.length > 0 ? outputs.map(output => (
+                        <div
+                          key={output.id}
+                          className="w-full flex items-center justify-between rounded-2xl p-4 border theme-border theme-bg-secondary theme-text-secondary"
+                        >
+                          <div className="flex flex-col items-start">
+                            <span className="font-bold text-sm">{output.name}</span>
+                            <span className="text-[10px] uppercase tracking-widest opacity-50">{output.manufacturer || 'Unknown'}</span>
+                          </div>
+                        </div>
                       )) : (
                         <div className="rounded-2xl border border-dashed theme-border p-8 text-center theme-text-secondary text-xs italic">
                           {t.noDevice}

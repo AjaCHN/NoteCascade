@@ -7,6 +7,7 @@ export const zhTW = {
     achievements: '成就列表',
     settings: '設定',
     midiDevice: 'MIDI 輸入設備',
+    midiOutputDevice: 'MIDI 輸出設備',
     noDevice: '未偵測到 MIDI 設備。請透過 USB 連接鍵盤。',
     done: '完成',
     reset: '重設',

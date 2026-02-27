@@ -7,6 +7,7 @@ export const en = {
     achievements: 'Achievements',
     settings: 'Settings',
     midiDevice: 'MIDI Input Device',
+    midiOutputDevice: 'MIDI Output Device',
     noDevice: 'No MIDI devices detected. Connect a keyboard via USB.',
     done: 'Done',
     reset: 'Reset',

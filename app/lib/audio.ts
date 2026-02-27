@@ -50,6 +50,14 @@ export const initAudio = async () => {
   }
 };
 
+export const startNote = (note: string | number, velocity: number = 0.7) => {
+  if (piano && piano.loaded) {
+    piano.triggerAttack(note, undefined, velocity);
+  } else if (synth) {
+    synth.triggerAttack(note, undefined, velocity);
+  }
+};
+
 export const playNote = (note: string | number, duration: string | number = '8n', velocity: number = 0.7) => {
   if (piano && piano.loaded) {
     piano.triggerAttackRelease(note, duration, velocity);

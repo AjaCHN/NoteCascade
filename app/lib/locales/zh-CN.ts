@@ -7,6 +7,7 @@ export const zhCN = {
     achievements: '成就列表',
     settings: '设置',
     midiDevice: 'MIDI 输入设备',
+    midiOutputDevice: 'MIDI 输出设备',
     noDevice: '未检测到 MIDI 设备。请通过 USB 连接键盘。',
     done: '完成',
     reset: '重置',

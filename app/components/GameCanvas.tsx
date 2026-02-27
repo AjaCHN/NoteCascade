@@ -369,18 +369,34 @@ export function GameCanvas({
   return (
     <div ref={containerRef} className={`relative h-full w-full overflow-hidden ${theme === 'light' ? 'bg-slate-50' : 'bg-slate-950'}`}>
       <canvas ref={canvasRef} className="h-full w-full" />
-      <div id="game-stats-overlay" className="pointer-events-none absolute inset-0 flex flex-col p-8 md:p-12">
+      <div id="game-stats-overlay" className="pointer-events-none absolute inset-0 flex flex-col p-4 md:p-8">
         <div className="flex justify-between items-start w-full">
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col"
-          >
-            <div className="text-[10px] uppercase tracking-[0.3em] theme-text-secondary font-black mb-2">{t.currentScore}</div>
-            <div className="text-6xl md:text-8xl font-black theme-text-primary tabular-nums drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] tracking-tighter">
-              {score.currentScore.toLocaleString()}
-            </div>
-          </motion.div>
+          <div className="flex flex-col gap-6 md:gap-8">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              key={song.id}
+              className="space-y-1"
+            >
+              <h2 className="text-2xl md:text-5xl font-black theme-text-primary text-glow tracking-tighter leading-none">{t[`song_${song.id}`] || song.title}</h2>
+              <div className="flex items-center gap-3">
+                <p className="text-sm md:text-lg text-indigo-400 font-bold uppercase tracking-widest opacity-90">{t[`artist_${song.artist.toLowerCase()}`] || song.artist}</p>
+                <div className="h-4 w-px theme-border" />
+                <p className="text-[10px] md:text-xs theme-text-secondary font-bold uppercase tracking-[0.2em]">{song.style ? (t[`style_${song.style.toLowerCase()}`] || song.style) : ''}</p>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col"
+            >
+              <div className="text-[10px] uppercase tracking-[0.3em] theme-text-secondary font-black mb-2">{t.currentScore}</div>
+              <div className="text-6xl md:text-8xl font-black theme-text-primary tabular-nums drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] tracking-tighter">
+                {score.currentScore.toLocaleString()}
+              </div>
+            </motion.div>
+          </div>
 
           <div className="flex flex-col gap-3">
             {[

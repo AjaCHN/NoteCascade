@@ -160,5 +160,6 @@ export function useMidi() {
     lastMessage,
     isSupported,
     activeNotes,
+    setActiveNotes,
   };
 }
