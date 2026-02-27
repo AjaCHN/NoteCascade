@@ -41,6 +41,7 @@ interface AppState {
   theme: Theme;
   keyboardRange: { start: number; end: number };
   showNoteNames: boolean;
+  showKeymap: boolean;
   actions: {
     unlockAchievement: (id: string) => void;
     addScore: (score: ScoreRecord) => void;
@@ -49,6 +50,7 @@ interface AppState {
     setTheme: (theme: Theme) => void;
     setKeyboardRange: (start: number, end: number) => void;
     setShowNoteNames: (show: boolean) => void;
+    setShowKeymap: (show: boolean) => void;
     resetProgress: () => void;
     checkAchievements: () => void;
     updateStreak: () => void;
@@ -82,6 +84,7 @@ export const useAppStore = create<AppState>()(
       theme: 'dark',
       keyboardRange: { start: 48, end: 84 },
       showNoteNames: true,
+      showKeymap: true,
       actions: {
         unlockAchievement: (id) =>
           set((state) => {
@@ -196,6 +199,7 @@ export const useAppStore = create<AppState>()(
         setTheme: (theme) => set({ theme }),
         setKeyboardRange: (start, end) => set({ keyboardRange: { start, end } }),
         setShowNoteNames: (showNoteNames) => set({ showNoteNames }),
+        setShowKeymap: (showKeymap) => set({ showKeymap }),
         resetProgress: () =>
           set({
             achievements: INITIAL_ACHIEVEMENTS,
@@ -209,6 +213,7 @@ export const useAppStore = create<AppState>()(
             theme: 'dark',
             keyboardRange: { start: 48, end: 84 },
             showNoteNames: true,
+            showKeymap: true,
           }),
       },
     }),
@@ -231,6 +236,7 @@ export const useAppStore = create<AppState>()(
         theme: state.theme,
         keyboardRange: state.keyboardRange,
         showNoteNames: state.showNoteNames,
+        showKeymap: state.showKeymap,
       }),
       merge: (persistedState, currentState) => {
         // Merge logic to ensure new achievements are added to persisted state
@@ -263,6 +269,7 @@ export const useLocale = () => useAppStore((state) => state.locale);
 export const useTheme = () => useAppStore((state) => state.theme);
 export const useKeyboardRange = () => useAppStore((state) => state.keyboardRange);
 export const useShowNoteNames = () => useAppStore((state) => state.showNoteNames);
+export const useShowKeymap = () => useAppStore((state) => state.showKeymap);
 export const useAppActions = () => useAppStore((state) => state.actions);
 
 export function getNextSong(currentSong: Song): Song {

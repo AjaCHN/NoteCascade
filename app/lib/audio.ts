@@ -2,9 +2,15 @@ import * as Tone from 'tone';
 
 let synth: Tone.PolySynth | null = null;
 let piano: Tone.Sampler | null = null;
+let masterVolume: Tone.Volume | null = null;
+let metronomeSynth: Tone.MembraneSynth | null = null;
 
 export const initAudio = async () => {
   await Tone.start();
+  
+  if (!masterVolume) {
+    masterVolume = new Tone.Volume(0).toDestination();
+  }
   
   if (!piano) {
     piano = new Tone.Sampler({
@@ -42,11 +48,38 @@ export const initAudio = async () => {
       },
       release: 1,
       baseUrl: "https://tonejs.github.io/audio/salamander/"
-    }).toDestination();
+    }).connect(masterVolume);
   }
 
   if (!synth) {
-    synth = new Tone.PolySynth(Tone.Synth).toDestination();
+    synth = new Tone.PolySynth(Tone.Synth).connect(masterVolume);
+  }
+
+  if (!metronomeSynth) {
+    metronomeSynth = new Tone.MembraneSynth({
+      pitchDecay: 0.008,
+      octaves: 2,
+      envelope: {
+        attack: 0.001,
+        decay: 0.1,
+        sustain: 0,
+        release: 0.01
+      }
+    }).connect(masterVolume);
+  }
+};
+
+export const playMetronomeClick = (isFirstBeat: boolean = false) => {
+  if (metronomeSynth) {
+    metronomeSynth.triggerAttackRelease(isFirstBeat ? "C5" : "C4", "32n", undefined, isFirstBeat ? 0.8 : 0.4);
+  }
+};
+
+export const setVolume = (value: number) => {
+  if (masterVolume) {
+    // Convert 0-100 to decibels. 100 = 0dB, 0 = -60dB
+    const db = value === 0 ? -Infinity : 20 * Math.log10(value / 100);
+    masterVolume.volume.value = db;
   }
 };
 

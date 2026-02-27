@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { startNote as startAudioNote, stopNote as stopAudioNote } from '../lib/audio';
 
@@ -9,6 +9,8 @@ interface KeyboardProps {
   startNote: number;
   endNote: number;
   showNoteNames: boolean;
+  showKeymap?: boolean;
+  keyMap?: Record<string, number>;
   onNoteOn?: (midi: number) => void;
   onNoteOff?: (midi: number) => void;
 }
@@ -18,59 +20,14 @@ export function Keyboard({
   startNote,
   endNote,
   showNoteNames,
+  showKeymap,
+  keyMap,
   onNoteOn,
   onNoteOff,
 }: KeyboardProps) {
   const [localActiveNotes, setLocalActiveNotes] = useState<Set<number>>(new Set());
-  const totalKeys = endNote - startNote + 1;
-  const keyWidth = 100 / totalKeys; // Percentage width
-
-  const handlePointerDown = useCallback((midi: number, e?: React.PointerEvent) => {
-    if (e) {
-      // For touch devices, we might want to prevent default to avoid scrolling while playing
-      // e.preventDefault();
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    }
-    startAudioNote(midi);
-    setLocalActiveNotes(prev => new Set(prev).add(midi));
-    onNoteOn?.(midi);
-  }, [onNoteOn]);
-
-  const handlePointerUp = useCallback((midi: number, e?: React.PointerEvent) => {
-    if (e) {
-      (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-    }
-    stopAudioNote(midi);
-    setLocalActiveNotes(prev => {
-      const next = new Set(prev);
-      next.delete(midi);
-      return next;
-    });
-    onNoteOff?.(midi);
-  }, [onNoteOff]);
-
-  const handlePointerEnter = useCallback((midi: number, e: React.PointerEvent) => {
-    if (e.buttons === 1) {
-      handlePointerDown(midi);
-    }
-  }, [handlePointerDown]);
-
-  const handlePointerLeave = useCallback((midi: number) => {
-    let wasActive = false;
-    setLocalActiveNotes(prev => {
-      if (prev.has(midi)) {
-        wasActive = true;
-        const next = new Set(prev);
-        next.delete(midi);
-        return next;
-      }
-      return prev;
-    });
-    if (wasActive) {
-      stopAudioNote(midi);
-      onNoteOff?.(midi);
-    }
-  }, [onNoteOff]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const activePointers = useRef<Map<number, number>>(new Map()); // pointerId -> midi
 
   const isBlackKey = (midi: number) => {
     const note = midi % 12;
@@ -84,40 +41,143 @@ export function Keyboard({
     return `${name}${octave}`;
   };
 
-  const keys = Array.from({ length: totalKeys }, (_, i) => startNote + i);
+  // Calculate layout
+  const keys = Array.from({ length: endNote - startNote + 1 }, (_, i) => startNote + i);
+  const whiteKeys = keys.filter(midi => !isBlackKey(midi));
+  const whiteKeyWidth = 100 / whiteKeys.length;
+
+  const handleKeyPress = useCallback((midi: number) => {
+    startAudioNote(midi);
+    setLocalActiveNotes(prev => new Set(prev).add(midi));
+    onNoteOn?.(midi);
+  }, [onNoteOn]);
+
+  const handleKeyRelease = useCallback((midi: number) => {
+    stopAudioNote(midi);
+    setLocalActiveNotes(prev => {
+      const next = new Set(prev);
+      next.delete(midi);
+      return next;
+    });
+    onNoteOff?.(midi);
+  }, [onNoteOff]);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const midiStr = el?.getAttribute('data-midi');
+    if (midiStr) {
+      const midi = parseInt(midiStr, 10);
+      activePointers.current.set(e.pointerId, midi);
+      handleKeyPress(midi);
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!activePointers.current.has(e.pointerId)) return;
+    
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const midiStr = el?.getAttribute('data-midi');
+    const currentMidi = activePointers.current.get(e.pointerId);
+    
+    if (midiStr) {
+      const newMidi = parseInt(midiStr, 10);
+      if (currentMidi !== newMidi) {
+        if (currentMidi !== undefined) handleKeyRelease(currentMidi);
+        handleKeyPress(newMidi);
+        activePointers.current.set(e.pointerId, newMidi);
+      }
+    } else {
+      if (currentMidi !== undefined) {
+        handleKeyRelease(currentMidi);
+        activePointers.current.delete(e.pointerId);
+      }
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    const currentMidi = activePointers.current.get(e.pointerId);
+    if (currentMidi !== undefined) {
+      handleKeyRelease(currentMidi);
+      activePointers.current.delete(e.pointerId);
+    }
+    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      activePointers.current.forEach((midi) => handleKeyRelease(midi));
+      activePointers.current.clear();
+    };
+  }, [handleKeyRelease]);
+
+  let whiteKeyIndex = 0;
 
   return (
-    <div className="relative flex h-32 w-full bg-black border-t border-white/10 select-none touch-none">
+    <div 
+      ref={containerRef}
+      className="relative flex h-32 w-full bg-black border-t border-white/10 select-none touch-none"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+    >
       {keys.map((midi) => {
+        const isBlack = isBlackKey(midi);
         const isActive = activeNotes.has(midi) || localActiveNotes.has(midi);
         const velocity = activeNotes.get(midi) || (localActiveNotes.has(midi) ? 0.7 : 0);
-        const isBlack = isBlackKey(midi);
+        
+        let left = 0;
+        if (!isBlack) {
+          left = whiteKeyIndex * whiteKeyWidth;
+          whiteKeyIndex++;
+        } else {
+          // Black key is positioned relative to the previous white key
+          left = (whiteKeyIndex - 1) * whiteKeyWidth + (whiteKeyWidth * 0.65);
+        }
+
+        // Find mapped key if any
+        let mappedKey = '';
+        if (showKeymap && keyMap) {
+          const entry = Object.entries(keyMap).find(([_, m]) => m === midi);
+          if (entry) {
+            mappedKey = entry[0].toUpperCase();
+          }
+        }
 
         return (
           <div
             key={midi}
-            onPointerDown={(e) => handlePointerDown(midi, e)}
-            onPointerUp={(e) => handlePointerUp(midi, e)}
-            onPointerEnter={(e) => handlePointerEnter(midi, e)}
-            onPointerLeave={() => handlePointerLeave(midi)}
-            onPointerCancel={(e) => handlePointerUp(midi, e)}
-            className={`absolute h-full cursor-pointer ${isBlack ? 'w-[0.8%]' : 'w-[1.2%]'} ${isBlack ? 'bg-black border-white/10' : 'bg-white border-black/10'} border-r`}
+            data-midi={midi}
+            className={`absolute cursor-pointer rounded-b-md transition-colors duration-75 ${
+              isBlack 
+                ? 'bg-black border border-white/20 shadow-sm' 
+                : 'bg-white border-r border-black/20 shadow-sm'
+            }`}
             style={{
-              left: `${(midi - startNote) * keyWidth}%`,
+              left: `${left}%`,
+              width: `${isBlack ? whiteKeyWidth * 0.7 : whiteKeyWidth}%`,
+              height: isBlack ? '60%' : '100%',
               zIndex: isBlack ? 10 : 5,
-              width: `${keyWidth}%`,
             }}
           >
             {isActive && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: Math.max(0.3, velocity * 0.8) }}
-                className={`absolute inset-0 bg-indigo-500/50`}
+                className={`absolute inset-0 rounded-b-md ${isBlack ? 'bg-indigo-500/60' : 'bg-indigo-500/40'}`}
+                style={{ pointerEvents: 'none' }}
               />
             )}
             {showNoteNames && !isBlack && (
-              <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] text-black font-bold opacity-70 pointer-events-none">
+              <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-slate-800 font-bold opacity-60 pointer-events-none">
                 {getNoteName(midi)}
+              </span>
+            )}
+            {showKeymap && mappedKey && (
+              <span className={`absolute ${isBlack ? 'bottom-2 text-white/70' : 'bottom-6 text-slate-500'} left-1/2 -translate-x-1/2 text-[10px] font-mono font-bold pointer-events-none`}>
+                {mappedKey}
               </span>
             )}
           </div>

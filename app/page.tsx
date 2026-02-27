@@ -6,9 +6,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useMidi } from './hooks/use-midi';
-import { initAudio, playNote } from './lib/audio';
+import { initAudio, playNote, setVolume } from './lib/audio';
 import { Song, builtInSongs } from './lib/songs';
-import { getNextSong, useAppActions, useLocale, useTheme, useKeyboardRange, useShowNoteNames, Theme } from './lib/store';
+import { getNextSong, useAppActions, useLocale, useTheme, useKeyboardRange, useShowNoteNames, useShowKeymap, Theme } from './lib/store';
 import { translations, Locale } from './lib/translations';
 import { Keyboard } from './components/Keyboard';
 import { GameCanvas } from './components/GameCanvas';
@@ -17,7 +17,7 @@ import { AchievementList } from './components/AchievementList';
 import { 
   Play, Pause, RotateCcw, Settings, Trophy, Music as MusicIcon, 
   Keyboard as KeyboardIcon, SkipForward, RefreshCw, Menu, X,
-  Palette, Monitor, Info, Globe, ChevronDown, Check, ExternalLink
+  Palette, Monitor, Info, Globe, ChevronDown, Check, ExternalLink, Volume2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
@@ -30,12 +30,13 @@ export default function MidiPlayApp() {
   const { activeNotes, setActiveNotes, inputs, outputs, selectedInputId, setSelectedInputId } = useMidi();
   const { 
     addScore, setLocale, incrementPracticeTime, updateStreak, 
-    setTheme, setKeyboardRange, setShowNoteNames 
+    setTheme, setKeyboardRange, setShowNoteNames, setShowKeymap
   } = useAppActions();
   const locale = useLocale();
   const theme = useTheme();
   const keyboardRange = useKeyboardRange();
   const showNoteNames = useShowNoteNames();
+  const showKeymap = useShowKeymap();
   const t = translations[locale] || translations.en;
   
   const [selectedSong, setSelectedSong] = useState<Song>(builtInSongs[0]);
@@ -46,12 +47,14 @@ export default function MidiPlayApp() {
   const [showResult, setShowResult] = useState(false);
   const [activeTab, setActiveTab] = useState<'songs' | 'achievements'>('songs');
   const [lastScore, setLastScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
+  const [volume, setVolumeState] = useState(80);
 
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
+    setVolume(volume);
 
     const KEYBOARD_MAP: Record<string, number> = {
       'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59, // C3 - B3
@@ -296,6 +299,34 @@ export default function MidiPlayApp() {
               <AchievementList />
             )}
           </div>
+          
+          <div className="shrink-0 border-t theme-border p-4 theme-bg-secondary/50 backdrop-blur-md flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1">
+                <button onClick={resetSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/5 transition-colors" title={t.reset}>
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+                <button onClick={() => { resetSong(); togglePlay(); }} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/5 transition-colors" title={t.retry}>
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+              </div>
+              <button onClick={togglePlay} className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/40 hover:bg-indigo-400 hover:scale-105 active:scale-95 transition-all">
+                {isPlaying ? <Pause className="h-6 w-6 fill-current" /> : <Play className="h-6 w-6 fill-current ml-1" />}
+              </button>
+              <button onClick={handleNextSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/5 transition-colors" title={t.nextSong}>
+                <SkipForward className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex flex-col w-full">
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest theme-text-secondary mb-1">
+                <span>{Math.floor(currentTime / 60)}:{(currentTime % 60).toFixed(0).padStart(2, '0')}</span>
+                <span>{Math.floor((selectedSong.duration || 0) / 60)}:{((selectedSong.duration || 0) % 60).toFixed(0).padStart(2, '0')}</span>
+              </div>
+              <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden border theme-border">
+                <motion.div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500" style={{ width: `${(currentTime / (selectedSong.duration || 1)) * 100}%` }} />
+              </div>
+            </div>
+          </div>
         </aside>
 
         {/* Main Content Area */}
@@ -313,60 +344,6 @@ export default function MidiPlayApp() {
             />
           </div>
 
-          <div className="shrink-0 flex justify-center items-center py-2 md:py-4 z-20 relative">
-            <div id="game-controls" className="flex items-center gap-2 md:gap-6 rounded-[2rem] theme-bg-secondary/40 backdrop-blur-2xl border theme-border p-2 md:p-4 shadow-2xl max-w-[95%] glow-indigo transition-all duration-500">
-              <div id="secondary-controls" className="flex items-center gap-1 md:gap-2 pl-2">
-                <button 
-                  id="btn-reset"
-                  onClick={resetSong}
-                  className="p-2 md:p-3 theme-text-secondary hover:theme-text-primary transition-all hover:bg-white/5 rounded-full"
-                  title={t.reset}
-                >
-                  <RotateCcw className="h-4 w-4 md:h-5 md:w-5" />
-                </button>
-                
-                <button 
-                  id="btn-retry"
-                  onClick={() => { resetSong(); togglePlay(); }}
-                  className="p-2 md:p-3 theme-text-secondary hover:theme-text-primary transition-all hover:bg-white/5 rounded-full"
-                  title={t.retry}
-                >
-                  <RefreshCw className="h-4 w-4 md:h-5 md:w-5" />
-                </button>
-              </div>
-              
-              <button
-                id="btn-play-pause"
-                onClick={togglePlay}
-                className="flex h-12 w-12 md:h-20 md:w-20 items-center justify-center rounded-full bg-indigo-500 text-white shadow-xl shadow-indigo-500/40 hover:bg-indigo-400 hover:scale-105 active:scale-95 transition-all group"
-              >
-                {isPlaying ? <Pause className="h-6 w-6 md:h-10 md:w-10 fill-current" /> : <Play className="h-6 w-6 md:h-10 md:w-10 fill-current ml-1" />}
-              </button>
-
-              <button 
-                id="btn-next-song"
-                onClick={handleNextSong}
-                className="p-2 md:p-3 theme-text-secondary hover:theme-text-primary transition-all hover:bg-white/5 rounded-full"
-                title={t.nextSong}
-              >
-                <SkipForward className="h-4 w-4 md:h-5 md:w-5" />
-              </button>
-
-              <div id="playback-progress" className="flex flex-col w-24 md:w-48 pr-4">
-                <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest theme-text-secondary mb-2">
-                  <span>{Math.floor(currentTime / 60)}:{(currentTime % 60).toFixed(0).padStart(2, '0')}</span>
-                  <span>{Math.floor((selectedSong.duration || 0) / 60)}:{((selectedSong.duration || 0) % 60).toFixed(0).padStart(2, '0')}</span>
-                </div>
-                <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden border theme-border">
-                  <motion.div 
-                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                    style={{ width: `${(currentTime / (selectedSong.duration || 1)) * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div id="keyboard-wrapper" className="shrink-0 relative z-20">
             <div className="absolute inset-x-0 -top-8 h-8 bg-gradient-to-t theme-bg-primary to-transparent pointer-events-none" />
             <Keyboard 
@@ -374,6 +351,12 @@ export default function MidiPlayApp() {
               startNote={keyboardRange.start} 
               endNote={keyboardRange.end} 
               showNoteNames={showNoteNames}
+              showKeymap={showKeymap}
+              keyMap={{
+                'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59,
+                'q': 60, '2': 61, 'w': 62, '3': 63, 'e': 64, 'r': 65, '5': 66, 't': 67, '6': 68, 'y': 69, '7': 70, 'u': 71,
+                'i': 72, '9': 73, 'o': 74, '0': 75, 'p': 76
+              }}
               onNoteOn={(midi) => setActiveNotes(prev => new Map(prev).set(midi, 0.7))}
               onNoteOff={(midi) => setActiveNotes(prev => { const next = new Map(prev); next.delete(midi); return next; })}
             />
@@ -561,11 +544,45 @@ export default function MidiPlayApp() {
                         />
                       </button>
                     </div>
+                    <div className="mt-4 flex items-center justify-between p-4 rounded-2xl theme-bg-secondary border theme-border">
+                      <span className="text-xs font-bold theme-text-primary">{t.showKeymap || 'Show PC Keyboard Map'}</span>
+                      <button 
+                        onClick={() => setShowKeymap(!showKeymap)}
+                        className={`w-12 h-6 rounded-full transition-all relative ${showKeymap ? 'bg-indigo-500' : 'bg-slate-700'}`}
+                      >
+                        <motion.div 
+                          animate={{ x: showKeymap ? 26 : 4 }}
+                          className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"
+                        />
+                      </button>
+                    </div>
                   </section>
                 </div>
 
                 {/* Right Column: MIDI & Info */}
                 <div className="space-y-8">
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Volume2 className="h-4 w-4 text-indigo-400" />
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.volume || 'Volume'}</label>
+                    </div>
+                    <div className="flex items-center gap-4 p-4 rounded-2xl theme-bg-secondary border theme-border">
+                      <input 
+                        type="range" 
+                        min="0" 
+                        max="100" 
+                        value={volume} 
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          setVolumeState(val);
+                          setVolume(val);
+                        }}
+                        className="w-full accent-indigo-500"
+                      />
+                      <span className="text-xs font-bold theme-text-primary w-8 text-right">{volume}%</span>
+                    </div>
+                  </section>
+
                   <section>
                     <div className="flex items-center gap-2 mb-4">
                       <Monitor className="h-4 w-4 text-indigo-400" />

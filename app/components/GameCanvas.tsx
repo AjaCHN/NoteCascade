@@ -62,6 +62,7 @@ export function GameCanvas({
     const x = (midi - START_NOTE) * keyWidth + keyWidth / 2;
     const id = Date.now() + Math.random();
     setFeedbacks((prev) => [...prev, { id, text, type, x, y: dimensions.height - HIT_LINE_Y - 50 }]);
+    hitEffects.current.push({ x, y: dimensions.height - HIT_LINE_Y, type, timestamp: Date.now() });
     setTimeout(() => {
       setFeedbacks((prev) => prev.filter((f) => f.id !== id));
     }, 1000);
@@ -186,6 +187,7 @@ export function GameCanvas({
   }, [currentTime, song]);
 
   const activeNoteStartTimes = useRef<Map<number, number>>(new Map());
+  const hitEffects = useRef<{ x: number; y: number; type: Feedback['type']; timestamp: number }[]>([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -239,6 +241,35 @@ export function GameCanvas({
       const endNote = END_NOTE;
       const totalNotes = endNote - startNote + 1;
       const keyWidth = width / totalNotes;
+
+      // Draw hit effects
+      const now = Date.now();
+      hitEffects.current = hitEffects.current.filter(effect => now - effect.timestamp < 500);
+      hitEffects.current.forEach(effect => {
+        const age = now - effect.timestamp;
+        const progress = age / 500;
+        const opacity = 1 - progress;
+        const radius = 10 + progress * 40;
+        
+        let color = '255, 255, 255';
+        if (effect.type === 'perfect') color = '52, 211, 153'; // emerald-400
+        else if (effect.type === 'good') color = '96, 165, 250'; // blue-400
+        else if (effect.type === 'miss') color = '251, 191, 36'; // amber-400
+        else if (effect.type === 'wrong') color = '244, 63, 94'; // rose-400
+
+        ctx.strokeStyle = `rgba(${color}, ${opacity})`;
+        ctx.lineWidth = 4 * (1 - progress);
+        ctx.beginPath();
+        ctx.arc(effect.x, effect.y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        if (effect.type === 'perfect' || effect.type === 'good') {
+           ctx.fillStyle = `rgba(${color}, ${opacity * 0.5})`;
+           ctx.beginPath();
+           ctx.arc(effect.x, effect.y, radius * 0.5, 0, Math.PI * 2);
+           ctx.fill();
+        }
+      });
 
       // Update active note start times
       activeNotes.forEach((_, midi) => {
@@ -313,7 +344,6 @@ export function GameCanvas({
       ctx.fillRect(barX + barWidth / 2 - 1, barY - 4, 2, barHeight + 8);
 
       // Draw recent hits
-      const now = Date.now();
       recentHits.current = recentHits.current.filter(h => now - h.timestamp < 1500);
       
       recentHits.current.forEach(hit => {
@@ -466,9 +496,9 @@ export function GameCanvas({
               animate={{ y: f.y - 100, opacity: 1, scale: 1.2 }}
               exit={{ opacity: 0 }}
               className={`absolute -translate-x-1/2 text-center font-black text-xl italic drop-shadow-lg ${
-                f.type === 'perfect' ? 'text-yellow-400' : 
-                f.type === 'good' ? 'text-emerald-400' : 
-                f.type === 'miss' ? 'text-rose-500' : 'text-orange-500'
+                f.type === 'perfect' ? 'text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]' : 
+                f.type === 'good' ? 'text-blue-400 drop-shadow-[0_0_10px_rgba(96,165,250,0.8)]' : 
+                f.type === 'miss' ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]' : 'text-rose-400 drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]'
               }`}
             >
               {f.text.split('\n').map((line, i) => (

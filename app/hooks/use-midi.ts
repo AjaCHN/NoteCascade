@@ -128,7 +128,8 @@ export function useMidi() {
       }
 
       try {
-        const access = await navigator.requestMIDIAccess();
+        // Request MIDI access without sysex first, as it requires fewer permissions
+        const access = await navigator.requestMIDIAccess({ sysex: false }) as unknown as WebMidi.MIDIAccess;
         midiAccess = access;
         setIsSupported(true);
         updateDevices(access);
