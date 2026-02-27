@@ -57,16 +57,46 @@ export function GameCanvas({
   const START_NOTE = keyboardRange.start;
   const END_NOTE = keyboardRange.end;
 
+  const keyGeometries = React.useMemo(() => {
+    const geometries = new Map<number, { x: number, width: number, isBlack: boolean }>();
+    let whiteKeysCount = 0;
+    for (let i = START_NOTE; i <= END_NOTE; i++) {
+      if (!isBlackKey(i)) whiteKeysCount++;
+    }
+    
+    const whiteKeyWidth = dimensions.width / whiteKeysCount;
+    let whiteKeyIndex = 0;
+    
+    for (let midi = START_NOTE; midi <= END_NOTE; midi++) {
+      const isBlack = isBlackKey(midi);
+      let x = 0;
+      let width = 0;
+      
+      if (!isBlack) {
+        x = whiteKeyIndex * whiteKeyWidth;
+        width = whiteKeyWidth;
+        whiteKeyIndex++;
+      } else {
+        x = (whiteKeyIndex - 1) * whiteKeyWidth + (whiteKeyWidth * 0.65);
+        width = whiteKeyWidth * 0.7;
+      }
+      
+      geometries.set(midi, { x, width, isBlack });
+    }
+    return geometries;
+  }, [START_NOTE, END_NOTE, dimensions.width]);
+
   const addFeedback = useCallback((text: string, type: Feedback['type'], midi: number) => {
-    const keyWidth = dimensions.width / (END_NOTE - START_NOTE + 1);
-    const x = (midi - START_NOTE) * keyWidth + keyWidth / 2;
+    const geo = keyGeometries.get(midi);
+    if (!geo) return;
+    const x = geo.x + geo.width / 2;
     const id = Date.now() + Math.random();
     setFeedbacks((prev) => [...prev, { id, text, type, x, y: dimensions.height - HIT_LINE_Y - 50 }]);
     hitEffects.current.push({ x, y: dimensions.height - HIT_LINE_Y, type, timestamp: Date.now() });
     setTimeout(() => {
       setFeedbacks((prev) => prev.filter((f) => f.id !== id));
     }, 1000);
-  }, [dimensions, START_NOTE, END_NOTE]);
+  }, [dimensions.height, keyGeometries]);
 
   // Handle responsive canvas sizing
   useEffect(() => {
@@ -286,7 +316,10 @@ export function GameCanvas({
       // Draw active note columns (visual feedback)
       activeNotes.forEach((velocity, midi) => {
         if (midi >= startNote && midi <= endNote) {
-          const x = (midi - startNote) * keyWidth;
+          const geo = keyGeometries.get(midi);
+          if (!geo) return;
+          const x = geo.x;
+          const currentKeyWidth = geo.width;
           const startTime = activeNoteStartTimes.current.get(midi) || Date.now();
           const duration = Date.now() - startTime;
           
@@ -303,14 +336,14 @@ export function GameCanvas({
           gradient.addColorStop(1, `rgba(${glowColor}, 0)`);
           
           ctx.fillStyle = gradient;
-          ctx.fillRect(x + 1, height - HIT_LINE_Y - growHeight, keyWidth - 2, growHeight);
+          ctx.fillRect(x + 1, height - HIT_LINE_Y - growHeight, currentKeyWidth - 2, growHeight);
           
           // Particles at the top of the column
           if (velocity > 0.4) {
              ctx.fillStyle = theme === 'light' ? `rgba(0, 0, 0, ${velocity * 0.5})` : `rgba(255, 255, 255, ${velocity * 0.8})`;
              const particleCount = Math.floor(velocity * 5);
              for(let i=0; i < particleCount; i++) {
-                 const px = x + Math.random() * keyWidth;
+                 const px = x + Math.random() * currentKeyWidth;
                  const py = height - HIT_LINE_Y - growHeight + Math.random() * 30;
                  const size = Math.random() * 2 + 1;
                  ctx.globalAlpha = Math.random();
@@ -321,7 +354,7 @@ export function GameCanvas({
           
           // Hit bar highlight
           ctx.fillStyle = theme === 'light' ? `rgba(0, 0, 0, ${0.8 * velocity})` : `rgba(255, 255, 255, ${0.8 * velocity})`;
-          ctx.fillRect(x + 2, height - HIT_LINE_Y - 2, keyWidth - 4, 4);
+          ctx.fillRect(x + 2, height - HIT_LINE_Y - 2, currentKeyWidth - 4, 4);
         }
       });
 
@@ -384,7 +417,11 @@ export function GameCanvas({
 
       // Draw falling notes
       song.notes?.forEach((note, idx) => {
-        const noteX = (note.midi - startNote) * keyWidth;
+        const geo = keyGeometries.get(note.midi);
+        if (!geo) return;
+        
+        const noteX = geo.x;
+        const currentKeyWidth = geo.width;
         const noteY = height - HIT_LINE_Y - (note.time - currentTime) * FALL_SPEED;
         const noteHeight = note.duration * FALL_SPEED;
 
@@ -395,7 +432,7 @@ export function GameCanvas({
           if (isProcessed) {
             ctx.fillStyle = 'rgba(156, 163, 175, 0.1)';
             ctx.beginPath();
-            ctx.roundRect(noteX + 2, noteY - noteHeight, keyWidth - 4, noteHeight, 6);
+            ctx.roundRect(noteX + 2, noteY - noteHeight, currentKeyWidth - 4, noteHeight, 6);
             ctx.fill();
           } else {
             const gradient = ctx.createLinearGradient(noteX, noteY - noteHeight, noteX, noteY);
@@ -404,19 +441,19 @@ export function GameCanvas({
             
             ctx.fillStyle = gradient;
             ctx.beginPath();
-            ctx.roundRect(noteX + 2, noteY - noteHeight, keyWidth - 4, noteHeight, 6);
+            ctx.roundRect(noteX + 2, noteY - noteHeight, currentKeyWidth - 4, noteHeight, 6);
             ctx.fill();
             
             // Highlight top edge
             ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-            ctx.fillRect(noteX + 4, noteY - noteHeight + 2, keyWidth - 8, 4);
+            ctx.fillRect(noteX + 4, noteY - noteHeight + 2, currentKeyWidth - 8, 4);
 
             if (showNoteNames && noteHeight > 20) {
               const noteName = getNoteName(note.midi);
               ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
               ctx.font = 'bold 10px Inter';
               ctx.textAlign = 'center';
-              ctx.fillText(noteName, noteX + keyWidth / 2, noteY - noteHeight / 2 + 4);
+              ctx.fillText(noteName, noteX + currentKeyWidth / 2, noteY - noteHeight / 2 + 4);
             }
 
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
@@ -517,4 +554,9 @@ function getNoteName(midi: number): string {
   const octave = Math.floor(midi / 12) - 1;
   const name = names[midi % 12];
   return `${name}${octave}`;
+}
+
+function isBlackKey(midi: number): boolean {
+  const noteClass = midi % 12;
+  return [1, 3, 6, 8, 10].includes(noteClass);
 }
