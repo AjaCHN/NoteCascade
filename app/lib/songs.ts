@@ -1,4 +1,5 @@
 import { Midi } from '@tonejs/midi';
+import { generatedSongs } from './song-data';
 
 export interface Note {
   midi: number;
@@ -25,40 +26,7 @@ export interface Song {
   unlockCondition?: UnlockCondition;
 }
 
-export const builtInSongs: Song[] = [
-  {
-    id: 'twinkle',
-    title: 'Twinkle Twinkle Little Star',
-    artist: 'Traditional',
-    difficulty: 1,
-    midiUrl: '/midi/twinkle.mid',
-    style: 'Classic',
-  },
-  {
-    id: 'ode_to_joy',
-    title: 'Ode to Joy',
-    artist: 'Beethoven',
-    difficulty: 2,
-    midiUrl: '/midi/ode_to_joy.mid',
-    style: 'Classic',
-  },
-  {
-    id: 'fur_elise',
-    title: 'Fur Elise',
-    artist: 'Beethoven',
-    difficulty: 3,
-    midiUrl: '/midi/fur_elise.mid',
-    style: 'Classic',
-  },
-  {
-    id: 'canon_in_d',
-    title: 'Canon in D',
-    artist: 'Pachelbel',
-    difficulty: 4,
-    midiUrl: '/midi/canon.mid',
-    style: 'Classic',
-  },
-];
+export const builtInSongs: Song[] = generatedSongs;
 
 export async function parseMidiFile(file: File): Promise<Song> {
   const arrayBuffer = await file.arrayBuffer();
