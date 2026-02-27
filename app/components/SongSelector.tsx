@@ -90,8 +90,8 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   return (
     <div className="flex flex-col space-y-4 p-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-black text-white flex items-center gap-3 text-glow">
-          <Music className="w-6 h-6 text-indigo-400" />
+        <h2 className="text-xl font-black theme-text-primary flex items-center gap-3 text-glow">
+          <Music className="w-6 h-6 text-indigo-500 dark:text-indigo-400" />
           {t.library}
         </h2>
         <div className="flex items-center gap-3">
@@ -105,19 +105,19 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="p-2 rounded-xl bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:bg-white/10 hover:border-white/10 transition-all shadow-lg"
+            className="p-2 rounded-xl theme-bg-secondary theme-border theme-text-secondary hover:theme-text-primary hover:theme-border-primary transition-all shadow-lg"
             title={t.uploadMidi}
           >
             <Upload className={`w-4 h-4 ${isUploading ? 'animate-bounce' : ''}`} />
           </button>
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 bg-white/5 px-3 py-1 rounded-full border border-white/5">
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary theme-bg-secondary px-3 py-1 rounded-full theme-border">
             {filteredSongs.length} {filteredSongs.length === 1 ? t.song : t.songsCount}
           </span>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="space-y-4 pb-4 border-b border-white/5">
+      <div className="space-y-4 pb-4 border-b theme-border">
         <div className="flex flex-wrap gap-2">
           {styles.map(style => (
             <button
@@ -126,7 +126,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
               className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all border ${
                 filter === style 
                   ? 'bg-indigo-500 border-indigo-400 text-white shadow-lg shadow-indigo-500/20' 
-                  : 'bg-white/5 border-white/5 text-slate-500 hover:border-white/10 hover:text-slate-300'
+                  : 'theme-bg-secondary theme-border theme-text-secondary hover:theme-border-primary hover:theme-text-primary'
               }`}
             >
               {style === 'all' ? t.all : (t[`style_${style.toLowerCase()}`] || style)}
@@ -134,7 +134,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
           ))}
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">{t.level}</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.level}</span>
           <div className="flex gap-1.5">
             {difficulties.map(diff => (
               <button
@@ -143,7 +143,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
                 className={`w-8 h-8 flex items-center justify-center rounded-xl text-[10px] font-bold transition-all border ${
                   difficultyFilter === diff 
                     ? 'bg-amber-500 border-amber-400 text-white shadow-lg shadow-amber-500/20' 
-                    : 'bg-white/5 border-white/5 text-slate-600 hover:border-white/10'
+                    : 'theme-bg-secondary theme-border theme-text-secondary hover:theme-border-primary hover:theme-text-primary'
                 }`}
               >
                 {diff === 'all' ? '∞' : diff}
@@ -164,10 +164,10 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
               disabled={!unlocked}
               className={`group flex items-center justify-between rounded-2xl border p-5 transition-all relative overflow-hidden ${
                 !unlocked 
-                  ? 'border-white/5 bg-white/2 opacity-40 cursor-not-allowed'
+                  ? 'theme-border bg-black/5 dark:bg-white/2 opacity-40 cursor-not-allowed'
                   : isSelected
                     ? 'border-indigo-500 bg-indigo-500/10 shadow-xl shadow-indigo-500/10'
-                    : 'border-white/5 bg-white/5 hover:border-white/10 hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98]'
+                    : 'theme-border theme-bg-secondary hover:border-indigo-500/30 hover:bg-indigo-500/5 hover:scale-[1.02] active:scale-[0.98]'
               }`}
             >
               {isSelected && (
@@ -179,30 +179,30 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
               
               <div className="flex flex-col items-start gap-2 relative z-10">
                 <div className="flex items-center gap-2">
-                  <span className={`font-black text-xl tracking-tight leading-none ${unlocked ? 'text-white' : 'text-slate-600'}`}>
+                  <span className={`font-black text-xl tracking-tight leading-none ${unlocked ? 'theme-text-primary' : 'theme-text-secondary'}`}>
                     {t[`song_${song.id}`] || song.title}
                   </span>
-                  {!unlocked && <Lock className="w-3.5 h-3.5 text-slate-600" />}
+                  {!unlocked && <Lock className="w-3.5 h-3.5 theme-text-secondary" />}
                 </div>
                 
                 <div className="flex items-center gap-2">
                   <span className={`text-[9px] uppercase tracking-[0.2em] font-black px-2 py-0.5 rounded-md border ${
-                    unlocked ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/20' : 'bg-slate-900 text-slate-700 border-slate-800'
+                    unlocked ? 'bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 border-indigo-500/20' : 'bg-slate-200 dark:bg-slate-900 text-slate-500 dark:text-slate-700 border-slate-300 dark:border-slate-800'
                   }`}>
                     {song.style ? (t[`style_${song.style.toLowerCase()}`] || song.style) : ''}
                   </span>
-                  <span className="text-xs text-slate-500 font-bold uppercase tracking-widest opacity-80">{t[`artist_${song.artist.toLowerCase()}`] || song.artist}</span>
+                  <span className="text-xs theme-text-secondary font-bold uppercase tracking-widest opacity-80">{t[`artist_${song.artist.toLowerCase()}`] || song.artist}</span>
                 </div>
                 
                 {unlocked ? (
                   getHighScore(song.id) !== null && (
-                    <div className="flex items-center gap-1.5 mt-1 text-amber-400/90">
+                    <div className="flex items-center gap-1.5 mt-1 text-amber-500 dark:text-amber-400/90">
                       <Trophy className="w-3.5 h-3.5" />
                       <span className="text-[10px] font-black tabular-nums tracking-widest">{getHighScore(song.id)?.toLocaleString()}</span>
                     </div>
                   )
                 ) : (
-                  <div className="flex items-center gap-1.5 mt-1 text-rose-400/80">
+                  <div className="flex items-center gap-1.5 mt-1 text-rose-500 dark:text-rose-400/80">
                     <Lock className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-bold uppercase tracking-widest">{getUnlockDescription(song.unlockCondition)}</span>
                   </div>
@@ -216,14 +216,14 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
                       key={i}
                       className={`h-3.5 w-3.5 ${
                         i < song.difficulty 
-                          ? unlocked ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]' : 'fill-slate-700 text-slate-700'
-                          : 'text-slate-800'
+                          ? unlocked ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]' : 'fill-slate-300 dark:fill-slate-700 text-slate-300 dark:text-slate-700'
+                          : 'text-slate-200 dark:text-slate-800'
                       }`}
                     />
                   ))}
                 </div>
                 {unlocked && (
-                  <div className={`flex items-center gap-1 transition-all ${isSelected ? 'text-indigo-400' : 'text-slate-600 group-hover:text-indigo-400'}`}>
+                  <div className={`flex items-center gap-1 transition-all ${isSelected ? 'text-indigo-500 dark:text-indigo-400' : 'theme-text-secondary group-hover:text-indigo-500 dark:group-hover:text-indigo-400'}`}>
                     <span className="text-[10px] font-black uppercase tracking-[0.2em]">{t.play}</span>
                     <ChevronRight className={`h-4 w-4 transition-transform group-hover:translate-x-1`} />
                   </div>
@@ -232,12 +232,12 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
             </button>
           );
         }) : (
-          <div className="flex flex-col items-center justify-center py-20 px-6 text-center border border-dashed border-white/10 rounded-[2rem] bg-white/2">
-            <Music className="w-12 h-12 text-slate-800 mb-4 opacity-50" />
-            <p className="text-slate-500 text-sm font-bold uppercase tracking-[0.2em]">{t.noSongs}</p>
+          <div className="flex flex-col items-center justify-center py-20 px-6 text-center border border-dashed theme-border rounded-[2rem] theme-bg-secondary">
+            <Music className="w-12 h-12 theme-text-secondary mb-4 opacity-50" />
+            <p className="theme-text-secondary text-sm font-bold uppercase tracking-[0.2em]">{t.noSongs}</p>
             <button 
               onClick={() => { setFilter('all'); setDifficultyFilter('all'); }}
-              className="mt-6 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 hover:text-indigo-300 underline underline-offset-8 decoration-indigo-500/30"
+              className="mt-6 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 underline underline-offset-8 decoration-indigo-500/30"
             >
               {t.clearFilters}
             </button>

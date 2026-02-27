@@ -166,26 +166,18 @@ export function GameCanvas({
           // Add to recent hits for timing bar
           recentHits.current.push({ timeDiff, timestamp: Date.now(), type });
 
-          setScore(prev => {
-            const newScore = {
-              ...prev,
-              perfect: prev.perfect + (type === 'perfect' ? 1 : 0),
-              good: prev.good + (type === 'perfect' ? 0 : 1),
-              currentScore: prev.currentScore + points
-            };
-            onScoreUpdate(newScore);
-            return newScore;
-          });
+          setScore(prev => ({
+            ...prev,
+            perfect: prev.perfect + (type === 'perfect' ? 1 : 0),
+            good: prev.good + (type === 'perfect' ? 0 : 1),
+            currentScore: prev.currentScore + points
+          }));
 
           addFeedback(text, type, midi);
         } else {
           // Only penalize if it's within the playable range
           if (midi >= START_NOTE && midi <= END_NOTE) {
-            setScore(prev => {
-              const newScore = { ...prev, wrong: prev.wrong + 1, currentScore: Math.max(0, prev.currentScore - 10) };
-              onScoreUpdate(newScore);
-              return newScore;
-            });
+            setScore(prev => ({ ...prev, wrong: prev.wrong + 1, currentScore: Math.max(0, prev.currentScore - 10) }));
             addFeedback(t.wrong.toUpperCase(), 'wrong', midi);
           }
         }
@@ -195,17 +187,17 @@ export function GameCanvas({
     song.notes?.forEach((n, idx) => {
       if (!processedNotes.current.has(idx) && n.time < currentTime - GOOD_THRESHOLD) {
         processedNotes.current.add(idx);
-        setScore(prev => {
-          const newScore = { ...prev, miss: prev.miss + 1 };
-          onScoreUpdate(newScore);
-          return newScore;
-        });
+        setScore(prev => ({ ...prev, miss: prev.miss + 1 }));
         addFeedback(t.miss.toUpperCase(), 'miss', n.midi);
       }
     });
 
     lastActiveNotes.current = new Set(activeNotes.keys());
-  }, [currentTime, activeNotes, song, isPlaying, onScoreUpdate, addFeedback, t, START_NOTE, END_NOTE]);
+  }, [currentTime, activeNotes, song, isPlaying, addFeedback, t, START_NOTE, END_NOTE]);
+
+  useEffect(() => {
+    onScoreUpdate(score);
+  }, [score, onScoreUpdate]);
 
   useEffect(() => {
     if (currentTime === 0) {
