@@ -75,6 +75,41 @@ export const playMetronomeClick = (isFirstBeat: boolean = false) => {
   }
 };
 
+let metronomeEventId: number | null = null;
+
+export const setMetronome = (enabled: boolean, bpm: number, beats: number) => {
+  Tone.Transport.bpm.value = bpm;
+  Tone.Transport.timeSignature = beats;
+  
+  if (metronomeEventId !== null) {
+    Tone.Transport.clear(metronomeEventId);
+    metronomeEventId = null;
+  }
+
+  if (enabled) {
+    let beatCount = 0;
+    metronomeEventId = Tone.Transport.scheduleRepeat((time) => {
+      if (metronomeSynth) {
+        const isFirstBeat = beatCount % beats === 0;
+        metronomeSynth.triggerAttackRelease(isFirstBeat ? "C5" : "C4", "32n", time, isFirstBeat ? 0.8 : 0.4);
+      }
+      beatCount++;
+    }, "4n");
+  }
+};
+
+export const startTransport = () => {
+  if (Tone.Transport.state !== 'started') {
+    Tone.Transport.start();
+  }
+};
+
+export const stopTransport = () => {
+  if (Tone.Transport.state === 'started') {
+    Tone.Transport.stop();
+  }
+};
+
 export const setVolume = (value: number) => {
   if (masterVolume) {
     // Convert 0-100 to decibels. 100 = 0dB, 0 = -60dB

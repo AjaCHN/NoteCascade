@@ -1,14 +1,14 @@
 /**
  * @file app/page.tsx
- * @version v1.1.0
+ * @version v1.1.2
  */
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useMidi } from './hooks/use-midi';
-import { initAudio, playNote, setVolume } from './lib/audio';
+import { initAudio, playNote, setVolume, setMetronome, startTransport, stopTransport } from './lib/audio';
 import { Song, builtInSongs } from './lib/songs';
-import { getNextSong, useAppActions, useLocale, useTheme, useKeyboardRange, useShowNoteNames, useShowKeymap, Theme } from './lib/store';
+import { getNextSong, useAppActions, useLocale, useTheme, useKeyboardRange, useShowNoteNames, useShowKeymap, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, Theme } from './lib/store';
 import { translations, Locale } from './lib/translations';
 import { Keyboard } from './components/Keyboard';
 import { GameCanvas } from './components/GameCanvas';
@@ -30,13 +30,17 @@ export default function MidiPlayApp() {
   const { activeNotes, setActiveNotes, inputs, outputs, selectedInputId, setSelectedInputId } = useMidi();
   const { 
     addScore, setLocale, incrementPracticeTime, updateStreak, 
-    setTheme, setKeyboardRange, setShowNoteNames, setShowKeymap
+    setTheme, setKeyboardRange, setShowNoteNames, setShowKeymap,
+    setMetronomeEnabled, setMetronomeBpm, setMetronomeBeats
   } = useAppActions();
   const locale = useLocale();
   const theme = useTheme();
   const keyboardRange = useKeyboardRange();
   const showNoteNames = useShowNoteNames();
   const showKeymap = useShowKeymap();
+  const metronomeEnabled = useMetronomeEnabled();
+  const metronomeBpm = useMetronomeBpm();
+  const metronomeBeats = useMetronomeBeats();
   const t = translations[locale] || translations.en;
   
   const [selectedSong, setSelectedSong] = useState<Song>(builtInSongs[0]);
@@ -166,19 +170,26 @@ export default function MidiPlayApp() {
     });
   }, [currentTime, isPlaying, selectedSong]);
 
+  useEffect(() => {
+    setMetronome(metronomeEnabled, metronomeBpm, metronomeBeats);
+  }, [metronomeEnabled, metronomeBpm, metronomeBeats]);
+
   const togglePlay = useCallback(() => {
     if (isPlaying) {
       setIsPlaying(false);
+      stopTransport();
     } else {
       if (currentTime >= (selectedSong.duration || 0)) {
         setCurrentTime(0);
       }
       setIsPlaying(true);
+      startTransport();
     }
   }, [isPlaying, currentTime, selectedSong]);
 
   const resetSong = useCallback(() => {
     setIsPlaying(false);
+    stopTransport();
     setCurrentTime(0);
     setLastScore({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
   }, []);
@@ -580,6 +591,66 @@ export default function MidiPlayApp() {
                         className="w-full accent-indigo-500"
                       />
                       <span className="text-xs font-bold theme-text-primary w-8 text-right">{volume}%</span>
+                    </div>
+                  </section>
+
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <MusicIcon className="h-4 w-4 text-indigo-400" />
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">Metronome</label>
+                    </div>
+                    <div className="space-y-4 p-4 rounded-2xl theme-bg-secondary border theme-border">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold theme-text-primary">Enable Metronome</span>
+                        <button 
+                          onClick={() => setMetronomeEnabled(!metronomeEnabled)}
+                          className={`w-12 h-6 rounded-full transition-all relative ${metronomeEnabled ? 'bg-indigo-500' : 'bg-slate-700'}`}
+                        >
+                          <motion.div 
+                            animate={{ x: metronomeEnabled ? 26 : 4 }}
+                            className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm"
+                          />
+                        </button>
+                      </div>
+                      
+                      <div className={`space-y-4 transition-opacity ${metronomeEnabled ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
+                        <div>
+                          <div className="flex justify-between text-[10px] theme-text-secondary font-bold mb-2">
+                            <span>BPM</span>
+                            <span>{metronomeBpm}</span>
+                          </div>
+                          <input 
+                            type="range" 
+                            min="60" 
+                            max="240" 
+                            value={metronomeBpm} 
+                            onChange={(e) => setMetronomeBpm(parseInt(e.target.value))}
+                            className="w-full accent-indigo-500"
+                          />
+                        </div>
+                        
+                        <div>
+                          <div className="flex justify-between text-[10px] theme-text-secondary font-bold mb-2">
+                            <span>Beats per Measure</span>
+                            <span>{metronomeBeats}</span>
+                          </div>
+                          <div className="grid grid-cols-4 gap-2">
+                            {[2, 3, 4, 6].map(beats => (
+                              <button
+                                key={beats}
+                                onClick={() => setMetronomeBeats(beats)}
+                                className={`px-2 py-2 rounded-xl border text-[10px] font-bold transition-all ${
+                                  metronomeBeats === beats 
+                                    ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400' 
+                                    : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-text-primary'
+                                }`}
+                              >
+                                {beats}/4
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </section>
 

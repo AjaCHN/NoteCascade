@@ -42,6 +42,9 @@ interface AppState {
   keyboardRange: { start: number; end: number };
   showNoteNames: boolean;
   showKeymap: boolean;
+  metronomeEnabled: boolean;
+  metronomeBpm: number;
+  metronomeBeats: number;
   actions: {
     unlockAchievement: (id: string) => void;
     addScore: (score: ScoreRecord) => void;
@@ -51,6 +54,9 @@ interface AppState {
     setKeyboardRange: (start: number, end: number) => void;
     setShowNoteNames: (show: boolean) => void;
     setShowKeymap: (show: boolean) => void;
+    setMetronomeEnabled: (enabled: boolean) => void;
+    setMetronomeBpm: (bpm: number) => void;
+    setMetronomeBeats: (beats: number) => void;
     resetProgress: () => void;
     checkAchievements: () => void;
     updateStreak: () => void;
@@ -85,6 +91,9 @@ export const useAppStore = create<AppState>()(
       keyboardRange: { start: 48, end: 84 },
       showNoteNames: true,
       showKeymap: true,
+      metronomeEnabled: false,
+      metronomeBpm: 120,
+      metronomeBeats: 4,
       actions: {
         unlockAchievement: (id) =>
           set((state) => {
@@ -200,6 +209,9 @@ export const useAppStore = create<AppState>()(
         setKeyboardRange: (start, end) => set({ keyboardRange: { start, end } }),
         setShowNoteNames: (showNoteNames) => set({ showNoteNames }),
         setShowKeymap: (showKeymap) => set({ showKeymap }),
+        setMetronomeEnabled: (metronomeEnabled) => set({ metronomeEnabled }),
+        setMetronomeBpm: (metronomeBpm) => set({ metronomeBpm }),
+        setMetronomeBeats: (metronomeBeats) => set({ metronomeBeats }),
         resetProgress: () =>
           set({
             achievements: INITIAL_ACHIEVEMENTS,
@@ -214,6 +226,9 @@ export const useAppStore = create<AppState>()(
             keyboardRange: { start: 48, end: 84 },
             showNoteNames: true,
             showKeymap: true,
+            metronomeEnabled: false,
+            metronomeBpm: 120,
+            metronomeBeats: 4,
           }),
       },
     }),
@@ -237,6 +252,9 @@ export const useAppStore = create<AppState>()(
         keyboardRange: state.keyboardRange,
         showNoteNames: state.showNoteNames,
         showKeymap: state.showKeymap,
+        metronomeEnabled: state.metronomeEnabled,
+        metronomeBpm: state.metronomeBpm,
+        metronomeBeats: state.metronomeBeats,
       }),
       merge: (persistedState, currentState) => {
         // Merge logic to ensure new achievements are added to persisted state
@@ -270,6 +288,9 @@ export const useTheme = () => useAppStore((state) => state.theme);
 export const useKeyboardRange = () => useAppStore((state) => state.keyboardRange);
 export const useShowNoteNames = () => useAppStore((state) => state.showNoteNames);
 export const useShowKeymap = () => useAppStore((state) => state.showKeymap);
+export const useMetronomeEnabled = () => useAppStore((state) => state.metronomeEnabled);
+export const useMetronomeBpm = () => useAppStore((state) => state.metronomeBpm);
+export const useMetronomeBeats = () => useAppStore((state) => state.metronomeBeats);
 export const useAppActions = () => useAppStore((state) => state.actions);
 
 export function getNextSong(currentSong: Song): Song {
