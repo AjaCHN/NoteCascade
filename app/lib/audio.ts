@@ -217,6 +217,51 @@ export const stopNote = (note: string | number) => {
   }
 };
 
-export const getAudioContext = () => {
-  return Tone.getContext();
+export const clearScheduledEvents = () => {
+  Tone.Transport.cancel();
+};
+
+export const scheduleNote = (
+  note: { midi: number; time: number; duration: number; velocity: number },
+  onStart?: () => void,
+  onEnd?: () => void
+) => {
+  const noteToPlay = Tone.Frequency(note.midi, "midi").toNote();
+  
+  Tone.Transport.schedule((time) => {
+    let played = false;
+    
+    // Trigger UI callback
+    if (onStart) {
+      Tone.Draw.schedule(onStart, time);
+    }
+
+    if (currentInstrument === 'piano' && piano?.loaded) {
+      piano.triggerAttackRelease(noteToPlay, note.duration, note.velocity, time);
+      played = true;
+    } else if (currentInstrument === 'epiano' && epiano) {
+      epiano.triggerAttackRelease(noteToPlay, note.duration, note.velocity, time);
+      played = true;
+    } else if (currentInstrument === 'strings' && strings) {
+      strings.triggerAttackRelease(noteToPlay, note.duration, note.velocity, time);
+      played = true;
+    } 
+    
+    if (!played && synth) {
+      synth.triggerAttackRelease(noteToPlay, note.duration, note.velocity, time);
+    }
+  }, note.time);
+
+  // Schedule note end callback for UI
+  if (onEnd) {
+    Tone.Transport.schedule((time) => {
+      Tone.Draw.schedule(onEnd, time);
+    }, note.time + note.duration);
+  }
+};
+
+export const ensureAudioContext = async () => {
+  if (Tone.getContext().state !== 'running') {
+    await Tone.getContext().resume();
+  }
 };

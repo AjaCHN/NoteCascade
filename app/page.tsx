@@ -6,7 +6,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useMidi } from './hooks/use-midi';
-import { initAudio, playNote, startNote, stopNote, setVolume, setMetronome, startTransport, stopTransport, setAudioInstrument } from './lib/audio';
+import { initAudio, playNote, startNote, stopNote, setVolume, setMetronome, startTransport, stopTransport, setAudioInstrument, scheduleNote, clearScheduledEvents, ensureAudioContext } from './lib/audio';
+import * as Tone from 'tone';
 import { Song, builtInSongs } from './lib/songs';
 import { getNextSong, useAppActions, useLocale, useTheme, useInstrument, usePlayMode, useKeyboardRange, useShowNoteNames, useShowKeymap, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, Theme, Instrument, PlayMode } from './lib/store';
 import { translations, Locale } from './lib/translations';
@@ -176,78 +177,98 @@ export default function MidiPlayApp() {
     setShowResult(true);
   }, [lastScore, updateStreak, addScore, selectedSong.id, selectedSong.notes?.length, playMode]);
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setCurrentTime((prev) => {
-          return prev + 0.1;
-        });
-        if (playMode === 'perform') {
-          incrementPracticeTime(0.1);
-        }
-      }, 100);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, incrementPracticeTime, playMode]);
-
-  useEffect(() => {
-    if (isPlaying && currentTime >= (selectedSong.duration || 0)) {
-      setIsPlaying(false);
-      handleSongEnd();
-      setCurrentTime(0);
-    }
-  }, [currentTime, isPlaying, selectedSong.duration, handleSongEnd]);
-
-  useEffect(() => {
-    if (!isPlaying) return;
-    
-    // console.log('Checking notes at time:', currentTime, 'Mode:', playMode);
-
-    selectedSong.notes?.forEach(note => {
-      if (playMode === 'demo') {
-        // Use a small epsilon for floating point comparison
-        const EPSILON = 0.001;
-        const timeStart = currentTime - EPSILON;
-        const timeEnd = currentTime + 0.1 - EPSILON;
-
-        // Play sound and simulate key press
-        if (note.time >= timeStart && note.time < timeEnd) {
-          // console.log('Playing note:', note.midi, 'at time:', note.time);
-          playNote(note.midi, note.velocity, note.duration);
-          setActiveNotes(prev => new Map(prev).set(note.midi, note.velocity));
-        }
-        
-        // Simulate key release
-        const noteEndTime = note.time + note.duration;
-        if (noteEndTime >= timeStart && noteEndTime < timeEnd) {
-          setActiveNotes(prev => {
-            const next = new Map(prev);
-            next.delete(note.midi);
-            return next;
-          });
-        }
-      }
-    });
-  }, [currentTime, isPlaying, selectedSong, playMode, setActiveNotes]);
-
-  useEffect(() => {
-    setMetronome(metronomeEnabled, metronomeBpm, metronomeBeats);
-  }, [metronomeEnabled, metronomeBpm, metronomeBeats]);
+// Removed duplicate imports
 
   const togglePlay = useCallback(async () => {
     if (isPlaying) {
       setIsPlaying(false);
       stopTransport();
+      clearScheduledEvents();
+      setActiveNotes(new Map());
     } else {
-      await initAudio(); // Ensure audio context is ready
+      await initAudio();
+      await ensureAudioContext();
+      
       if (currentTime >= (selectedSong.duration || 0)) {
         setCurrentTime(0);
       }
+
+      // Schedule notes for Demo mode
+      if (playMode === 'demo') {
+        clearScheduledEvents();
+        selectedSong.notes?.forEach(note => {
+          // Only schedule future notes if resuming? 
+          // For simplicity, we assume start from 0 or current time.
+          // Since we reset Transport on stop, we schedule all.
+          
+          scheduleNote(
+            note,
+            () => {
+              // On Start
+              setActiveNotes(prev => new Map(prev).set(note.midi, note.velocity));
+            },
+            () => {
+              // On End
+              setActiveNotes(prev => {
+                const next = new Map(prev);
+                next.delete(note.midi);
+                return next;
+              });
+            }
+          );
+        });
+      }
+
       setIsPlaying(true);
       startTransport();
     }
-  }, [isPlaying, currentTime, selectedSong]);
+  }, [isPlaying, currentTime, selectedSong, playMode, setActiveNotes]);
+
+  // Update currentTime from Transport
+  useEffect(() => {
+    let animationFrame: number;
+    const updateTime = () => {
+      if (isPlaying) {
+        setCurrentTime(Tone.Transport.seconds);
+        if (playMode === 'perform') {
+           // We can't easily track exact practice time with Transport.seconds jumping
+           // So we might need a separate tracker or just use the delta
+        }
+        animationFrame = requestAnimationFrame(updateTime);
+      }
+    };
+    
+    if (isPlaying) {
+      updateTime();
+    }
+    
+    return () => cancelAnimationFrame(animationFrame);
+  }, [isPlaying, playMode]);
+
+  // Remove the old setInterval useEffect for time and playback
+  // But we still need to handle song end and practice time accumulation
+  
+  useEffect(() => {
+    if (isPlaying && currentTime >= (selectedSong.duration || 0)) {
+      setIsPlaying(false);
+      stopTransport();
+      clearScheduledEvents();
+      handleSongEnd();
+      setCurrentTime(0);
+      setActiveNotes(new Map());
+    }
+  }, [currentTime, isPlaying, selectedSong.duration, handleSongEnd, setActiveNotes]);
+
+  // Practice time accumulator (approximate)
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isPlaying && playMode === 'perform') {
+      interval = setInterval(() => {
+        incrementPracticeTime(1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, playMode, incrementPracticeTime]);
 
   const resetSong = useCallback(() => {
     setIsPlaying(false);
