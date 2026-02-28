@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { startNote, stopNote, initAudio } from '../lib/audio';
+import { startNote, stopNote, initAudio, setSustainPedal } from '../lib/audio';
 
 export function useKeyboardInput(
   setActiveNotes: React.Dispatch<React.SetStateAction<Map<number, number>>>
@@ -13,6 +13,13 @@ export function useKeyboardInput(
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+      
+      if (e.code === 'Space') {
+        e.preventDefault();
+        setSustainPedal(true);
+        return;
+      }
+
       const key = e.key.toLowerCase();
       const midi = KEYBOARD_MAP[key];
       if (midi) {
@@ -22,6 +29,11 @@ export function useKeyboardInput(
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        setSustainPedal(false);
+        return;
+      }
+
       const key = e.key.toLowerCase();
       const midi = KEYBOARD_MAP[key];
       if (midi) {

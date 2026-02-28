@@ -155,8 +155,27 @@ export const setVolume = (value: number) => {
   }
 };
 
+let isSustainPedalDown = false;
+const sustainedNotes = new Set<string>();
+const activeNotes = new Set<string>();
+
+export const setSustainPedal = (isDown: boolean) => {
+  isSustainPedalDown = isDown;
+  if (!isDown) {
+    sustainedNotes.forEach(note => {
+      if (!activeNotes.has(note)) {
+        stopNoteInternal(note);
+      }
+    });
+    sustainedNotes.clear();
+  }
+};
+
 export const startNote = (note: string | number, velocity: number = 0.7) => {
   const noteToPlay = typeof note === 'number' ? Tone.Frequency(note, "midi").toNote() : note;
+  activeNotes.add(noteToPlay);
+  sustainedNotes.delete(noteToPlay);
+  
   let played = false;
   
   if (currentInstrument === 'piano' && piano?.loaded) {
@@ -200,6 +219,15 @@ export const playNote = (note: string | number, duration: string | number = '8n'
 
 export const stopNote = (note: string | number) => {
   const noteToPlay = typeof note === 'number' ? Tone.Frequency(note, "midi").toNote() : note;
+  activeNotes.delete(noteToPlay);
+  if (isSustainPedalDown) {
+    sustainedNotes.add(noteToPlay);
+  } else {
+    stopNoteInternal(noteToPlay);
+  }
+};
+
+const stopNoteInternal = (noteToPlay: string) => {
   let played = false;
 
   if (currentInstrument === 'piano' && piano?.loaded) {

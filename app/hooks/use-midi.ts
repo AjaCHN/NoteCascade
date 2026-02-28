@@ -126,6 +126,12 @@ export function useMidi() {
       else if (command === 0xB0 && (data1 === 123 || data1 === 121)) {
         setActiveNotes(new Map());
       }
+      // Sustain Pedal (CC 64)
+      else if (command === 0xB0 && data1 === 64) {
+        import('../lib/audio').then(audio => {
+          audio.setSustainPedal(data2 >= 64);
+        });
+      }
     };
 
     const updateDevices = (access: WebMidi.MIDIAccess) => {
