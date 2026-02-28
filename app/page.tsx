@@ -20,7 +20,7 @@ import { AppSidebar } from './components/AppSidebar';
 
 export default function MidiPlayApp() {
   const { 
-    activeNotes, setActiveNotes, lastMessage, isSupported
+    activeNotes, setActiveNotes, lastMessage, isSupported, inputs, selectedInputId
   } = useMidi();
   const { 
     addScore, incrementPracticeTime, updateStreak, 
@@ -47,7 +47,6 @@ export default function MidiPlayApp() {
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
   const [mounted, setMounted] = useState(false);
-  const { isSupported } = useMidi();
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -83,16 +82,18 @@ export default function MidiPlayApp() {
   useKeyboardInput(setActiveNotes);
 
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => setMounted(true), 0);
     setVolume(volume);
     setAudioInstrument(instrument);
 
     // Mobile adaptation
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      setKeyboardRange(48, 64); // ~1.5 octaves for mobile (C3 - E4)
-      setShowSidebar(false);
+      setTimeout(() => {
+        setKeyboardRange(48, 64); // ~1.5 octaves for mobile (C3 - E4)
+        setShowSidebar(false);
+      }, 0);
     }
-  }, []);
+  }, [instrument, setKeyboardRange, volume]);
 
   useEffect(() => {
     setAudioInstrument(instrument);
@@ -335,7 +336,6 @@ export default function MidiPlayApp() {
           onRetry={() => { setShowResult(false); resetSong(); togglePlay(); }}
           score={lastScore}
           song={selectedSong}
-          theme={theme}
         />
 
         <SettingsModal 

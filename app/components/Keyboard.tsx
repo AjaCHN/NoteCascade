@@ -106,9 +106,10 @@ export function Keyboard({
 
   // Cleanup on unmount
   useEffect(() => {
+    const pointers = activePointers.current;
     return () => {
-      activePointers.current.forEach((midi) => handleKeyRelease(midi));
-      activePointers.current.clear();
+      pointers.forEach((midi) => handleKeyRelease(midi));
+      pointers.clear();
     };
   }, [handleKeyRelease]);
 
@@ -140,7 +141,7 @@ export function Keyboard({
         // Find mapped key if any
         let mappedKey = '';
         if (showKeymap && keyMap) {
-          const entry = Object.entries(keyMap).find(([_, m]) => m === midi);
+          const entry = Object.entries(keyMap).find(([, m]) => m === midi);
           if (entry) {
             mappedKey = entry[0].toUpperCase();
           }

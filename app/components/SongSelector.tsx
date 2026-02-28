@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Song, builtInSongs, parseMidiFile } from '../lib/songs';
-import { Music, Star, ChevronRight, Trophy, Lock, Upload, PlayCircle, Mic2, Filter, X, Check } from 'lucide-react';
+import { Music, Star, ChevronRight, Trophy, Lock, Upload, PlayCircle, Mic2, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLocale, useScores, useAchievements, usePlayMode, useAppActions, PlayMode } from '../lib/store';
 import { translations } from '../lib/translations';
@@ -26,7 +26,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   const [showFilters, setShowFilters] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const styles = ['all', ...Array.from(new Set(builtInSongs.map(s => s.style).filter((s): s is string => !!s)))];
+  const styles = ['all', ...Array.from(new Set(builtInSongs.map(s => s.style?.toLowerCase()).filter((s): s is string => !!s && s !== 'all')))];
   const difficulties = ['all', 1, 2, 3, 4, 5];
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

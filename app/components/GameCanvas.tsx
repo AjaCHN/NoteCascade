@@ -85,11 +85,13 @@ export function GameCanvas({
     return geometries;
   }, [START_NOTE, END_NOTE, dimensions.width]);
 
+  const feedbackIdCounter = useRef(0);
+
   const addFeedback = useCallback((text: string, type: Feedback['type'], midi: number) => {
     const geo = keyGeometries.get(midi);
     if (!geo) return;
     const x = geo.x + geo.width / 2;
-    const id = Date.now() + Math.random();
+    const id = ++feedbackIdCounter.current;
     setFeedbacks((prev) => [...prev, { id, text, type, x, y: dimensions.height - HIT_LINE_Y - 50 }]);
     hitEffects.current.push({ x, y: dimensions.height - HIT_LINE_Y, type, timestamp: Date.now() });
     setTimeout(() => {
@@ -260,8 +262,6 @@ export function GameCanvas({
 
       const startNote = START_NOTE;
       const endNote = END_NOTE;
-      const totalNotes = endNote - startNote + 1;
-      const keyWidth = width / totalNotes;
 
       // Draw hit effects
       const now = Date.now();
@@ -459,7 +459,7 @@ export function GameCanvas({
 
     render();
     return () => cancelAnimationFrame(animationFrameId);
-  }, [song, currentTime, dimensions, activeNotes, t, START_NOTE, END_NOTE, showNoteNames, theme]);
+  }, [song, currentTime, dimensions, activeNotes, t, START_NOTE, END_NOTE, showNoteNames, theme, keyGeometries]);
 
   return (
     <div ref={containerRef} className={`relative h-full w-full overflow-hidden ${theme === 'light' ? 'bg-slate-50' : 'bg-slate-950'}`}>

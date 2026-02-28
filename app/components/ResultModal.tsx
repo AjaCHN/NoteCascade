@@ -4,7 +4,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Trophy, RefreshCw } from 'lucide-react';
 import { Song } from '../lib/songs';
-import { translations, Locale } from '../lib/translations';
+import { translations } from '../lib/translations';
 import { useLocale } from '../lib/store';
 
 interface ResultModalProps {
@@ -19,10 +19,9 @@ interface ResultModalProps {
     currentScore: number;
   };
   song: Song;
-  theme: string;
 }
 
-export function ResultModal({ show, onClose, onRetry, score, song, theme }: ResultModalProps) {
+export function ResultModal({ show, onClose, onRetry, score, song }: ResultModalProps) {
   const locale = useLocale();
   const t = translations[locale] || translations.en;
 
@@ -66,12 +65,12 @@ export function ResultModal({ show, onClose, onRetry, score, song, theme }: Resu
           </div>
           <div className="col-span-2 grid grid-cols-4 gap-2">
             {[
-              { label: t.perfect, value: score.perfect, color: 'text-emerald-400' },
-              { label: t.good, value: score.good, color: 'text-blue-400' },
-              { label: t.miss, value: score.miss, color: 'text-amber-400' },
-              { label: t.wrong, value: score.wrong, color: 'text-rose-400' },
+              { key: 'perfect', label: t.perfect, value: score.perfect, color: 'text-emerald-400' },
+              { key: 'good', label: t.good, value: score.good, color: 'text-blue-400' },
+              { key: 'miss', label: t.miss, value: score.miss, color: 'text-amber-400' },
+              { key: 'wrong', label: t.wrong, value: score.wrong, color: 'text-rose-400' },
             ].map((stat) => (
-              <div key={stat.label} className="bg-slate-800/30 rounded-2xl p-3 border border-slate-700/30">
+              <div key={stat.key} className="bg-slate-800/30 rounded-2xl p-3 border border-slate-700/30">
                 <div className={`text-[8px] uppercase tracking-tighter font-bold ${stat.color} mb-1`}>{stat.label}</div>
                 <div className="text-lg font-black text-white tabular-nums">{stat.value}</div>
               </div>

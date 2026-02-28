@@ -7,7 +7,7 @@ import {
   Volume2, Music as MusicIcon, Monitor, ChevronDown, Check, Info, ExternalLink 
 } from 'lucide-react';
 import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, useShowNoteNames, useShowKeymap, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, Theme, Instrument } from '../lib/store';
-import { useMidi, VelocityCurve } from '../hooks/use-midi';
+import { useMidi } from '../hooks/use-midi';
 import { translations, Locale } from '../lib/translations';
 import pkg from '../../package.json';
 

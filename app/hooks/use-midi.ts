@@ -131,21 +131,29 @@ export function useMidi() {
     const updateDevices = (access: WebMidi.MIDIAccess) => {
       const inputList: MidiDevice[] = [];
       const outputList: MidiDevice[] = [];
+      const seenInputIds = new Set<string>();
+      const seenOutputIds = new Set<string>();
 
       access.inputs.forEach((input) => {
-        inputList.push({
-          id: input.id,
-          name: input.name || 'Unknown Device',
-          manufacturer: input.manufacturer,
-        });
+        if (!seenInputIds.has(input.id)) {
+          inputList.push({
+            id: input.id,
+            name: input.name || 'Unknown Device',
+            manufacturer: input.manufacturer,
+          });
+          seenInputIds.add(input.id);
+        }
       });
 
       access.outputs.forEach((output) => {
-        outputList.push({
-          id: output.id,
-          name: output.name || 'Unknown Device',
-          manufacturer: output.manufacturer,
-        });
+        if (!seenOutputIds.has(output.id)) {
+          outputList.push({
+            id: output.id,
+            name: output.name || 'Unknown Device',
+            manufacturer: output.manufacturer,
+          });
+          seenOutputIds.add(output.id);
+        }
       });
 
       setInputs(inputList);
@@ -207,7 +215,7 @@ export function useMidi() {
         });
       }
     };
-  }, []); // Empty dependency array
+  }, [applyVelocityCurve]); // Added applyVelocityCurve to dependencies
 
   return {
     inputs,
