@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { playNote, initAudio } from '../lib/audio';
+import { startNote, stopNote, initAudio } from '../lib/audio';
 
 export function useKeyboardInput(
   setActiveNotes: React.Dispatch<React.SetStateAction<Map<number, number>>>
@@ -16,7 +16,7 @@ export function useKeyboardInput(
       const key = e.key.toLowerCase();
       const midi = KEYBOARD_MAP[key];
       if (midi) {
-        playNote(midi, 0.8);
+        startNote(midi, 0.8);
         setActiveNotes(prev => new Map(prev).set(midi, 0.8));
       }
     };
@@ -25,6 +25,7 @@ export function useKeyboardInput(
       const key = e.key.toLowerCase();
       const midi = KEYBOARD_MAP[key];
       if (midi) {
+        stopNote(midi);
         setActiveNotes(prev => {
           const next = new Map(prev);
           next.delete(midi);

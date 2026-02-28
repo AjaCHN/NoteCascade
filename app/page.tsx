@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useMidi } from './hooks/use-midi';
 import { useKeyboardInput } from './hooks/use-keyboard-input';
-import { initAudio, startNote, stopNote, setVolume, startTransport, stopTransport, setAudioInstrument, scheduleNote, clearScheduledEvents, ensureAudioContext } from './lib/audio';
+import { initAudio, startNote, stopNote, setVolume, startTransport, stopTransport, setAudioInstrument, scheduleNote, clearScheduledEvents, ensureAudioContext, setMetronome } from './lib/audio';
 import * as Tone from 'tone';
 import { Song, builtInSongs } from './lib/songs';
-import { getNextSong, useAppActions, useLocale, useTheme, useInstrument, usePlayMode, useKeyboardRange, useShowNoteNames, useShowKeymap } from './lib/store';
+import { getNextSong, useAppActions, useLocale, useTheme, useInstrument, usePlayMode, useKeyboardRange, useShowNoteNames, useShowKeymap, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats } from './lib/store';
 import { translations } from './lib/translations';
 import { Keyboard } from './components/Keyboard';
 import { GameCanvas } from './components/GameCanvas';
@@ -33,6 +33,9 @@ export default function MidiPlayApp() {
   const keyboardRange = useKeyboardRange();
   const showNoteNames = useShowNoteNames();
   const showKeymap = useShowKeymap();
+  const metronomeEnabled = useMetronomeEnabled();
+  const metronomeBpm = useMetronomeBpm();
+  const metronomeBeats = useMetronomeBeats();
   const t = translations[locale] || translations.en;
   
   const [selectedSong, setSelectedSong] = useState<Song>(builtInSongs[0]);
@@ -99,6 +102,20 @@ export default function MidiPlayApp() {
     setAudioInstrument(instrument);
   }, [instrument]);
 
+  useEffect(() => {
+    const syncMetronome = async () => {
+      if (metronomeEnabled) {
+        await initAudio();
+        await ensureAudioContext();
+        if (!isPlaying) startTransport();
+      } else if (!isPlaying) {
+        stopTransport();
+      }
+      setMetronome(metronomeEnabled, metronomeBpm, metronomeBeats);
+    };
+    syncMetronome();
+  }, [metronomeEnabled, metronomeBpm, metronomeBeats, isPlaying]);
+
   const handleSongEnd = useCallback(() => {
     if (playMode === 'demo') {
       setIsPlaying(false);
@@ -149,6 +166,7 @@ export default function MidiPlayApp() {
       if (currentTime >= (selectedSong.duration || 0)) {
         setCurrentTime(0);
       }
+      Tone.Transport.seconds = currentTime;
 
       // Schedule notes for Demo mode
       if (playMode === 'demo') {

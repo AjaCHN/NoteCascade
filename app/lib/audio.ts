@@ -1,6 +1,6 @@
 /**
  * @file lib/audio.ts
- * @version v1.2.0
+ * @version v1.3.2
  */
 import * as Tone from 'tone';
 
@@ -123,13 +123,14 @@ export const setMetronome = (enabled: boolean, bpm: number, beats: number) => {
   }
 
   if (enabled) {
-    let beatCount = 0;
     metronomeEventId = Tone.Transport.scheduleRepeat((time) => {
       if (metronomeSynth) {
-        const isFirstBeat = beatCount % beats === 0;
+        // Get precise beat from the scheduled time
+        const bbs = Tone.Time(time).toBarsBeatsSixteenths();
+        const beat = parseInt(bbs.split(':')[1]);
+        const isFirstBeat = beat === 0;
         metronomeSynth.triggerAttackRelease(isFirstBeat ? "C5" : "C4", "32n", time, isFirstBeat ? 0.8 : 0.4);
       }
-      beatCount++;
     }, "4n");
   }
 };

@@ -1,42 +1,42 @@
-# State Management Specification
+# 状态管理规范
 
-## Overview
-NoteCascade uses Zustand for global state management, with persistence to `localStorage`.
+## 概览
+NoteCascade 使用 Zustand 进行全局状态管理，并持久化到 `localStorage`。
 
-## Store Definition (`/app/lib/store.ts`)
+## Store 定义 (`/app/lib/store.ts`)
 
-### AppState Interface
-- `achievements: Achievement[]`: List of all achievements and their unlock status.
-- `scores: ScoreRecord[]`: History of played songs and their scores.
-- `totalPracticeTime: number`: Total time spent practicing in seconds.
-- `dailyStreak: number`: Consecutive days practiced.
-- `lastPracticeDate: string | null`: Date of last practice (YYYY-MM-DD).
-- `totalNotesHit: number`: Total perfect and good notes hit.
-- `songsCompleted: number`: Total number of songs finished.
-- `locale: Locale`: Current language setting ('en', 'zh-CN', etc.).
-- `theme: Theme`: Current visual theme.
-- `keyboardRange: { start: number; end: number }`: Visible range of the virtual keyboard.
-- `showNoteNames: boolean`: Toggle for displaying note names on keys.
-- `showKeymap: boolean`: Toggle for displaying PC keyboard mapping on keys.
-- `metronomeEnabled: boolean`: Toggle for the metronome.
-- `metronomeBpm: number`: Beats per minute for the metronome.
-- `metronomeBeats: number`: Beats per measure for the metronome.
+### AppState 接口
+- `achievements: Achievement[]`：所有成就及其解锁状态的列表。
+- `scores: ScoreRecord[]`：已播放歌曲及其分数的历史记录。
+- `totalPracticeTime: number`：总练习时间（秒）。
+- `dailyStreak: number`：连续练习天数。
+- `lastPracticeDate: string | null`：上次练习日期 (YYYY-MM-DD)。
+- `totalNotesHit: number`：击中的 Perfect 和 Good 音符总数。
+- `songsCompleted: number`：完成的歌曲总数。
+- `locale: Locale`：当前语言设置（'en'、'zh-CN' 等）。
+- `theme: Theme`：当前视觉主题。
+- `keyboardRange: { start: number; end: number }`：虚拟键盘的可见范围。
+- `showNoteNames: boolean`：在琴键上显示音符名称的开关。
+- `showKeymap: boolean`：在琴键上显示电脑键盘映射的开关。
+- `metronomeEnabled: boolean`：节拍器开关。
+- `metronomeBpm: number`：节拍器的每分钟节拍数 (BPM)。
+- `metronomeBeats: number`：节拍器的每小节拍数。
 
 ### Actions
-- `unlockAchievement(id: string)`: Unlocks a specific achievement.
-- `addScore(score: ScoreRecord)`: Adds a new score record and updates totals.
-- `incrementPracticeTime(seconds: number)`: Adds to total practice time.
-- `setLocale(locale: Locale)`: Changes the application language.
-- `setTheme(theme: Theme)`: Changes the application theme.
-- `setKeyboardRange(start: number, end: number)`: Updates the visible keyboard range.
-- `setShowNoteNames(show: boolean)`: Toggles note name display.
-- `setShowKeymap(show: boolean)`: Toggles PC keyboard map display.
-- `setMetronomeEnabled(enabled: boolean)`: Toggles the metronome.
-- `setMetronomeBpm(bpm: number)`: Sets the metronome BPM.
-- `setMetronomeBeats(beats: number)`: Sets the metronome beats per measure.
-- `resetProgress()`: Resets all progress and settings to default.
-- `checkAchievements()`: Evaluates conditions for unlocking achievements.
-- `updateStreak()`: Updates the daily practice streak.
+- `unlockAchievement(id: string)`：解锁特定成就。
+- `addScore(score: ScoreRecord)`：添加新的分数记录并更新总计。
+- `incrementPracticeTime(seconds: number)`：增加总练习时间。
+- `setLocale(locale: Locale)`：更改应用语言。
+- `setTheme(theme: Theme)`：更改应用主题。
+- `setKeyboardRange(start: number, end: number)`：更新可见键盘范围。
+- `setShowNoteNames(show: boolean)`：切换音符名称显示。
+- `setShowKeymap(show: boolean)`：切换电脑键盘映射显示。
+- `setMetronomeEnabled(enabled: boolean)`：切换节拍器。
+- `setMetronomeBpm(bpm: number)`：设置节拍器 BPM。
+- `setMetronomeBeats(beats: number)`：设置节拍器每小节拍数。
+- `resetProgress()`：将所有进度和设置重置为默认值。
+- `checkAchievements()`：评估解锁成就的条件。
+- `updateStreak()`：更新每日练习连胜。
 
-### Persistence
-The state is persisted using Zustand's `persist` middleware with `createJSONStorage`. The `partialize` function ensures only necessary state is saved, and `merge` handles migrating achievements when new ones are added to the initial state.
+### 持久化
+状态使用 Zustand 的 `persist` 中间件和 `createJSONStorage` 进行持久化。`partialize` 函数确保仅保存必要的状态，而 `merge` 处理在初始状态中添加新成就时的迁移。

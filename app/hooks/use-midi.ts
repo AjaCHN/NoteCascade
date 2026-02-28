@@ -1,6 +1,6 @@
 /**
  * @file hooks/use-midi.ts
- * @version v1.3.0
+ * @version v1.3.2
  */
 import { useEffect, useState, useRef, useCallback } from 'react';
 

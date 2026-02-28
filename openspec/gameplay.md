@@ -1,29 +1,29 @@
-# Gameplay Specification
+# 游戏玩法规范
 
-## Overview
-The core gameplay loop of NoteCascade involves falling notes synchronized to music, hit detection, and scoring.
+## 概览
+NoteCascade 的核心游戏循环包括与音乐同步的下落音符、击键检测和评分。
 
-## Rendering (`/app/components/GameCanvas.tsx`)
+## 渲染 (`/app/components/GameCanvas.tsx`)
 
-### Canvas Setup
-- Uses an HTML5 `<canvas>` element for high-performance rendering.
-- `ResizeObserver` ensures the canvas always matches its container size.
+### Canvas 设置
+- 使用 HTML5 `<canvas>` 元素进行高性能渲染。
+- `ResizeObserver` 确保画布始终与其容器大小匹配。
 
-### Note Rendering (Waterfall)
-- Notes fall from the top of the screen towards a "hit line" near the bottom.
-- The vertical position of a note is calculated based on its `time` relative to the `currentTime` of the song, scaled by a `pixelsPerSecond` factor.
-- The horizontal position and width are calculated based on the note's `midi` pitch, mapping it to the visible `keyboardRange`.
+### 音符渲染（瀑布流）
+- 音符从屏幕顶部向底部附近的“击键线”下落。
+- 音符的垂直位置是根据其相对于歌曲 `currentTime` 的 `time` 计算的，并由 `pixelsPerSecond` 因子缩放。
+- 水平位置和宽度是根据音符的 `midi` 音高计算的，并将其映射到可见的 `keyboardRange`。
 
-### Hit Detection
-- When a user presses a key (via MIDI, PC keyboard, or touch), the game checks if there is a falling note for that specific MIDI pitch within a certain time window around the `currentTime`.
-- **Hit Windows**:
-  - Perfect: ±0.1 seconds
-  - Good: ±0.2 seconds
-  - Miss: Note passed the hit line without being pressed.
-  - Wrong: Key pressed but no note was in the hit window.
+### 击键检测
+- 当用户按下按键（通过 MIDI、电脑键盘或触摸）时，游戏会检查在 `currentTime` 附近的一定时间窗口内，该特定 MIDI 音高是否有下落音符。
+- **判定窗口**：
+  - Perfect（完美）：±0.1 秒
+  - Good（良好）：±0.2 秒
+  - Miss（错过）：音符越过击键线而未被按下。
+  - Wrong（错误）：按下了键，但判定窗口内没有音符。
 
-### Visual Feedback
-- **Hit Line**: Glows when notes are hit.
-- **Particles**: Small squares burst from the hit line on a successful hit.
-- **Ripples**: Expanding circles appear on the hit line.
-- **Floating Text**: "Perfect", "Good", "Miss", or "Wrong" text floats up from the hit location, colored according to the hit quality.
+### 视觉反馈
+- **击键线**：击中音符时发光。
+- **粒子**：成功击中时，小方块从击键线喷发。
+- **波纹**：击键线上出现扩大的圆圈。
+- **漂浮文字**：根据击键质量着色的“Perfect”、“Good”、“Miss”或“Wrong”文字从击键位置向上漂浮。

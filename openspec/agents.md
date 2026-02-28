@@ -1,11 +1,11 @@
-# Agents Specification
+# 代理规范
 
-## Development Agent
-- **Role**: Lead Software Engineer
-- **Responsibilities**: Implementing core logic, managing MIDI state, and ensuring performance.
-- **Guidelines**: Follow clean code principles, maintain type safety, and optimize canvas rendering.
+## 开发代理
+- **角色**：首席软件工程师
+- **职责**：实现核心逻辑、管理 MIDI 状态并确保性能。
+- **准则**：遵循整洁代码原则，保持类型安全，并优化 Canvas 渲染。
 
-## Design Agent
-- **Role**: UI/UX Designer
-- **Responsibilities**: Crafting the visual aesthetic, ensuring responsive design, and managing animations.
-- **Guidelines**: Use the "Technical Dashboard" and "Hardware Tool" design recipes for a professional, dark-themed aesthetic.
+## 设计代理
+- **角色**：UI/UX 设计师
+- **职责**：打造视觉美感，确保响应式设计并管理动画。
+- **准则**：使用“技术仪表盘”和“硬件工具”设计方案，打造专业、深色主题的审美。
