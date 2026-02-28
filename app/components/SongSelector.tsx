@@ -144,7 +144,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
 
         <AnimatePresence>
           {showFilters && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <motion.div key="filters-panel" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
               <div className="p-4 rounded-2xl theme-bg-secondary theme-border border space-y-4">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
@@ -192,9 +192,9 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-3">
-        {filteredSongs.length > 0 ? filteredSongs.map((song) => (
+        {filteredSongs.length > 0 ? filteredSongs.map((song, idx) => (
           <SongCard 
-            key={song.id}
+            key={`${song.id}-${idx}`}
             song={song}
             isSelected={selectedSongId === song.id}
             unlocked={isSongUnlocked(song)}

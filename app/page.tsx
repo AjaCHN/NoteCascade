@@ -348,23 +348,29 @@ export default function MidiPlayApp() {
       </main>
 
       <AnimatePresence>
-        <ResultModal 
-          show={showResult}
-          onClose={() => { setShowResult(false); resetSong(); }}
-          onRetry={() => { setShowResult(false); resetSong(); togglePlay(); }}
-          score={lastScore}
-          song={selectedSong}
-        />
+        {showResult && (
+          <ResultModal 
+            key="result-modal"
+            show={showResult}
+            onClose={() => { setShowResult(false); resetSong(); }}
+            onRetry={() => { setShowResult(false); resetSong(); togglePlay(); }}
+            score={lastScore}
+            song={selectedSong}
+          />
+        )}
 
-        <SettingsModal 
-          show={showSettings}
-          onClose={() => setShowSettings(false)}
-          volume={volume}
-          setVolume={(val) => {
-            setVolumeState(val);
-            setVolume(val);
-          }}
-        />
+        {showSettings && (
+          <SettingsModal 
+            key="settings-modal"
+            show={showSettings}
+            onClose={() => setShowSettings(false)}
+            volume={volume}
+            setVolume={(val) => {
+              setVolumeState(val);
+              setVolume(val);
+            }}
+          />
+        )}
       </AnimatePresence>
     </div>
   );

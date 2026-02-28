@@ -31,7 +31,7 @@ export function AchievementList() {
         {t.achievements}
       </h2>
       <div className="grid grid-cols-1 gap-4">
-        {achievements.map((achievement) => {
+        {achievements.map((achievement, idx) => {
           const Icon = iconMap[achievement.icon] || Trophy;
           const isUnlocked = !!achievement.unlockedAt;
           const progress = achievement.progress || 0;
@@ -40,7 +40,7 @@ export function AchievementList() {
 
           return (
             <div
-              key={achievement.id}
+              key={`${achievement.id}-${idx}`}
               className={`relative flex flex-col gap-4 rounded-2xl border p-5 transition-all overflow-hidden ${
                 isUnlocked
                   ? 'border-emerald-500/30 bg-emerald-500/5 shadow-lg shadow-emerald-500/5'

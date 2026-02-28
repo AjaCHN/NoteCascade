@@ -24,7 +24,7 @@ interface SettingsModalProps {
   setVolume: (val: number) => void;
 }
 
-export function SettingsModal({ show, onClose, volume, setVolume }: SettingsModalProps) {
+export function SettingsModal({ onClose, volume, setVolume }: SettingsModalProps) {
   const locale = useLocale();
   const theme = useTheme();
   const instrument = useInstrument();
@@ -42,8 +42,6 @@ export function SettingsModal({ show, onClose, volume, setVolume }: SettingsModa
   } = useAppActions();
 
   const t = translations[locale] || translations.en;
-
-  if (!show) return null;
 
   return (
     <motion.div 

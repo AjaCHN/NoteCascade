@@ -55,9 +55,9 @@ export function GameStatsOverlay({ song, score, theme, t }: GameStatsOverlayProp
             { key: 'good', label: t.good, value: score.good, color: 'text-blue-400', bg: theme === 'light' ? 'bg-blue-400/10' : 'bg-blue-400/5', border: theme === 'light' ? 'border-blue-400/20' : 'border-blue-400/10' },
             { key: 'miss', label: t.miss, value: score.miss, color: 'text-amber-400', bg: theme === 'light' ? 'bg-amber-400/10' : 'bg-amber-400/5', border: theme === 'light' ? 'border-amber-400/20' : 'border-amber-400/10' },
             { key: 'wrong', label: t.wrong, value: score.wrong, color: 'text-rose-400', bg: theme === 'light' ? 'bg-rose-400/10' : 'bg-rose-400/5', border: theme === 'light' ? 'border-rose-400/20' : 'border-rose-400/10' },
-          ].map((stat) => (
+          ].map((stat, idx) => (
             <motion.div 
-              key={stat.key}
+              key={`${stat.key}-${idx}`}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className={`flex items-center justify-between gap-6 px-5 py-2.5 rounded-2xl border ${stat.bg} ${stat.border} backdrop-blur-xl min-w-[160px] shadow-lg`}

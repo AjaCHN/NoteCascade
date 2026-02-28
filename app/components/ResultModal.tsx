@@ -21,11 +21,9 @@ interface ResultModalProps {
   song: Song;
 }
 
-export function ResultModal({ show, onClose, onRetry, score, song }: ResultModalProps) {
+export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps) {
   const locale = useLocale();
   const t = translations[locale] || translations.en;
-
-  if (!show) return null;
 
   const totalNotes = score.perfect + score.good + score.miss + score.wrong;
   const accuracy = totalNotes > 0 
@@ -69,8 +67,8 @@ export function ResultModal({ show, onClose, onRetry, score, song }: ResultModal
               { key: 'good', label: t.good, value: score.good, color: 'text-blue-400' },
               { key: 'miss', label: t.miss, value: score.miss, color: 'text-amber-400' },
               { key: 'wrong', label: t.wrong, value: score.wrong, color: 'text-rose-400' },
-            ].map((stat) => (
-              <div key={stat.key} className="bg-slate-800/30 rounded-2xl p-3 border border-slate-700/30">
+            ].map((stat, idx) => (
+              <div key={`${stat.key}-${idx}`} className="bg-slate-800/30 rounded-2xl p-3 border border-slate-700/30">
                 <div className={`text-[8px] uppercase tracking-tighter font-bold ${stat.color} mb-1`}>{stat.label}</div>
                 <div className="text-lg font-black text-white tabular-nums">{stat.value}</div>
               </div>

@@ -33,9 +33,9 @@ export function MidiSettings({ t }: MidiSettingsProps) {
                 <p className="text-xs font-bold theme-text-secondary">{t.noMidiDevices}</p>
               </div>
             ) : (
-              inputs.map((input) => (
+              inputs.map((input, idx) => (
                 <button
-                  key={input.id}
+                  key={`${input.id}-${idx}`}
                   onClick={() => setSelectedInputId(input.id)}
                   className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${
                     selectedInputId === input.id 
