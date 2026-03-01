@@ -54,16 +54,21 @@ export function useGameRenderer(
       }
 
       // Draw hit line with glow
-      const accentColor = theme === 'cyber' ? 'rgba(0, 255, 0, 0.3)' : theme === 'classic' ? 'rgba(217, 119, 6, 0.3)' : 'rgba(99, 102, 241, 0.3)';
+      const accentColor = theme === 'cyber' ? 'rgba(0, 255, 0, 0.4)' : theme === 'classic' ? 'rgba(217, 119, 6, 0.4)' : 'rgba(99, 102, 241, 0.4)';
       const mainColor = theme === 'cyber' ? 'rgba(0, 255, 0, 1)' : theme === 'classic' ? 'rgba(217, 119, 6, 1)' : 'rgba(99, 102, 241, 1)';
       
+      // Outer glow
+      ctx.shadowColor = mainColor;
+      ctx.shadowBlur = 15;
       ctx.strokeStyle = accentColor;
-      ctx.lineWidth = 8;
+      ctx.lineWidth = 4;
       ctx.beginPath();
       ctx.moveTo(0, height - HIT_LINE_Y);
       ctx.lineTo(width, height - HIT_LINE_Y);
       ctx.stroke();
+      ctx.shadowBlur = 0;
 
+      // Main line
       ctx.strokeStyle = mainColor;
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -255,10 +260,21 @@ export function useGameRenderer(
 
           // Add baseline touch effect
           if (noteY >= height - HIT_LINE_Y && noteY - noteHeight <= height - HIT_LINE_Y) {
-            ctx.fillStyle = `hsla(${hue}, 100%, 70%, 0.8)`;
+            const contactOpacity = 0.5 + Math.sin(Date.now() / 50) * 0.3;
+            ctx.fillStyle = `hsla(${hue}, 100%, 70%, ${contactOpacity})`;
             ctx.shadowColor = `hsla(${hue}, 100%, 70%, 1)`;
-            ctx.shadowBlur = 15;
-            ctx.fillRect(noteX + 1, height - HIT_LINE_Y - 2, currentKeyWidth - 2, 4);
+            ctx.shadowBlur = 20;
+            
+            // Horizontal flash on hit line
+            ctx.fillRect(noteX - 2, height - HIT_LINE_Y - 3, currentKeyWidth + 4, 6);
+            
+            // Vertical glow
+            const glowGrad = ctx.createLinearGradient(0, height - HIT_LINE_Y, 0, height - HIT_LINE_Y - 40);
+            glowGrad.addColorStop(0, `hsla(${hue}, 100%, 70%, 0.4)`);
+            glowGrad.addColorStop(1, `hsla(${hue}, 100%, 70%, 0)`);
+            ctx.fillStyle = glowGrad;
+            ctx.fillRect(noteX, height - HIT_LINE_Y - 40, currentKeyWidth, 40);
+            
             ctx.shadowBlur = 0;
           }
 

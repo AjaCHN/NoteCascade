@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.5.0]
+- UI: Optimized song library list by removing redundant "Play" links/buttons from song cards for a cleaner look.
+- Visual: Enhanced the hit line (baseline) in the game renderer with a stronger glow and more prominent styling.
+- Visual: Added dynamic contact effects (horizontal flash and vertical glow) when notes hit the baseline, improving visual feedback for timing.
+
 ## [1.4.12]
 - Fix: Fixed `ReferenceError: isConnecting is not defined` in `page.tsx`.
 

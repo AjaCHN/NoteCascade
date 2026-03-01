@@ -89,12 +89,6 @@ export function SongCard({
             />
           ))}
         </div>
-        {unlocked && (
-          <div className={`flex items-center gap-1 transition-all ${isSelected ? 'text-indigo-500 dark:text-indigo-400' : 'theme-text-secondary group-hover:text-indigo-500 dark:group-hover:text-indigo-400'}`}>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em]">{t.play}</span>
-            <ChevronRight className={`h-4 w-4 transition-transform group-hover:translate-x-1`} />
-          </div>
-        )}
       </div>
     </button>
   );
