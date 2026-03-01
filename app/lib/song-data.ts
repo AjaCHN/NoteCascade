@@ -301,6 +301,33 @@ const songData = [
     style: 'Classic',
     bpm: 150,
     melody: 'E4:0.5 E4:0.5 E4:0.5 G4:1 E4:0.5 E4:0.5 E4:0.5 G4:1 E4:0.5 E4:0.5 E4:0.5 C5:1 B4:0.5 A4:0.5 G4:1'
+  },
+  {
+    id: 'jasmine_flower',
+    title: 'Mo Li Hua (Jasmine Flower)',
+    artist: 'Traditional',
+    difficulty: 2,
+    style: 'Chinese',
+    bpm: 80,
+    melody: 'E4:0.5 E4:0.5 G4:0.5 A4:0.5 C5:0.5 C5:0.5 A4:0.5 G4:1.5 G4:0.5 A4:0.5 G4:0.5 E4:0.5 D4:0.5 E4:0.5 G4:1.5 E4:0.5 D4:0.5 C4:0.5 D4:0.5 E4:0.5 D4:0.5 C4:0.5 A3:0.5 C4:1.5'
+  },
+  {
+    id: 'butterfly_lovers',
+    title: 'Butterfly Lovers',
+    artist: 'He Zhanhao & Chen Gang',
+    difficulty: 3,
+    style: 'Chinese',
+    bpm: 70,
+    melody: 'G4:1 E4:0.5 G4:0.5 A4:1 C5:1 D5:1.5 E5:0.5 D5:1 C5:1 A4:1 G4:1 E4:0.5 G4:0.5 A4:1 C5:1 A4:1 G4:1 E4:1 D4:2'
+  },
+  {
+    id: 'colorful_clouds',
+    title: 'Colorful Clouds Chasing the Moon',
+    artist: 'Ren Guang',
+    difficulty: 3,
+    style: 'Chinese',
+    bpm: 90,
+    melody: 'E4:1 G4:0.5 A4:0.5 C5:1.5 D5:0.5 E5:1 D5:0.5 C5:0.5 A4:1 G4:1 E4:1 G4:0.5 A4:0.5 C5:1.5 A4:0.5 G4:1 E4:0.5 D4:0.5 C4:2'
   }
 ];
 
