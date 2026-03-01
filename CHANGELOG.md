@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.6.0]
+- UI: Enhanced MIDI device status indicator in the header with more prominent colors, borders, and a pulsing glow when connected.
+- UI: Optimized song library layout with single-line song names and horizontal scrolling for long titles.
+- Performance: Significantly optimized the game renderer by reducing expensive canvas operations like `shadowBlur` and `createLinearGradient` inside the main loop.
+- Performance: Switched to solid colors with alpha for notes and active columns to reduce hardware resource consumption.
+- Performance: Enabled `alpha: false` on the 2D context for faster background rendering.
+
+## [1.5.1]
+- Fix: Disabled automatic keyboard range adjustment when an external MIDI device is connected. The keyboard now stays at a fixed 88-key range (21-108) to ensure stability for hardware users.
+
 ## [1.5.0]
 - UI: Optimized song library list by removing redundant "Play" links/buttons from song cards for a cleaner look.
 - Visual: Enhanced the hit line (baseline) in the game renderer with a stronger glow and more prominent styling.

@@ -44,12 +44,14 @@ export function SongCard({
         />
       )}
       
-      <div className="flex flex-col items-start gap-2 relative z-10">
-        <div className="flex items-center gap-2">
-          <span className={`font-black text-xl tracking-tight leading-none ${unlocked ? 'theme-text-primary' : 'theme-text-secondary'}`}>
-            {t[`song_${song.id}`] || song.title}
-          </span>
-          {!unlocked && <Lock className="w-3.5 h-3.5 theme-text-secondary" />}
+      <div className="flex flex-col items-start gap-2 relative z-10 min-w-0 flex-1">
+        <div className="flex items-center gap-2 w-full">
+          <div className="flex-1 min-w-0 overflow-x-auto custom-scrollbar-mini pb-1">
+            <span className={`font-black text-xl tracking-tight leading-none whitespace-nowrap ${unlocked ? 'theme-text-primary' : 'theme-text-secondary'}`}>
+              {t[`song_${song.id}`] || song.title}
+            </span>
+          </div>
+          {!unlocked && <Lock className="w-3.5 h-3.5 theme-text-secondary shrink-0" />}
         </div>
         
         <div className="flex items-center gap-2">

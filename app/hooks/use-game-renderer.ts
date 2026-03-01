@@ -1,4 +1,4 @@
-// app/hooks/use-game-renderer.ts v1.4.6
+// app/hooks/use-game-renderer.ts v1.5.2
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -26,67 +26,55 @@ export function useGameRenderer(
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false }); // Performance hint: no alpha for background
     if (!ctx) return;
 
     let animationFrameId: number;
 
     const render = () => {
       const { width, height } = dimensions;
-      ctx.clearRect(0, 0, width, height);
+      const hitLineY = height - HIT_LINE_Y;
 
-      // Background
-      if (theme === 'light') ctx.fillStyle = '#f8fafc';
-      else if (theme === 'cyber') ctx.fillStyle = '#050505';
-      else if (theme === 'classic') ctx.fillStyle = '#2d1b0d';
-      else ctx.fillStyle = '#020617';
+      // Background - use opaque colors where possible
+      let bgColor = '#020617';
+      if (theme === 'light') bgColor = '#f8fafc';
+      else if (theme === 'cyber') bgColor = '#050505';
+      else if (theme === 'classic') bgColor = '#2d1b0d';
+      
+      ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, width, height);
 
-      // Draw grid lines
+      // Draw grid lines - subtle, no need for complex paths
       ctx.strokeStyle = theme === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.02)';
       ctx.lineWidth = 1;
       const gridSpacing = 0.5 * FALL_SPEED;
-      for (let y = height - HIT_LINE_Y; y > 0; y -= gridSpacing) {
-        ctx.beginPath();
+      ctx.beginPath();
+      for (let y = hitLineY; y > 0; y -= gridSpacing) {
         ctx.moveTo(0, y);
         ctx.lineTo(width, y);
-        ctx.stroke();
       }
+      ctx.stroke();
 
       // Draw hit line with glow
-      const accentColor = theme === 'cyber' ? 'rgba(0, 255, 0, 0.4)' : theme === 'classic' ? 'rgba(217, 119, 6, 0.4)' : 'rgba(99, 102, 241, 0.4)';
-      const mainColor = theme === 'cyber' ? 'rgba(0, 255, 0, 1)' : theme === 'classic' ? 'rgba(217, 119, 6, 1)' : 'rgba(99, 102, 241, 1)';
+      const mainColor = theme === 'cyber' ? '#00ff00' : theme === 'classic' ? '#d97706' : '#6366f1';
       
-      // Outer glow
-      ctx.shadowColor = mainColor;
-      ctx.shadowBlur = 15;
-      ctx.strokeStyle = accentColor;
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.moveTo(0, height - HIT_LINE_Y);
-      ctx.lineTo(width, height - HIT_LINE_Y);
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-
-      // Main line
+      // Use a simpler glow for performance
       ctx.strokeStyle = mainColor;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(0, height - HIT_LINE_Y);
-      ctx.lineTo(width, height - HIT_LINE_Y);
+      ctx.moveTo(0, hitLineY);
+      ctx.lineTo(width, hitLineY);
       ctx.stroke();
 
       // Draw key markers on the baseline
-      ctx.fillStyle = theme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)';
+      const markerColor = theme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)';
+      const blackMarkerColor = theme === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)';
+      
       for (let midi = keyboardRange.start; midi <= keyboardRange.end; midi++) {
         const geo = keyGeometries.get(midi);
         if (geo) {
-          ctx.fillRect(geo.x, height - HIT_LINE_Y, 1, HIT_LINE_Y);
-          if (geo.isBlack) {
-            ctx.fillStyle = theme === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)';
-            ctx.fillRect(geo.x, height - HIT_LINE_Y, geo.width, HIT_LINE_Y);
-            ctx.fillStyle = theme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)';
-          }
+          ctx.fillStyle = geo.isBlack ? blackMarkerColor : markerColor;
+          ctx.fillRect(geo.x, hitLineY, geo.isBlack ? geo.width : 1, HIT_LINE_Y);
         }
       }
 
@@ -106,23 +94,16 @@ export function useGameRenderer(
         else if (effect.type === 'wrong') color = '244, 63, 94';
 
         ctx.strokeStyle = `rgba(${color}, ${opacity})`;
-        ctx.lineWidth = 4 * (1 - progress);
+        ctx.lineWidth = 2; // Thinner for performance
         ctx.beginPath();
         ctx.arc(effect.x, effect.y, radius, 0, Math.PI * 2);
         ctx.stroke();
-        
-        if (effect.type === 'perfect' || effect.type === 'good') {
-           ctx.fillStyle = `rgba(${color}, ${opacity * 0.5})`;
-           ctx.beginPath();
-           ctx.arc(effect.x, effect.y, radius * 0.5, 0, Math.PI * 2);
-           ctx.fill();
-        }
       });
 
       // Update active note start times
       activeNotes.forEach((_, midi) => {
         if (!activeNoteStartTimes.current.has(midi)) {
-          activeNoteStartTimes.current.set(midi, Date.now());
+          activeNoteStartTimes.current.set(midi, now);
         }
       });
       for (const midi of activeNoteStartTimes.current.keys()) {
@@ -132,41 +113,25 @@ export function useGameRenderer(
       }
 
       // Draw active note columns
+      const glowColor = theme === 'cyber' ? '0, 255, 0' : theme === 'classic' ? '217, 119, 6' : '99, 102, 241';
       activeNotes.forEach((velocity, midi) => {
         if (midi >= keyboardRange.start && midi <= keyboardRange.end) {
           const geo = keyGeometries.get(midi);
           if (!geo) return;
           const x = geo.x;
           const currentKeyWidth = geo.width;
-          const startTime = activeNoteStartTimes.current.get(midi) || Date.now();
-          const duration = Date.now() - startTime;
+          const startTime = activeNoteStartTimes.current.get(midi) || now;
+          const duration = now - startTime;
           
           const growHeight = Math.min(height - 50, 100 + duration * 0.8);
-          const gradient = ctx.createLinearGradient(0, height - HIT_LINE_Y, 0, height - HIT_LINE_Y - growHeight);
-          const glowColor = theme === 'cyber' ? '0, 255, 0' : theme === 'classic' ? '217, 119, 6' : '99, 102, 241';
-          const baseOpacity = 0.2 + (velocity * 0.6);
+          const baseOpacity = 0.1 + (velocity * 0.4);
           
-          gradient.addColorStop(0, `rgba(${glowColor}, ${baseOpacity})`);
-          gradient.addColorStop(1, `rgba(${glowColor}, 0)`);
-          
-          ctx.fillStyle = gradient;
-          ctx.fillRect(x + 1, height - HIT_LINE_Y - growHeight, currentKeyWidth - 2, growHeight);
-          
-          if (velocity > 0.4) {
-             ctx.fillStyle = theme === 'light' ? `rgba(0, 0, 0, ${velocity * 0.5})` : `rgba(255, 255, 255, ${velocity * 0.8})`;
-             const particleCount = Math.floor(velocity * 5);
-             for(let i=0; i < particleCount; i++) {
-                 const px = x + Math.random() * currentKeyWidth;
-                 const py = height - HIT_LINE_Y - growHeight + Math.random() * 30;
-                 const size = Math.random() * 2 + 1;
-                 ctx.globalAlpha = Math.random();
-                 ctx.fillRect(px, py, size, size);
-                 ctx.globalAlpha = 1.0;
-             }
-          }
+          // Use solid color with alpha instead of gradient for performance
+          ctx.fillStyle = `rgba(${glowColor}, ${baseOpacity})`;
+          ctx.fillRect(x + 1, hitLineY - growHeight, currentKeyWidth - 2, growHeight);
           
           ctx.fillStyle = theme === 'light' ? `rgba(0, 0, 0, ${0.8 * velocity})` : `rgba(255, 255, 255, ${0.8 * velocity})`;
-          ctx.fillRect(x + 2, height - HIT_LINE_Y - 2, currentKeyWidth - 4, 4);
+          ctx.fillRect(x + 2, hitLineY - 2, currentKeyWidth - 4, 4);
         }
       });
 
@@ -174,24 +139,20 @@ export function useGameRenderer(
       const barWidth = Math.min(400, width * 0.6);
       const barHeight = 12;
       const barX = (width - barWidth) / 2;
-      const barY = 40; // Moved to top
+      const barY = 40;
 
-      // Timing bar background
       ctx.fillStyle = theme === 'light' ? 'rgba(241, 245, 249, 0.9)' : 'rgba(15, 23, 42, 0.8)';
       ctx.beginPath();
       ctx.roundRect(barX, barY, barWidth, barHeight, 6);
       ctx.fill();
       
-      // Timing bar border
       ctx.strokeStyle = theme === 'light' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)';
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // Center perfect line
       ctx.fillStyle = theme === 'light' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
       ctx.fillRect(barX + barWidth / 2 - 1.5, barY - 6, 3, barHeight + 12);
 
-      // Perfect zone highlight
       const perfectZoneWidth = barWidth * (PERFECT_THRESHOLD / GOOD_THRESHOLD);
       ctx.fillStyle = 'rgba(52, 211, 153, 0.15)';
       ctx.fillRect(barX + barWidth / 2 - perfectZoneWidth / 2, barY + 1, perfectZoneWidth, barHeight - 2);
@@ -209,22 +170,11 @@ export function useGameRenderer(
             ? `rgba(96, 165, 250, ${opacity})` 
             : `rgba(251, 191, 36, ${opacity})`;
 
-        // Draw hit marker
         ctx.beginPath();
         ctx.roundRect(hitX - 3, barY - 2, 6, barHeight + 4, 3);
         ctx.fill();
-        
-        // Ripple effect for recent hits
-        if (age < 500) {
-          ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.6})`;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.roundRect(hitX - 3 - (age / 500) * 8, barY - 2 - (age / 500) * 4, 6 + (age / 500) * 16, barHeight + 4 + (age / 500) * 8, 4);
-          ctx.stroke();
-        }
       });
 
-      // Timing labels
       ctx.fillStyle = theme === 'light' ? 'rgba(100, 116, 139, 0.9)' : 'rgba(148, 163, 184, 0.9)';
       ctx.font = 'bold 11px Inter';
       ctx.textAlign = 'center';
@@ -235,64 +185,51 @@ export function useGameRenderer(
       ctx.fillText(t.perfect.toUpperCase(), barX + barWidth / 2, barY + 28);
 
       // Draw falling notes
-      song.notes?.forEach((note) => {
-        const geo = keyGeometries.get(note.midi);
-        if (!geo) return;
-        
-        const noteX = geo.x;
-        const currentKeyWidth = geo.width;
-        const noteY = height - HIT_LINE_Y - (note.time - currentTime) * FALL_SPEED;
-        const noteHeight = note.duration * FALL_SPEED;
+      if (song.notes) {
+        const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const noteNameColor = 'rgba(255, 255, 255, 0.8)';
+        ctx.font = 'bold 10px Inter';
+        ctx.textAlign = 'center';
 
-        if (noteY + noteHeight > 0 && noteY < height) {
-          const hue = (note.midi * 137.5) % 360;
-          const gradient = ctx.createLinearGradient(noteX, noteY - noteHeight, noteX, noteY);
-          gradient.addColorStop(0, `hsla(${hue}, 80%, 60%, 0.8)`);
-          gradient.addColorStop(1, `hsla(${hue}, 80%, 40%, 0.9)`);
+        for (let i = 0; i < song.notes.length; i++) {
+          const note = song.notes[i];
+          const geo = keyGeometries.get(note.midi);
+          if (!geo) continue;
           
-          ctx.fillStyle = gradient;
-          ctx.beginPath();
-          ctx.roundRect(noteX + 2, noteY - noteHeight, currentKeyWidth - 4, noteHeight, 6);
-          ctx.fill();
-          
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-          ctx.fillRect(noteX + 4, noteY - noteHeight + 2, currentKeyWidth - 8, 4);
+          const noteX = geo.x;
+          const currentKeyWidth = geo.width;
+          const noteY = hitLineY - (note.time - currentTime) * FALL_SPEED;
+          const noteHeight = note.duration * FALL_SPEED;
 
-          // Add baseline touch effect
-          if (noteY >= height - HIT_LINE_Y && noteY - noteHeight <= height - HIT_LINE_Y) {
-            const contactOpacity = 0.5 + Math.sin(Date.now() / 50) * 0.3;
-            ctx.fillStyle = `hsla(${hue}, 100%, 70%, ${contactOpacity})`;
-            ctx.shadowColor = `hsla(${hue}, 100%, 70%, 1)`;
-            ctx.shadowBlur = 20;
+          if (noteY + noteHeight > 0 && noteY < height) {
+            const hue = (note.midi * 137.5) % 360;
             
-            // Horizontal flash on hit line
-            ctx.fillRect(noteX - 2, height - HIT_LINE_Y - 3, currentKeyWidth + 4, 6);
+            // Use solid color for performance
+            ctx.fillStyle = `hsla(${hue}, 80%, 50%, 0.9)`;
+            ctx.beginPath();
+            ctx.roundRect(noteX + 2, noteY - noteHeight, currentKeyWidth - 4, noteHeight, 6);
+            ctx.fill();
             
-            // Vertical glow
-            const glowGrad = ctx.createLinearGradient(0, height - HIT_LINE_Y, 0, height - HIT_LINE_Y - 40);
-            glowGrad.addColorStop(0, `hsla(${hue}, 100%, 70%, 0.4)`);
-            glowGrad.addColorStop(1, `hsla(${hue}, 100%, 70%, 0)`);
-            ctx.fillStyle = glowGrad;
-            ctx.fillRect(noteX, height - HIT_LINE_Y - 40, currentKeyWidth, 40);
-            
-            ctx.shadowBlur = 0;
+            // Subtle highlight
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.fillRect(noteX + 4, noteY - noteHeight + 2, currentKeyWidth - 8, 3);
+
+            // Baseline touch effect - simplified
+            if (noteY >= hitLineY && noteY - noteHeight <= hitLineY) {
+              const contactOpacity = 0.4 + Math.sin(now / 50) * 0.2;
+              ctx.fillStyle = `hsla(${hue}, 100%, 70%, ${contactOpacity})`;
+              ctx.fillRect(noteX - 1, hitLineY - 2, currentKeyWidth + 2, 4);
+            }
+
+            if (showNoteNames && noteHeight > 24) {
+              const octave = Math.floor(note.midi / 12) - 1;
+              const noteName = `${names[note.midi % 12]}${octave}`;
+              ctx.fillStyle = noteNameColor;
+              ctx.fillText(noteName, noteX + currentKeyWidth / 2, noteY - noteHeight / 2 + 4);
+            }
           }
-
-          if (showNoteNames && noteHeight > 20) {
-            const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-            const octave = Math.floor(note.midi / 12) - 1;
-            const noteName = `${names[note.midi % 12]}${octave}`;
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.font = 'bold 10px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText(noteName, noteX + currentKeyWidth / 2, noteY - noteHeight / 2 + 4);
-          }
-
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-          ctx.lineWidth = 1;
-          ctx.stroke();
         }
-      });
+      }
 
       animationFrameId = requestAnimationFrame(render);
     };

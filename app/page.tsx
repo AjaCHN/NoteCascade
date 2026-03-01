@@ -53,34 +53,37 @@ export default function MidiPlayApp() {
 
     const hasMidi = inputs.length > 0;
     
-    if (!hasMidi) {
-      // No MIDI connected: Adjust range to fit the song
-      if (selectedSong && selectedSong.notes && selectedSong.notes.length > 0) {
-        const midis = selectedSong.notes.map(n => n.midi);
-        const minMidi = Math.min(...midis);
-        const maxMidi = Math.max(...midis);
-        
-        // Add some padding (e.g., 2-3 notes on each side)
-        const start = Math.max(21, minMidi - 2);
-        const end = Math.min(108, maxMidi + 2);
-        
-        // Ensure at least an octave or reasonable range
-        const finalStart = start;
-        const finalEnd = Math.max(start + 12, end);
-        
-        if (finalStart !== keyboardRange.start || finalEnd !== keyboardRange.end) {
-          setKeyboardRange(finalStart, finalEnd);
-        }
-      } else {
-        // Default range for no song
-        if (keyboardRange.start !== 48 || keyboardRange.end !== 72) {
-          setKeyboardRange(48, 72);
-        }
+    if (hasMidi) {
+      // MIDI connected: Use a fixed standard 88-key range and stop auto-adjusting to songs
+      if (keyboardRange.start !== 21 || keyboardRange.end !== 108) {
+         // We only set this once when MIDI is detected or if it's not already full range
+         // This prevents the keyboard from jumping around when switching songs
+         setKeyboardRange(21, 108);
+      }
+      return;
+    }
+
+    // No MIDI connected: Adjust range to fit the song
+    if (selectedSong && selectedSong.notes && selectedSong.notes.length > 0) {
+      const midis = selectedSong.notes.map(n => n.midi);
+      const minMidi = Math.min(...midis);
+      const maxMidi = Math.max(...midis);
+      
+      // Add some padding (e.g., 2-3 notes on each side)
+      const start = Math.max(21, minMidi - 2);
+      const end = Math.min(108, maxMidi + 2);
+      
+      // Ensure at least an octave or reasonable range
+      const finalStart = start;
+      const finalEnd = Math.max(start + 12, end);
+      
+      if (finalStart !== keyboardRange.start || finalEnd !== keyboardRange.end) {
+        setKeyboardRange(finalStart, finalEnd);
       }
     } else {
-      // MIDI connected: Use a standard full range or user setting (defaulting to 48-84)
-      if (keyboardRange.start === 48 && keyboardRange.end === 72) {
-         setKeyboardRange(48, 84);
+      // Default range for no song
+      if (keyboardRange.start !== 48 || keyboardRange.end !== 72) {
+        setKeyboardRange(48, 72);
       }
     }
   }, [inputs.length, selectedSong, setKeyboardRange, mounted, keyboardRange.start, keyboardRange.end]);

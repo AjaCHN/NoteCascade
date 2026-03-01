@@ -63,11 +63,25 @@ export function AppHeader({
         <button 
           onClick={() => connectMidi && connectMidi()}
           disabled={isConnecting}
-          className={`flex items-center gap-2 rounded-full bg-white/5 px-3 md:px-4 py-1.5 border theme-border backdrop-blur-md hover:bg-white/10 transition-colors cursor-pointer ${isConnecting ? 'opacity-50 cursor-wait' : ''}`}
+          className={`flex items-center gap-2 rounded-full px-3 md:px-5 py-2 border backdrop-blur-md transition-all cursor-pointer shadow-lg ${
+            isConnecting 
+              ? 'bg-amber-500/20 border-amber-500/50 opacity-70 cursor-wait' 
+              : selectedInputId 
+                ? 'bg-emerald-500/20 border-emerald-500/50 hover:bg-emerald-500/30 ring-2 ring-emerald-500/20' 
+                : 'bg-rose-500/10 border-rose-500/30 hover:bg-rose-500/20'
+          }`}
           title="Click to connect or refresh MIDI devices"
         >
-          <div className={`h-2 w-2 rounded-full ${isConnecting ? 'bg-amber-500 animate-bounce' : selectedInputId ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]'}`} />
-          <span className="text-[10px] uppercase tracking-widest font-bold theme-text-secondary max-w-[80px] md:max-w-[150px] truncate">
+          <div className={`h-2.5 w-2.5 rounded-full ${
+            isConnecting 
+              ? 'bg-amber-500 animate-bounce' 
+              : selectedInputId 
+                ? 'bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,1)]' 
+                : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]'
+          }`} />
+          <span className={`text-[11px] uppercase tracking-widest font-black max-w-[100px] md:max-w-[180px] truncate ${
+            selectedInputId ? 'text-emerald-400' : 'theme-text-secondary'
+          }`}>
             {isConnecting ? 'Connecting...' : selectedInputId ? inputs.find(i => i.id === selectedInputId)?.name : t.noDevice}
           </span>
           {!selectedInputId && !isConnecting && <RefreshCw className="h-3 w-3 theme-text-secondary ml-1" />}

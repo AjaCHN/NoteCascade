@@ -102,3 +102,17 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
+
+.custom-scrollbar-mini::-webkit-scrollbar {
+  height: 2px;
+}
+.custom-scrollbar-mini::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar-mini::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.2);
+  border-radius: 10px;
+}
+.custom-scrollbar-mini::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.4);
+}
