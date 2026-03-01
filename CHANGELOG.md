@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.3.8]
+- Feat: Sort songs by difficulty (ascending).
+
 ## [1.3.7]
 - Fix: Syntax error in SongSelector component.
 

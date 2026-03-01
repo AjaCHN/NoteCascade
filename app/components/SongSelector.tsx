@@ -1,4 +1,4 @@
-// app/components/SongSelector.tsx v1.3.5
+// app/components/SongSelector.tsx v1.3.8
 'use client';
 
 import React, { useState, useRef } from 'react';
@@ -79,7 +79,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
     const styleMatch = filter === 'all' || song.style?.toLowerCase() === filter;
     const difficultyMatch = difficultyFilter === 'all' || song.difficulty === difficultyFilter;
     return styleMatch && difficultyMatch;
-  });
+  }).sort((a, b) => a.difficulty - b.difficulty);
 
   const getHighScore = (songId: string) => {
     const songScores = scores.filter(s => s.songId === songId);
