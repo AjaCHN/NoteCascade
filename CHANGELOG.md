@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.4.9]
+- Fix: Fixed a bug where the result modal showed all 0s for the score data because the game engine was resetting the score immediately upon the song ending.
+
 ## [1.4.8]
 - Audio: Enhanced instrument sounds for a thicker, warmer tone. Added a master EQ (boosting lows and highs), a master Reverb, and a Chorus effect for the EPiano. Upgraded Synth and Strings to use fat oscillators.
 

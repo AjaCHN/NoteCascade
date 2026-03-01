@@ -145,7 +145,6 @@ export function useGameLogic(
            stopTransport();
            clearScheduledEvents();
            handleSongEnd();
-           setCurrentTime(0);
            setActiveNotes(new Map());
            return;
         }
