@@ -37,6 +37,7 @@ interface SettingsModalProps {
     transpose: number;
     setTranspose: (transpose: number) => void;
     connectMidi: () => void;
+    isConnecting: boolean;
     lastMessage: MidiMessage | null;
   };
 }

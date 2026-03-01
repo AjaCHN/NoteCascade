@@ -19,6 +19,7 @@ interface MidiSettingsProps {
     transpose: number;
     setTranspose: (transpose: number) => void;
     connectMidi: () => void;
+    isConnecting: boolean;
     lastMessage: MidiMessage | null;
   };
 }
@@ -26,7 +27,7 @@ interface MidiSettingsProps {
 export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
   const { 
     isSupported, inputs, selectedInputId, setSelectedInputId,
-    midiChannel, setMidiChannel, velocityCurve, setVelocityCurve, transpose, setTranspose, connectMidi
+    midiChannel, setMidiChannel, velocityCurve, setVelocityCurve, transpose, setTranspose, connectMidi, isConnecting
   } = midiProps;
 
   return (
@@ -39,10 +40,11 @@ export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
           </div>
           <button 
             onClick={() => connectMidi()}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-colors text-xs font-bold"
+            disabled={isConnecting}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-colors text-xs font-bold ${isConnecting ? 'opacity-50 cursor-wait' : ''}`}
           >
-            <RefreshCw className="h-3 w-3" />
-            <span>{t.refresh || 'Connect / Refresh'}</span>
+            <RefreshCw className={`h-3 w-3 ${isConnecting ? 'animate-spin' : ''}`} />
+            <span>{isConnecting ? 'Connecting...' : t.refresh || 'Connect / Refresh'}</span>
           </button>
         </div>
         {!isSupported ? (

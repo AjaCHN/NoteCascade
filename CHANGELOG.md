@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.12]
+- Fix: Fixed `ReferenceError: isConnecting is not defined` in `page.tsx`.
+
+## [1.4.11]
+- Feature: Enhanced MIDI refresh functionality. The "Connect" button now explicitly re-requests MIDI access from the browser, which is more effective at triggering the permission prompt if it was previously dismissed.
+- UI: Added an `isConnecting` loading state with visual feedback (animations) when MIDI is being initialized.
+- UI: The MIDI device indicator in the header is now visible on mobile devices to allow manual connection.
+
 ## [1.4.10]
 - Feature: Made the "NO DEVICE" indicator in the top header clickable. Clicking it now manually triggers the MIDI connection process, which correctly prompts the browser's MIDI permission dialog (required by recent Chrome security policies).
 

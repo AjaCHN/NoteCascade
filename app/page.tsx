@@ -20,7 +20,7 @@ import { useSidebarResize } from './hooks/use-sidebar-resize';
 
 export default function MidiPlayApp() {
   const { 
-    activeNotes, setActiveNotes, lastMessage, isSupported, inputs, selectedInputId,
+    activeNotes, setActiveNotes, lastMessage, isSupported, isConnecting, inputs, selectedInputId,
     setSelectedInputId, midiChannel, setMidiChannel, velocityCurve, setVelocityCurve,
     transpose, setTranspose, connectMidi
   } = useMidi();
@@ -142,7 +142,7 @@ export default function MidiPlayApp() {
   const midiProps = {
     activeNotes, setActiveNotes, lastMessage, isSupported, inputs, selectedInputId,
     setSelectedInputId, midiChannel, setMidiChannel, velocityCurve, setVelocityCurve,
-    transpose, setTranspose, connectMidi
+    transpose, setTranspose, connectMidi, isConnecting
   };
 
   if (!mounted) {
@@ -174,6 +174,7 @@ export default function MidiPlayApp() {
         setShowSettings={setShowSettings}
         showSettings={showSettings}
         connectMidi={connectMidi}
+        isConnecting={isConnecting}
       />
 
       <main id="main-content" className="flex flex-1 overflow-hidden relative z-10">

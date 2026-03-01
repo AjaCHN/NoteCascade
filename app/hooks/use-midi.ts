@@ -1,4 +1,4 @@
-// app/hooks/use-midi.ts v1.4.7
+// app/hooks/use-midi.ts v1.4.11
 import { useEffect, useState, useRef, useCallback } from 'react';
 
 export interface MidiDevice {
@@ -26,6 +26,7 @@ export function useMidi() {
   const [transpose, setTranspose] = useState<number>(0);
   const [lastMessage, setLastMessage] = useState<MidiMessage | null>(null);
   const [isSupported, setIsSupported] = useState<boolean>(true);
+  const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [activeNotes, setActiveNotes] = useState<Map<number, number>>(new Map());
   const midiAccessRef = useRef<WebMidi.MIDIAccess | null>(null);
 
@@ -50,11 +51,11 @@ export function useMidi() {
     const norm = velocity / 127;
     switch (curve) {
       case 'log':
-        return Math.pow(norm, 0.5) * 127; // More sensitive
+        return Math.pow(norm, 0.5) * 127;
       case 'exp':
-        return Math.pow(norm, 2) * 127; // Less sensitive (requires harder hit)
+        return Math.pow(norm, 2) * 127;
       case 'fixed':
-        return 100; // Fixed velocity
+        return 100;
       case 'linear':
       default:
         return velocity;
@@ -64,7 +65,6 @@ export function useMidi() {
   const onMidiMessage = useCallback((event: WebMidi.MIDIMessageEvent) => {
     const { selectedInputId, midiChannel, velocityCurve, transpose } = settingsRef.current;
 
-    // Filter by Input Device
     const inputId = (event.target as WebMidi.MIDIInput)?.id;
     if (selectedInputId && selectedInputId !== 'all' && inputId && inputId !== selectedInputId) {
       return;
@@ -74,22 +74,18 @@ export function useMidi() {
 
     const [statusByte, data1, data2] = event.data;
     const command = statusByte & 0xf0;
-    const channel = (statusByte & 0x0f) + 1; // 1-16
+    const channel = (statusByte & 0x0f) + 1;
 
-    // Filter by Channel
     if (midiChannel !== 'all' && channel !== midiChannel) {
       return;
     }
 
-    // Handle Note On/Off
     if (command === 0x90 || command === 0x80) {
       let note = data1;
       let velocity = data2;
 
-      // Apply Transpose
       note = Math.max(0, Math.min(127, note + transpose));
 
-      // Apply Velocity Curve
       if (command === 0x90 && velocity > 0) {
         velocity = Math.round(applyVelocityCurve(velocity, velocityCurve));
       }
@@ -102,7 +98,6 @@ export function useMidi() {
         timestamp: event.timeStamp,
       });
 
-      // Note On (Velocity > 0)
       if (command === 0x90 && velocity > 0) {
         setActiveNotes(prev => {
           const next = new Map(prev);
@@ -110,7 +105,6 @@ export function useMidi() {
           return next;
         });
       }
-      // Note Off (Velocity 0 or Note Off command)
       else {
         setActiveNotes(prev => {
           const next = new Map(prev);
@@ -119,11 +113,9 @@ export function useMidi() {
         });
       }
     }
-    // All Notes Off (CC 123) or Reset All Controllers (CC 121)
     else if (command === 0xB0 && (data1 === 123 || data1 === 121)) {
       setActiveNotes(new Map());
     }
-    // Sustain Pedal (CC 64)
     else if (command === 0xB0 && data1 === 64) {
       import('../lib/audio').then(audio => {
         audio.setSustainPedal(data2 >= 64);
@@ -136,7 +128,6 @@ export function useMidi() {
     const outputList: MidiDevice[] = [];
 
     try {
-      // Use iterator for maximum compatibility
       const inputsIter = access.inputs.values();
       for (let input = inputsIter.next(); !input.done; input = inputsIter.next()) {
         inputList.push({
@@ -161,9 +152,7 @@ export function useMidi() {
     setInputs(inputList);
     setOutputs(outputList);
 
-    // Auto-select logic
     if (inputList.length > 0) {
-      // If nothing selected, or selected is gone, default to 'all'
       if (!settingsRef.current.selectedInputId || 
           (settingsRef.current.selectedInputId !== 'all' && !inputList.find(i => i.id === settingsRef.current.selectedInputId))) {
         setSelectedInputId('all');
@@ -179,14 +168,21 @@ export function useMidi() {
       return false;
     }
 
+    if (isMounted()) setIsConnecting(true);
+
     try {
+      // If we already have access, try to refresh it first
+      if (midiAccessRef.current) {
+        updateDevices(midiAccessRef.current);
+      }
+
       let access: WebMidi.MIDIAccess;
       try {
-        // Try without sysex first as it's less likely to be blocked by permissions
-        access = await navigator.requestMIDIAccess({ sysex: false }) as unknown as WebMidi.MIDIAccess;
-      } catch (e) {
-        console.warn('Standard MIDI access denied, trying with sysex', e);
+        // Requesting access again is the only way to trigger the browser prompt if it was dismissed
         access = await navigator.requestMIDIAccess({ sysex: true }) as unknown as WebMidi.MIDIAccess;
+      } catch (e) {
+        console.warn('MIDI access with sysex failed, trying without', e);
+        access = await navigator.requestMIDIAccess({ sysex: false }) as unknown as WebMidi.MIDIAccess;
       }
 
       if (!isMounted()) return false;
@@ -195,11 +191,12 @@ export function useMidi() {
       setIsSupported(true);
       updateDevices(access);
       
-      // Attach listeners to all current inputs
       const attachListeners = () => {
         try {
           const inputsIter = access.inputs.values();
           for (let input = inputsIter.next(); !input.done; input = inputsIter.next()) {
+            // Remove old listener if any to avoid duplicates
+            input.value.onmidimessage = null;
             input.value.onmidimessage = onMidiMessage;
           }
         } catch (e) {
@@ -211,14 +208,20 @@ export function useMidi() {
 
       access.onstatechange = (e: WebMidi.MIDIConnectionEvent) => {
         console.log('MIDI state change:', e.port.name, e.port.state);
-        updateDevices(access);
-        attachListeners(); // Re-attach to ensure new devices are covered
+        if (isMounted()) {
+          updateDevices(access);
+          attachListeners();
+        }
       };
       
+      if (isMounted()) setIsConnecting(false);
       return true;
     } catch (err) {
       console.error('MIDI access completely denied or failed', err);
-      if (isMounted()) setIsSupported(false);
+      if (isMounted()) {
+        setIsSupported(false);
+        setIsConnecting(false);
+      }
       return false;
     }
   }, [onMidiMessage, updateDevices]);
@@ -228,6 +231,8 @@ export function useMidi() {
     const isMounted = () => mounted;
     
     const init = async () => {
+      // On initial load, we call it. If it fails due to no gesture, isSupported becomes false.
+      // This is expected. The user can then click the "Connect" button.
       await connectMidi(isMounted);
     };
     
@@ -243,7 +248,7 @@ export function useMidi() {
             input.value.onmidimessage = null;
           }
         } catch (_) {
-          // Ignore cleanup errors
+          // Ignore
         }
       }
     };
@@ -262,6 +267,7 @@ export function useMidi() {
     setTranspose,
     lastMessage,
     isSupported,
+    isConnecting,
     activeNotes,
     setActiveNotes,
     connectMidi,
