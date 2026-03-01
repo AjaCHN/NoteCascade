@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Star, Trophy, Lock, ChevronRight } from 'lucide-react';
+import { Star, Trophy, Lock } from 'lucide-react';
 import { Song } from '../lib/songs';
 
 interface SongCardProps {
@@ -54,13 +54,28 @@ export function SongCard({
           {!unlocked && <Lock className="w-3.5 h-3.5 theme-text-secondary shrink-0" />}
         </div>
         
-        <div className="flex items-center gap-2">
-          <span className={`text-[9px] uppercase tracking-[0.2em] font-black px-2 py-0.5 rounded-md border ${
-            unlocked ? 'bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 border-indigo-500/20' : 'bg-slate-200 dark:bg-slate-900 text-slate-500 dark:text-slate-700 border-slate-300 dark:border-slate-800'
-          }`}>
-            {song.style ? (t[`style_${song.style.toLowerCase()}`] || song.style) : ''}
-          </span>
-          <span className="text-xs theme-text-secondary font-bold uppercase tracking-widest opacity-80">{t[`artist_${song.artist.toLowerCase()}`] || song.artist}</span>
+        <div className="flex items-center gap-3">
+          <div className="flex gap-0.5 shrink-0">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={`h-3 w-3 ${
+                  i < song.difficulty 
+                    ? unlocked ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]' : 'fill-slate-300 dark:fill-slate-700 text-slate-300 dark:text-slate-700'
+                    : 'text-slate-200 dark:text-slate-800'
+                }`}
+              />
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 min-w-0">
+            <span className={`text-[9px] uppercase tracking-[0.2em] font-black px-2 py-0.5 rounded-md border shrink-0 ${
+              unlocked ? 'bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 border-indigo-500/20' : 'bg-slate-200 dark:bg-slate-900 text-slate-500 dark:text-slate-700 border-slate-300 dark:border-slate-800'
+            }`}>
+              {song.style ? (t[`style_${song.style.toLowerCase()}`] || song.style) : ''}
+            </span>
+            <span className="text-xs theme-text-secondary font-bold uppercase tracking-widest opacity-80 truncate">{t[`artist_${song.artist.toLowerCase()}`] || song.artist}</span>
+          </div>
         </div>
         
         {unlocked ? (
@@ -76,21 +91,6 @@ export function SongCard({
             <span className="text-[10px] font-bold uppercase tracking-widest">{unlockDescription}</span>
           </div>
         )}
-      </div>
-      
-      <div className="flex flex-col items-end gap-3 relative z-10">
-        <div className="flex gap-0.5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star
-              key={i}
-              className={`h-3.5 w-3.5 ${
-                i < song.difficulty 
-                  ? unlocked ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]' : 'fill-slate-300 dark:fill-slate-700 text-slate-300 dark:text-slate-700'
-                  : 'text-slate-200 dark:text-slate-800'
-              }`}
-            />
-          ))}
-        </div>
       </div>
     </button>
   );

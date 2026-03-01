@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.6.2]
+- UI: Swapped positions of song difficulty stars and song style tags for a more logical information hierarchy.
+
+## [1.6.1]
+- UI: Moved song difficulty stars to the same line as the song style tag, freeing up more horizontal space for song titles in the library list.
+
 ## [1.6.0]
 - UI: Enhanced MIDI device status indicator in the header with more prominent colors, borders, and a pulsing glow when connected.
 - UI: Optimized song library layout with single-line song names and horizontal scrolling for long titles.
