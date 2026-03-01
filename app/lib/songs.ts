@@ -1,6 +1,6 @@
-// app/lib/songs.ts v1.3.5
+// app/lib/songs.ts v1.4.2
 import { Midi } from '@tonejs/midi';
-import { generatedSongs } from './song-data';
+import { generatedSongs } from './songs/index';
 
 export interface Note {
   midi: number;

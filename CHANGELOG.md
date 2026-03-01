@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.4.3]
+- Fix: Extremely robust MIDI device enumeration using iterators instead of `forEach`.
+- Fix: Prioritize `sysex: false` for MIDI access to avoid permission blocks in strict environments.
+- Fix: Re-attach MIDI listeners to all inputs on any state change (hot-plugging).
+
+## [1.4.2]
+- Refactor: Split `app/lib/song-data.ts` into smaller, categorized files (`classic.ts`, `holiday.ts`, `chinese.ts`, `pop-rock.ts`, `utils.ts`) for better maintainability.
+
+## [1.4.1]
+- Feat: Expanded melodies for multiple built-in songs to make them longer and more complete (Ode to Joy, Spring, Canon in D, Fur Elise, Swan Lake, Blue Danube, Entertainer, William Tell, Mo Li Hua, Butterfly Lovers, Beyond songs, Bugs Fly).
+
 ## [1.4.0]
 - Design: New SVG logo and favicon.
 - Branding: Updated app header with the new logo.

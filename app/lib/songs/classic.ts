@@ -1,38 +1,5 @@
-// app/lib/song-data.ts v1.3.5
-import type { Note, Song } from './songs';
-
-function parseMelody(melody: string, bpm: number = 120): { notes: Note[], duration: number } {
-  const notes: Note[] = [];
-  let currentTime = 0;
-  const beatDuration = 60 / bpm;
-
-  const tokens = melody.split(/\s+/);
-  for (const token of tokens) {
-    if (!token) continue;
-    const [noteStr, durationStr] = token.split(':');
-    const durationBeats = durationStr ? parseFloat(durationStr) : 1;
-    const durationSecs = durationBeats * beatDuration;
-
-    if (noteStr !== 'R') {
-      const noteName = noteStr.match(/[A-G]#?/)?.[0];
-      const octave = parseInt(noteStr.match(/\d/)?.[0] || '4');
-      if (noteName) {
-        const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-        const midi = noteNames.indexOf(noteName) + (octave + 1) * 12;
-        notes.push({
-          midi,
-          time: currentTime,
-          duration: durationSecs * 0.9, // slightly detached
-          velocity: 0.8
-        });
-      }
-    }
-    currentTime += durationSecs;
-  }
-  return { notes, duration: currentTime + 1 }; // add 1s padding at the end
-}
-
-const songData = [
+// app/lib/songs/classic.ts v1.4.2
+export const classicSongs = [
   {
     id: 'twinkle',
     title: 'Twinkle Twinkle Little Star',
@@ -58,16 +25,7 @@ const songData = [
     difficulty: 2,
     style: 'Classic',
     bpm: 120,
-    melody: 'E4:1 E4:1 F4:1 G4:1 G4:1 F4:1 E4:1 D4:1 C4:1 C4:1 D4:1 E4:1 E4:1.5 D4:0.5 D4:2 E4:1 E4:1 F4:1 G4:1 G4:1 F4:1 E4:1 D4:1 C4:1 C4:1 D4:1 E4:1 D4:1.5 C4:0.5 C4:2'
-  },
-  {
-    id: 'jingle_bells',
-    title: 'Jingle Bells',
-    artist: 'Traditional',
-    difficulty: 2,
-    style: 'Holiday',
-    bpm: 140,
-    melody: 'E4:1 E4:1 E4:2 E4:1 E4:1 E4:2 E4:1 G4:1 C4:1.5 D4:0.5 E4:4 F4:1 F4:1 F4:1.5 F4:0.5 F4:1 E4:1 E4:1 E4:0.5 E4:0.5 E4:1 D4:1 D4:1 E4:1 D4:2 G4:2 E4:1 E4:1 E4:2 E4:1 E4:1 E4:2 E4:1 G4:1 C4:1.5 D4:0.5 E4:4 F4:1 F4:1 F4:1.5 F4:0.5 F4:1 E4:1 E4:1 E4:0.5 E4:0.5 G4:1 G4:1 F4:1 D4:1 C4:4'
+    melody: 'E4:1 E4:1 F4:1 G4:1 G4:1 F4:1 E4:1 D4:1 C4:1 C4:1 D4:1 E4:1 E4:1.5 D4:0.5 D4:2 E4:1 E4:1 F4:1 G4:1 G4:1 F4:1 E4:1 D4:1 C4:1 C4:1 D4:1 E4:1 D4:1.5 C4:0.5 C4:2 D4:1 D4:1 E4:1 C4:1 D4:1 E4:0.5 F4:0.5 E4:1 C4:1 D4:1 E4:0.5 F4:0.5 E4:1 D4:1 C4:1 D4:1 G3:2 E4:1 E4:1 F4:1 G4:1 G4:1 F4:1 E4:1 D4:1 C4:1 C4:1 D4:1 E4:1 D4:1.5 C4:0.5 C4:2'
   },
   {
     id: 'happy_birthday',
@@ -148,7 +106,7 @@ const songData = [
     difficulty: 3,
     style: 'Classic',
     bpm: 100,
-    melody: 'C4:1 E4:1 G4:1 G4:1 G4:0.5 F4:0.5 E4:1 C4:1 G4:0.5 F4:0.5 E4:1 C4:1 G4:0.5 F4:0.5 E4:0.5 F4:0.5 G4:2'
+    melody: 'C4:1 E4:1 G4:1 G4:1 G4:0.5 F4:0.5 E4:1 C4:1 G4:0.5 F4:0.5 E4:1 C4:1 G4:0.5 F4:0.5 E4:0.5 F4:0.5 G4:2 C4:1 E4:1 G4:1 G4:1 G4:0.5 F4:0.5 E4:1 C4:1 G4:0.5 F4:0.5 E4:1 C4:1 G4:0.5 F4:0.5 E4:0.5 F4:0.5 C4:2 E4:0.5 F4:0.5 G4:1 G4:1 F4:0.5 E4:0.5 F4:1 F4:1 E4:0.5 D4:0.5 E4:1 E4:1 D4:0.5 C4:0.5 D4:2'
   },
   {
     id: 'canon_in_d',
@@ -157,7 +115,7 @@ const songData = [
     difficulty: 3,
     style: 'Classic',
     bpm: 80,
-    melody: 'F#4:2 E4:2 D4:2 C#4:2 B3:2 A3:2 B3:2 C#4:2 D4:2 C#4:2 B3:2 A3:2 G3:2 F#3:2 G3:2 E3:2'
+    melody: 'F#4:2 E4:2 D4:2 C#4:2 B3:2 A3:2 B3:2 C#4:2 D4:2 C#4:2 B3:2 A3:2 G3:2 F#3:2 G3:2 E3:2 D4:1 F#4:1 A4:1 G4:1 F#4:1 D4:1 F#4:1 E4:1 D4:1 B3:1 D4:1 A3:1 G3:1 B3:1 A3:1 G3:1 F#3:1 A3:1 G3:1 F#3:1 E3:1 G3:1 F#3:1 E3:1 D3:1 F#3:1 A3:1 G3:1 F#3:1 E3:1 D3:1 C#3:1'
   },
   {
     id: 'fur_elise',
@@ -166,7 +124,7 @@ const songData = [
     difficulty: 4,
     style: 'Classic',
     bpm: 120,
-    melody: 'E5:0.5 D#5:0.5 E5:0.5 D#5:0.5 E5:0.5 B4:0.5 D5:0.5 C5:0.5 A4:1.5 R:0.5 C4:0.5 E4:0.5 A4:0.5 B4:1.5 R:0.5 E4:0.5 G#4:0.5 B4:0.5 C5:1.5 R:0.5 E4:0.5 E5:0.5 D#5:0.5 E5:0.5 D#5:0.5 E5:0.5 B4:0.5 D5:0.5 C5:0.5 A4:1.5 R:0.5 C4:0.5 E4:0.5 A4:0.5 B4:1.5 R:0.5 E4:0.5 C5:0.5 B4:0.5 A4:2'
+    melody: 'E5:0.5 D#5:0.5 E5:0.5 D#5:0.5 E5:0.5 B4:0.5 D5:0.5 C5:0.5 A4:1.5 R:0.5 C4:0.5 E4:0.5 A4:0.5 B4:1.5 R:0.5 E4:0.5 G#4:0.5 B4:0.5 C5:1.5 R:0.5 E4:0.5 E5:0.5 D#5:0.5 E5:0.5 D#5:0.5 E5:0.5 B4:0.5 D5:0.5 C5:0.5 A4:1.5 R:0.5 C4:0.5 E4:0.5 A4:0.5 B4:1.5 R:0.5 E4:0.5 C5:0.5 B4:0.5 A4:2 B4:1 C5:1 D5:1 E5:1.5 G4:0.5 F5:0.5 E5:0.5 D5:1.5 F4:0.5 E5:0.5 D5:0.5 C5:1.5 E4:0.5 D5:0.5 C5:0.5 B4:2 E4:0.5 E5:0.5 E5:0.5 E6:0.5 D#5:0.5 E5:0.5 D#5:0.5 E5:0.5 D#5:0.5 E5:0.5 D#5:0.5 E5:0.5 B4:0.5 D5:0.5 C5:0.5 A4:1.5'
   },
   {
     id: 'yankee_doodle',
@@ -205,22 +163,13 @@ const songData = [
     melody: 'C4:1 F4:1.5 F4:0.5 F4:1 A4:1 G4:1.5 F4:0.5 G4:1 A4:1 F4:1.5 F4:0.5 A4:1 C5:1 D5:3 D5:1 C5:1.5 A4:0.5 A4:1 F4:1 G4:1.5 F4:0.5 G4:1 A4:1 F4:1.5 D4:0.5 D4:1 C4:1 F4:3'
   },
   {
-    id: 'silent_night',
-    title: 'Silent Night',
-    artist: 'Gruber',
-    difficulty: 2,
-    style: 'Holiday',
-    bpm: 90,
-    melody: 'G4:1.5 A4:0.5 G4:1 E4:3 G4:1.5 A4:0.5 G4:1 E4:3 D5:2 D5:1 B4:3 C5:2 C5:1 G4:3 A4:2 A4:1 C5:1.5 B4:0.5 A4:1 G4:1.5 A4:0.5 G4:1 E4:3'
-  },
-  {
     id: 'swan_lake',
     title: 'Swan Lake Theme',
     artist: 'Tchaikovsky',
     difficulty: 2,
     style: 'Classic',
     bpm: 100,
-    melody: 'A4:1 B4:1 C5:1 D5:1 E5:2 A4:1 E5:1 F5:1 E5:1 D5:1 C5:1 B4:2 E4:2 A4:1 B4:1 C5:1 D5:1 E5:2 A4:1 E5:1 F5:1 E5:1 D5:1 C5:1 A4:4'
+    melody: 'A4:1 B4:1 C5:1 D5:1 E5:2 A4:1 E5:1 F5:1 E5:1 D5:1 C5:1 B4:2 E4:2 A4:1 B4:1 C5:1 D5:1 E5:2 A4:1 E5:1 F5:1 E5:1 D5:1 C5:1 A4:4 B4:1 C5:1 D5:1 E5:1 F5:2 B4:1 F5:1 G5:1 F5:1 E5:1 D5:1 C5:2 F4:2 B4:1 C5:1 D5:1 E5:1 F5:2 B4:1 F5:1 G5:1 F5:1 E5:1 D5:1 B4:4'
   },
   {
     id: 'blue_danube',
@@ -229,7 +178,7 @@ const songData = [
     difficulty: 2,
     style: 'Classic',
     bpm: 120,
-    melody: 'C4:1 C4:1 E4:1 G4:1 G4:2 G4:2 E5:1 E5:1 C5:1 C5:1 G4:2 G4:2 C4:1 C4:1 E4:1 G4:1 G4:2 G4:2 F5:1 F5:1 D5:1 D5:1 B4:2 B4:2'
+    melody: 'C4:1 C4:1 E4:1 G4:1 G4:2 G4:2 E5:1 E5:1 C5:1 C5:1 G4:2 G4:2 C4:1 C4:1 E4:1 G4:1 G4:2 G4:2 F5:1 F5:1 D5:1 D5:1 B4:2 B4:2 D4:1 D4:1 F4:1 A4:1 A4:2 A4:2 F5:1 F5:1 D5:1 D5:1 A4:2 A4:2 D4:1 D4:1 F4:1 A4:1 A4:2 A4:2 E5:1 E5:1 C5:1 C5:1 G4:2 G4:2'
   },
   {
     id: 'greensleeves',
@@ -286,134 +235,12 @@ const songData = [
     melody: 'B3:0.5 C#4:0.5 D4:0.5 E4:0.5 F#4:0.5 D4:0.5 F#4:0.5 A4:1 F#4:0.5 F#4:1 F#4:0.5 F#4:1 F#4:0.5 A4:1 F#4:0.5'
   },
   {
-    id: 'entertainer',
-    title: 'The Entertainer',
-    artist: 'Joplin',
-    difficulty: 3,
-    style: 'Ragtime',
-    bpm: 140,
-    melody: 'D5:0.5 E5:0.5 C5:0.5 A4:1 B4:0.5 G4:0.5 D4:0.5 E4:0.5 C4:2 D5:0.5 E5:0.5 C5:0.5 A4:1 B4:0.5 G4:0.5 D4:0.5 E4:0.5 C4:2'
-  },
-  {
     id: 'william_tell',
     title: 'William Tell Overture',
     artist: 'Rossini',
     difficulty: 3,
     style: 'Classic',
     bpm: 150,
-    melody: 'E4:0.5 E4:0.5 E4:0.5 G4:1 E4:0.5 E4:0.5 E4:0.5 G4:1 E4:0.5 E4:0.5 E4:0.5 C5:1 B4:0.5 A4:0.5 G4:1'
-  },
-  {
-    id: 'jasmine_flower',
-    title: 'Mo Li Hua (Jasmine Flower)',
-    artist: 'Traditional',
-    difficulty: 2,
-    style: 'Chinese',
-    bpm: 80,
-    melody: 'E4:0.5 E4:0.5 G4:0.5 A4:0.5 C5:0.5 C5:0.5 A4:0.5 G4:1.5 G4:0.5 A4:0.5 G4:0.5 E4:0.5 D4:0.5 E4:0.5 G4:1.5 E4:0.5 D4:0.5 C4:0.5 D4:0.5 E4:0.5 D4:0.5 C4:0.5 A3:0.5 C4:1.5'
-  },
-  {
-    id: 'butterfly_lovers',
-    title: 'Butterfly Lovers',
-    artist: 'He Zhanhao & Chen Gang',
-    difficulty: 3,
-    style: 'Chinese',
-    bpm: 70,
-    melody: 'G4:1 E4:0.5 G4:0.5 A4:1 C5:1 D5:1.5 E5:0.5 D5:1 C5:1 A4:1 G4:1 E4:0.5 G4:0.5 A4:1 C5:1 A4:1 G4:1 E4:1 D4:2'
-  },
-  {
-    id: 'colorful_clouds',
-    title: 'Colorful Clouds Chasing the Moon',
-    artist: 'Ren Guang',
-    difficulty: 3,
-    style: 'Chinese',
-    bpm: 90,
-    melody: 'E4:1 G4:0.5 A4:0.5 C5:1.5 D5:0.5 E5:1 D5:0.5 C5:0.5 A4:1 G4:1 E4:1 G4:0.5 A4:0.5 C5:1.5 A4:0.5 G4:1 E4:0.5 D4:0.5 C4:2'
-  },
-  {
-    id: 'kangding_love_song',
-    title: 'Kangding Love Song',
-    artist: 'Traditional',
-    difficulty: 2,
-    style: 'Chinese',
-    bpm: 100,
-    melody: 'E4:1 D4:0.5 C4:0.5 A3:1 C4:1 D4:1 C4:1 E4:1 G4:1 E4:1 D4:0.5 C4:0.5 A3:1 A3:1 G3:1 A3:1 C4:1 D4:1 C4:3'
-  },
-  {
-    id: 'step_by_step_high',
-    title: 'Step by Step High',
-    artist: 'Lu Wencheng',
-    difficulty: 3,
-    style: 'Chinese',
-    bpm: 120,
-    melody: 'G4:0.5 A4:0.5 C5:1 D5:0.5 E5:0.5 G5:1 A5:0.5 G5:0.5 E5:0.5 D5:0.5 C5:1 A4:0.5 G4:0.5 E4:1 G4:1 A4:1 C5:2'
-  },
-  {
-    id: 'full_of_joy',
-    title: 'Full of Joy',
-    artist: 'Liu Mingyuan',
-    difficulty: 3,
-    style: 'Chinese',
-    bpm: 130,
-    melody: 'D5:0.5 D5:0.5 B4:0.5 B4:0.5 D5:0.5 D5:0.5 B4:1 G4:0.5 A4:0.5 B4:0.5 A4:0.5 G4:0.5 E4:0.5 D4:1 G4:0.5 A4:0.5 B4:1 A4:0.5 G4:0.5 E4:1 D4:0.5 E4:0.5 G4:2'
-  },
-  {
-    id: 'happy_new_year',
-    title: 'Happy New Year',
-    artist: 'Traditional',
-    difficulty: 1,
-    style: 'Holiday',
-    bpm: 120,
-    melody: 'C4:1 C4:1 C4:1 G3:1 E4:1 E4:1 E4:1 C4:1 C4:1 E4:1 G4:1 G4:1 F4:1 E4:1 D4:2 D4:1 E4:1 F4:1 F4:1 E4:1 D4:1 C4:1 C4:1 C4:1 E4:1 D4:1 G3:1 B3:1 D4:1 C4:2'
-  },
-  {
-    id: 'hai_kuo_tian_kong',
-    title: 'Boundless Oceans, Vast Skies',
-    artist: 'Beyond',
-    difficulty: 3,
-    style: 'Rock',
-    bpm: 72,
-    melody: 'F4:0.5 G4:0.5 A4:1.5 G4:0.5 F4:0.5 G4:1 A4:0.5 G4:0.5 F4:0.5 E4:0.5 D4:2 F4:0.5 G4:0.5 A4:1.5 A#4:0.5 A4:0.5 G4:1 F4:0.5 E4:0.5 D4:0.5 C4:2'
-  },
-  {
-    id: 'zhen_de_ai_ni',
-    title: 'Really Love You',
-    artist: 'Beyond',
-    difficulty: 3,
-    style: 'Rock',
-    bpm: 90,
-    melody: 'C5:0.5 B4:0.5 A4:0.5 G4:0.5 F4:1 E4:0.5 F4:0.5 G4:2 C5:0.5 B4:0.5 A4:0.5 G4:0.5 F4:1 E4:0.5 D4:0.5 C4:2'
-  },
-  {
-    id: 'xi_huan_ni',
-    title: 'Like You',
-    artist: 'Beyond',
-    difficulty: 2,
-    style: 'Rock',
-    bpm: 80,
-    melody: 'C5:1 B4:0.5 A4:0.5 G4:1.5 E4:0.5 G4:2 A4:0.5 G4:0.5 E4:0.5 D4:0.5 C4:1 D4:1 E4:2'
-  },
-  {
-    id: 'bugs_fly',
-    title: 'Bugs Fly',
-    artist: 'Ekin Cheng',
-    difficulty: 1,
-    style: 'Pop',
-    bpm: 100,
-    melody: 'E4:0.5 E4:0.5 E4:0.5 F4:0.5 G4:1 E4:0.5 D4:0.5 C4:0.5 C4:0.5 C4:0.5 D4:0.5 E4:1 C4:0.5 B3:0.5 A3:1 E4:1 D4:2 A3:1 E4:1 D4:2 C4:0.5 E4:0.5 D4:0.5 C4:0.5 C4:2'
+    melody: 'E4:0.5 E4:0.5 E4:0.5 G4:1 E4:0.5 E4:0.5 E4:0.5 G4:1 E4:0.5 E4:0.5 E4:0.5 C5:1 B4:0.5 A4:0.5 G4:1 E4:0.5 E4:0.5 E4:0.5 G4:1 E4:0.5 E4:0.5 E4:0.5 G4:1 E4:0.5 E4:0.5 E4:0.5 C5:1 B4:0.5 A4:0.5 G4:1 C5:0.5 C5:0.5 C5:0.5 E5:1 C5:0.5 C5:0.5 C5:0.5 E5:1 C5:0.5 C5:0.5 C5:0.5 G5:1 F5:0.5 E5:0.5 D5:1'
   }
 ];
-
-export const generatedSongs: Song[] = songData.map(data => {
-  const { notes, duration } = parseMelody(data.melody, data.bpm);
-  return {
-    id: data.id,
-    title: data.title,
-    artist: data.artist,
-    difficulty: data.difficulty,
-    style: data.style,
-    midiUrl: '',
-    duration,
-    notes
-  };
-});

@@ -1,4 +1,4 @@
-// app/hooks/use-midi.ts v1.3.5
+// app/hooks/use-midi.ts v1.4.3
 import { useEffect, useState, useRef, useCallback } from 'react';
 
 export interface MidiDevice {
@@ -70,6 +70,8 @@ export function useMidi() {
       return;
     }
 
+    if (!event.data || event.data.length < 3) return;
+
     const [statusByte, data1, data2] = event.data;
     const command = statusByte & 0xf0;
     const channel = (statusByte & 0x0f) + 1; // 1-16
@@ -132,30 +134,29 @@ export function useMidi() {
   const updateDevices = useCallback((access: WebMidi.MIDIAccess) => {
     const inputList: MidiDevice[] = [];
     const outputList: MidiDevice[] = [];
-    const seenInputIds = new Set<string>();
-    const seenOutputIds = new Set<string>();
 
-    access.inputs.forEach((input) => {
-      if (!seenInputIds.has(input.id)) {
+    try {
+      // Use iterator for maximum compatibility
+      const inputsIter = access.inputs.values();
+      for (let input = inputsIter.next(); !input.done; input = inputsIter.next()) {
         inputList.push({
-          id: input.id,
-          name: input.name || 'Unknown Device',
-          manufacturer: input.manufacturer,
+          id: input.value.id,
+          name: input.value.name || 'Unknown Input Device',
+          manufacturer: input.value.manufacturer,
         });
-        seenInputIds.add(input.id);
       }
-    });
 
-    access.outputs.forEach((output) => {
-      if (!seenOutputIds.has(output.id)) {
+      const outputsIter = access.outputs.values();
+      for (let output = outputsIter.next(); !output.done; output = outputsIter.next()) {
         outputList.push({
-          id: output.id,
-          name: output.name || 'Unknown Device',
-          manufacturer: output.manufacturer,
+          id: output.value.id,
+          name: output.value.name || 'Unknown Output Device',
+          manufacturer: output.value.manufacturer,
         });
-        seenOutputIds.add(output.id);
       }
-    });
+    } catch (e) {
+      console.error('Error enumerating MIDI devices:', e);
+    }
 
     setInputs(inputList);
     setOutputs(outputList);
@@ -163,7 +164,8 @@ export function useMidi() {
     // Auto-select logic
     if (inputList.length > 0) {
       // If nothing selected, or selected is gone, default to 'all'
-      if (!settingsRef.current.selectedInputId || (settingsRef.current.selectedInputId !== 'all' && !inputList.find(i => i.id === settingsRef.current.selectedInputId))) {
+      if (!settingsRef.current.selectedInputId || 
+          (settingsRef.current.selectedInputId !== 'all' && !inputList.find(i => i.id === settingsRef.current.selectedInputId))) {
         setSelectedInputId('all');
       }
     } else {
@@ -171,8 +173,6 @@ export function useMidi() {
     }
   }, []);
 
-// app/hooks/use-midi.ts v1.3.9
-// ... existing code ...
   const connectMidi = useCallback(async (isMounted: () => boolean = () => true) => {
     if (typeof navigator === 'undefined' || !navigator.requestMIDIAccess) {
       if (isMounted()) setIsSupported(false);
@@ -180,13 +180,13 @@ export function useMidi() {
     }
 
     try {
-      // Try with sysex: true first, then fallback to false if it fails
       let access: WebMidi.MIDIAccess;
       try {
-        access = await navigator.requestMIDIAccess({ sysex: true }) as unknown as WebMidi.MIDIAccess;
-      } catch (e) {
-        console.warn('Sysex MIDI access denied, trying without sysex');
+        // Try without sysex first as it's less likely to be blocked by permissions
         access = await navigator.requestMIDIAccess({ sysex: false }) as unknown as WebMidi.MIDIAccess;
+      } catch (e) {
+        console.warn('Standard MIDI access denied, trying with sysex', e);
+        access = await navigator.requestMIDIAccess({ sysex: true }) as unknown as WebMidi.MIDIAccess;
       }
 
       if (!isMounted()) return false;
@@ -195,28 +195,33 @@ export function useMidi() {
       setIsSupported(true);
       updateDevices(access);
       
-      // Clear existing listeners first
-      access.inputs.forEach((input) => {
-        input.onmidimessage = null;
-        input.onmidimessage = onMidiMessage;
-      });
-
-      access.onstatechange = (e: WebMidi.MIDIConnectionEvent) => {
-        updateDevices(access);
-        if (e.port.type === 'input') {
-           const input = e.port as WebMidi.MIDIInput;
-           input.onmidimessage = null;
-           input.onmidimessage = onMidiMessage;
+      // Attach listeners to all current inputs
+      const attachListeners = () => {
+        try {
+          const inputsIter = access.inputs.values();
+          for (let input = inputsIter.next(); !input.done; input = inputsIter.next()) {
+            input.value.onmidimessage = onMidiMessage;
+          }
+        } catch (e) {
+          console.error('Error attaching MIDI listeners:', e);
         }
       };
+
+      attachListeners();
+
+      access.onstatechange = (e: WebMidi.MIDIConnectionEvent) => {
+        console.log('MIDI state change:', e.port.name, e.port.state);
+        updateDevices(access);
+        attachListeners(); // Re-attach to ensure new devices are covered
+      };
+      
       return true;
     } catch (err) {
-      console.error('MIDI access denied or failed', err);
+      console.error('MIDI access completely denied or failed', err);
       if (isMounted()) setIsSupported(false);
       return false;
     }
   }, [onMidiMessage, updateDevices]);
-// ... existing code ...
 
   useEffect(() => {
     let mounted = true;
@@ -232,9 +237,14 @@ export function useMidi() {
       mounted = false;
       if (midiAccessRef.current) {
         midiAccessRef.current.onstatechange = null;
-        midiAccessRef.current.inputs.forEach((input) => {
-          input.onmidimessage = null;
-        });
+        try {
+          const inputsIter = midiAccessRef.current.inputs.values();
+          for (let input = inputsIter.next(); !input.done; input = inputsIter.next()) {
+            input.value.onmidimessage = null;
+          }
+        } catch (e) {
+          // Ignore cleanup errors
+        }
       }
     };
   }, [connectMidi]);
