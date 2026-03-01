@@ -1,7 +1,4 @@
-/**
- * @file lib/store.ts
- * @version v1.2.0
- */
+// app/lib/store.ts v1.3.5
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Locale } from './translations';

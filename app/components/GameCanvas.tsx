@@ -1,3 +1,4 @@
+// app/components/GameCanvas.tsx v1.3.5
 'use client';
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';

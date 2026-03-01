@@ -1,3 +1,4 @@
+// app/lib/locales/ar.ts v1.3.5
 export const ar = {
     title: 'NoteCascade',
     subtitle: 'أتقن مفاتيحك',

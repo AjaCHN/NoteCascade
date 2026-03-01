@@ -1,3 +1,4 @@
+// app/lib/locales/ru.ts v1.3.5
 export const ru = {
     title: 'NoteCascade',
     subtitle: 'Освойте свои клавиши',

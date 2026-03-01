@@ -1,3 +1,4 @@
+// app/lib/locales/ja.ts v1.3.5
 export const ja = {
     title: 'NoteCascade',
     subtitle: 'キーをマスターする',

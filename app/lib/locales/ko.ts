@@ -1,3 +1,4 @@
+// app/lib/locales/ko.ts v1.3.5
 export const ko = {
     title: 'NoteCascade',
     subtitle: '키를 마스터하세요',

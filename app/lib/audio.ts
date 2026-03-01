@@ -1,7 +1,4 @@
-/**
- * @file lib/audio.ts
- * @version v1.3.2
- */
+// app/lib/audio.ts v1.3.5
 import * as Tone from 'tone';
 
 let synth: Tone.PolySynth | null = null;
@@ -201,19 +198,19 @@ export const playNote = (note: string | number, duration: string | number = '8n'
 
   if (currentInstrument === 'piano' && piano?.loaded) {
     // console.log('Playing with piano:', noteToPlay);
-    piano.triggerAttackRelease(noteToPlay, duration, velocity);
+    piano.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
     played = true;
   } else if (currentInstrument === 'epiano' && epiano) {
-    epiano.triggerAttackRelease(noteToPlay, duration, velocity);
+    epiano.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
     played = true;
   } else if (currentInstrument === 'strings' && strings) {
-    strings.triggerAttackRelease(noteToPlay, duration, velocity);
+    strings.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
     played = true;
   } 
   
   if (!played && synth) {
     // console.log('Fallback to synth:', noteToPlay);
-    synth.triggerAttackRelease(noteToPlay, duration, velocity);
+    synth.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
   }
 };
 
@@ -266,18 +263,18 @@ export const scheduleNote = (
     }
 
     if (currentInstrument === 'piano' && piano?.loaded) {
-      piano.triggerAttackRelease(noteToPlay, note.duration, note.velocity, time);
+      piano.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
       played = true;
     } else if (currentInstrument === 'epiano' && epiano) {
-      epiano.triggerAttackRelease(noteToPlay, note.duration, note.velocity, time);
+      epiano.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
       played = true;
     } else if (currentInstrument === 'strings' && strings) {
-      strings.triggerAttackRelease(noteToPlay, note.duration, note.velocity, time);
+      strings.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
       played = true;
     } 
     
     if (!played && synth) {
-      synth.triggerAttackRelease(noteToPlay, note.duration, note.velocity, time);
+      synth.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
     }
   }, note.time);
 

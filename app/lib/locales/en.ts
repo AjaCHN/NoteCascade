@@ -1,3 +1,4 @@
+// app/lib/locales/en.ts v1.3.5
 export const en = {
     title: 'NoteCascade',
     subtitle: 'Master your keys',
@@ -101,8 +102,10 @@ export const en = {
     song_hai_kuo_tian_kong: 'Boundless Oceans, Vast Skies',
     song_zhen_de_ai_ni: 'Really Love You',
     song_xi_huan_ni: 'Like You',
+    song_bugs_fly: 'Bugs Fly',
     artist_traditional: 'Traditional',
     artist_beyond: 'Beyond',
+    artist_ekin_cheng: 'Ekin Cheng',
     artist_beethoven: 'Beethoven',
     artist_pachelbel: 'Pachelbel',
     artist_ren_guang: 'Ren Guang',

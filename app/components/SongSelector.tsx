@@ -1,3 +1,4 @@
+// app/components/SongSelector.tsx v1.3.5
 'use client';
 
 import React, { useState, useRef } from 'react';

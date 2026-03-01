@@ -1,7 +1,4 @@
-/**
- * @file hooks/use-midi.ts
- * @version v1.3.2
- */
+// app/hooks/use-midi.ts v1.3.5
 import { useEffect, useState, useRef, useCallback } from 'react';
 
 export interface MidiDevice {

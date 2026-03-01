@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.5
+- Added "Bugs Fly" song to the library.
+- Refactored `app/page.tsx` into custom hooks (`useGameLogic`, `useSidebarResize`) for better maintainability.
+- Fixed an issue with sound playback in demo mode.
+- Optimized sidebar resizing and UI layout.
+
 ## v1.1.2
 - Added automatic metronome with adjustable BPM and beats per measure.
 - Moved playback controls to the bottom of the song list sidebar.

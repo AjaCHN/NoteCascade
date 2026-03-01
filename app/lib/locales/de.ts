@@ -1,3 +1,4 @@
+// app/lib/locales/de.ts v1.3.5
 export const de = {
     title: 'NoteCascade',
     subtitle: 'Meistere deine Tasten',

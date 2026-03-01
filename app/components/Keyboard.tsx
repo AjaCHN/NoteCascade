@@ -1,3 +1,4 @@
+// app/components/Keyboard.tsx v1.3.5
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';

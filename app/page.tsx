@@ -1,23 +1,22 @@
+// app/page.tsx v1.3.5
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMidi } from './hooks/use-midi';
 import { useKeyboardInput } from './hooks/use-keyboard-input';
-import { initAudio, startNote, stopNote, setVolume, startTransport, stopTransport, setAudioInstrument, scheduleNote, clearScheduledEvents, ensureAudioContext, setMetronome } from './lib/audio';
-import * as Tone from 'tone';
-import { Song, builtInSongs } from './lib/songs';
-import { getNextSong, useAppActions, useLocale, useTheme, useInstrument, usePlayMode, useKeyboardRange, useShowNoteNames, useShowKeymap, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats } from './lib/store';
+import { initAudio, startNote, stopNote, setVolume, setAudioInstrument } from './lib/audio';
+import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, useShowNoteNames, useShowKeymap } from './lib/store';
 import { translations } from './lib/translations';
 import { Keyboard } from './components/Keyboard';
 import { GameCanvas } from './components/GameCanvas';
 import { AnimatePresence } from 'motion/react';
-import confetti from 'canvas-confetti';
-import { GripVertical } from 'lucide-react';
 
 import { SettingsModal } from './components/SettingsModal';
 import { ResultModal } from './components/ResultModal';
 import { AppHeader } from './components/AppHeader';
 import { AppSidebar } from './components/AppSidebar';
+import { useGameLogic } from './hooks/use-game-logic';
+import { useSidebarResize } from './hooks/use-sidebar-resize';
 
 export default function MidiPlayApp() {
   const { 
@@ -25,84 +24,47 @@ export default function MidiPlayApp() {
     setSelectedInputId, midiChannel, setMidiChannel, velocityCurve, setVelocityCurve,
     transpose, setTranspose, connectMidi
   } = useMidi();
-  const { 
-    addScore, incrementPracticeTime, updateStreak, 
-    setKeyboardRange
-  } = useAppActions();
+  const { setKeyboardRange } = useAppActions();
   const locale = useLocale();
   const theme = useTheme();
   const instrument = useInstrument();
-  const playMode = usePlayMode();
   const keyboardRange = useKeyboardRange();
   const showNoteNames = useShowNoteNames();
   const showKeymap = useShowKeymap();
-  const metronomeEnabled = useMetronomeEnabled();
-  const metronomeBpm = useMetronomeBpm();
-  const metronomeBeats = useMetronomeBeats();
   const t = translations[locale] || translations.en;
   
-  const [selectedSong, setSelectedSong] = useState<Song>(builtInSongs[0]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
+  const {
+    selectedSong, setSelectedSong, isPlaying, currentTime, showResult, setShowResult,
+    lastScore, setLastScore, togglePlay, resetSong, handleNextSong
+  } = useGameLogic(activeNotes, setActiveNotes);
+
+  const { sidebarWidth, setIsResizing } = useSidebarResize();
+
   const [showSettings, setShowSettings] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false); // New state for mobile sidebar
-  const [showResult, setShowResult] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
   const [activeTab, setActiveTab] = useState<'songs' | 'achievements'>('songs');
-  const [lastScore, setLastScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
   const [volume, setVolumeState] = useState(80);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
-  const [sidebarWidth, setSidebarWidth] = useState(320); // Default width 320px
-  const [isResizing, setIsResizing] = useState(false);
-
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const handleResize = () => setWindowWidth(window.innerWidth);
-      // Use setTimeout to avoid synchronous state update warning during mount
       setTimeout(() => setWindowWidth(window.innerWidth), 0);
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }
   }, []);
 
-  // Resizing logic
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return;
-      const newWidth = Math.max(240, Math.min(600, e.clientX));
-      setSidebarWidth(newWidth);
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-      document.body.style.cursor = 'default';
-      document.body.style.userSelect = 'auto';
-    };
-
-    if (isResizing) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = 'col-resize';
-      document.body.style.userSelect = 'none';
-    }
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isResizing]);
-
   useEffect(() => {
     if (!isSupported && mounted) {
-      // Could show a toast here, but for now we'll just log it or maybe show a small banner
       console.warn('Web MIDI API is not supported in this browser.');
     }
   }, [isSupported, mounted]);
 
   useEffect(() => {
     if (lastMessage) {
-      initAudio(); // Try to initialize audio on MIDI input
+      initAudio();
       const { command, note, velocity } = lastMessage;
       const status = command & 0xf0;
       if (status === 0x90 && velocity > 0) {
@@ -113,7 +75,6 @@ export default function MidiPlayApp() {
     }
   }, [lastMessage]);
 
-  // Keyboard input
   useKeyboardInput(setActiveNotes);
 
   useEffect(() => {
@@ -121,10 +82,9 @@ export default function MidiPlayApp() {
     setVolume(volume);
     setAudioInstrument(instrument);
 
-    // Mobile adaptation
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       setTimeout(() => {
-        setKeyboardRange(48, 64); // ~1.5 octaves for mobile (C3 - E4)
+        setKeyboardRange(48, 64);
         setShowSidebar(false);
       }, 0);
     }
@@ -134,172 +94,9 @@ export default function MidiPlayApp() {
     setAudioInstrument(instrument);
   }, [instrument]);
 
-  useEffect(() => {
-    const syncMetronome = async () => {
-      if (metronomeEnabled) {
-        await initAudio();
-        await ensureAudioContext();
-        if (!isPlaying) startTransport();
-      } else if (!isPlaying) {
-        stopTransport();
-      }
-      setMetronome(metronomeEnabled, metronomeBpm, metronomeBeats);
-    };
-    syncMetronome();
-  }, [metronomeEnabled, metronomeBpm, metronomeBeats, isPlaying]);
-
-  const handleSongEnd = useCallback(() => {
-    if (playMode === 'demo') {
-      setIsPlaying(false);
-      setCurrentTime(0);
-      return;
-    }
-
-    const totalNotes = lastScore.perfect + lastScore.good + lastScore.miss + lastScore.wrong;
-    const accuracy = totalNotes > 0 ? (lastScore.perfect + lastScore.good) / totalNotes : 0;
-
-    const maxScore = (selectedSong.notes?.length || 0) * 100;
-
-    addScore({
-      songId: selectedSong.id,
-      score: lastScore.currentScore,
-      maxScore,
-      accuracy,
-      perfect: lastScore.perfect,
-      good: lastScore.good,
-      miss: lastScore.miss,
-      wrong: lastScore.wrong,
-      maxCombo: 0, // TODO: Implement combo tracking
-      date: Date.now(),
-    });
-
-    if (accuracy > 0.8) {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-    }
-    
-    updateStreak();
-    setShowResult(true);
-  }, [lastScore, updateStreak, addScore, selectedSong.id, selectedSong.notes?.length, playMode]);
-
-  const togglePlay = useCallback(async () => {
-    if (isPlaying) {
-      setIsPlaying(false);
-      stopTransport();
-      clearScheduledEvents();
-      setActiveNotes(new Map());
-    } else {
-      await initAudio();
-      await ensureAudioContext();
-      
-      if (currentTime >= (selectedSong.duration || 0)) {
-        setCurrentTime(0);
-      }
-      Tone.Transport.seconds = currentTime;
-
-      // Schedule notes for Demo mode
-      if (playMode === 'demo') {
-        clearScheduledEvents();
-        selectedSong.notes?.forEach(note => {
-          // Only schedule future notes if resuming? 
-          // For simplicity, we assume start from 0 or current time.
-          // Since we reset Transport on stop, we schedule all.
-          
-          scheduleNote(
-            note,
-            () => {
-              // On Start
-              setActiveNotes(prev => new Map(prev).set(note.midi, note.velocity));
-            },
-            () => {
-              // On End
-              setActiveNotes(prev => {
-                const next = new Map(prev);
-                next.delete(note.midi);
-                return next;
-              });
-            }
-          );
-        });
-      }
-
-      setIsPlaying(true);
-      startTransport();
-    }
-  }, [isPlaying, currentTime, selectedSong, playMode, setActiveNotes]);
-
-  const prevActiveNotesSize = useRef(0);
-  useEffect(() => {
-    if (activeNotes.size > 0 && prevActiveNotesSize.current === 0 && !isPlaying) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      togglePlay();
-    }
-    prevActiveNotesSize.current = activeNotes.size;
-  }, [activeNotes.size, isPlaying, togglePlay]);
-
-  // Update currentTime from Transport
-  useEffect(() => {
-    let animationFrame: number;
-    const updateTime = () => {
-      if (isPlaying) {
-        const time = Tone.Transport.seconds;
-        setCurrentTime(time);
-        
-        if (time >= (selectedSong.duration || 0)) {
-           setIsPlaying(false);
-           stopTransport();
-           clearScheduledEvents();
-           handleSongEnd();
-           setCurrentTime(0);
-           setActiveNotes(new Map());
-           return;
-        }
-
-        animationFrame = requestAnimationFrame(updateTime);
-      }
-    };
-    
-    if (isPlaying) {
-      updateTime();
-    }
-    
-    return () => cancelAnimationFrame(animationFrame);
-  }, [isPlaying, selectedSong.duration, handleSongEnd, setActiveNotes]);
-
-  // Practice time accumulator (approximate)
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlaying && playMode === 'perform') {
-      interval = setInterval(() => {
-        incrementPracticeTime(1);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, playMode, incrementPracticeTime]);
-
-  const resetSong = useCallback(() => {
-    setIsPlaying(false);
-    stopTransport();
-    setCurrentTime(0);
-    setLastScore({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
-  }, []);
-
-  const handleNextSong = useCallback(() => {
-    const nextSong = getNextSong(selectedSong);
-    if (nextSong) {
-      setSelectedSong(nextSong);
-      resetSong();
-    }
-  }, [selectedSong, resetSong]);
-
-  // Calculate minimum width for game canvas based on key count
   const isBlackKey = (midi: number) => [1, 3, 6, 8, 10].includes(midi % 12);
   const whiteKeyCount = Array.from({ length: keyboardRange.end - keyboardRange.start + 1 }, (_, i) => keyboardRange.start + i)
       .filter(midi => !isBlackKey(midi)).length;
-  // On mobile, ensure keys are at least 32px wide. On desktop, fit to screen.
   const minCanvasWidth = windowWidth < 768 
     ? Math.max(windowWidth, whiteKeyCount * 32) 
     : '100%';
@@ -320,7 +117,6 @@ export default function MidiPlayApp() {
       data-theme={theme}
       className="flex h-dvh w-full flex-col theme-bg-primary theme-text-primary font-sans selection:bg-indigo-500/30 overflow-hidden relative transition-colors duration-500"
     >
-      {/* Background Atmosphere */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div className={`absolute -top-[20%] -left-[10%] w-[60%] h-[60%] blur-[120px] rounded-full transition-colors duration-1000 ${
           theme === 'cyber' ? 'bg-green-500/10' : theme === 'classic' ? 'bg-amber-500/10' : 'bg-indigo-500/10'
@@ -359,7 +155,6 @@ export default function MidiPlayApp() {
           />
         </div>
         
-        {/* Resizer Handle */}
         <div 
           className="hidden md:flex w-1 hover:w-2 bg-transparent hover:bg-indigo-500/20 cursor-col-resize items-center justify-center transition-all z-50 absolute h-full"
           style={{ left: sidebarWidth }}
@@ -368,7 +163,6 @@ export default function MidiPlayApp() {
            <div className="h-8 w-1 bg-slate-400/50 rounded-full" />
         </div>
 
-        {/* Main Content Area */}
         <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden bg-transparent overflow-x-auto custom-scrollbar">
           <div className="flex-1 flex flex-col min-h-0 relative" style={{ minWidth: typeof minCanvasWidth === 'number' ? `${minCanvasWidth}px` : minCanvasWidth }}>
             <div id="game-canvas-container" className="flex-1 relative min-h-0">

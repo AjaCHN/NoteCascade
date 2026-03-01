@@ -1,7 +1,4 @@
-/**
- * @file lib/i18n.ts
- * @version v1.2.0
- */
+// app/lib/translations.ts v1.3.5
 import { en } from './locales/en';
 import { zhCN } from './locales/zh-CN';
 import { zhTW } from './locales/zh-TW';

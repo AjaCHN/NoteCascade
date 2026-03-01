@@ -1,3 +1,4 @@
+// app/lib/locales/zh-CN.ts v1.3.5
 export const zhCN = {
     title: '音符瀑布',
     subtitle: '掌控你的琴键',
@@ -128,8 +129,10 @@ export const zhCN = {
     song_hai_kuo_tian_kong: '海阔天空',
     song_zhen_de_ai_ni: '真的爱你',
     song_xi_huan_ni: '喜欢你',
+    song_bugs_fly: '虫儿飞',
     artist_traditional: '传统',
     artist_beyond: 'Beyond',
+    artist_ekin_cheng: '郑伊健',
     artist_beethoven: '贝多芬',
     artist_pachelbel: '帕赫贝尔',
     artist_ren_guang: '任光',
