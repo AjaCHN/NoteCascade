@@ -1,4 +1,4 @@
-// app/page.tsx v1.3.5
+// app/page.tsx v1.3.9
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -46,6 +46,42 @@ export default function MidiPlayApp() {
   const [volume, setVolumeState] = useState(80);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const [mounted, setMounted] = useState(false);
+
+  // Dynamic keyboard range logic
+  useEffect(() => {
+    if (!mounted) return;
+
+    const hasMidi = inputs.length > 0;
+    
+    if (!hasMidi) {
+      // No MIDI connected: Adjust range to fit the song
+      if (selectedSong && selectedSong.notes && selectedSong.notes.length > 0) {
+        const midis = selectedSong.notes.map(n => n.midi);
+        const minMidi = Math.min(...midis);
+        const maxMidi = Math.max(...midis);
+        
+        // Add some padding (e.g., 2-3 notes on each side)
+        const start = Math.max(21, minMidi - 2);
+        const end = Math.min(108, maxMidi + 2);
+        
+        // Ensure at least an octave or reasonable range
+        const finalStart = start;
+        const finalEnd = Math.max(start + 12, end);
+        
+        setKeyboardRange(finalStart, finalEnd);
+      } else {
+        // Default range for no song
+        setKeyboardRange(48, 72);
+      }
+    } else {
+      // MIDI connected: Use a standard full range or user setting (defaulting to 48-84)
+      // If we wanted to be fancy, we could detect the range of the connected keyboard as notes are played
+      // For now, we'll stick to the store's value or a sensible default
+      if (keyboardRange.start === 48 && keyboardRange.end === 72) {
+         setKeyboardRange(48, 84);
+      }
+    }
+  }, [inputs.length, selectedSong, setKeyboardRange, mounted]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

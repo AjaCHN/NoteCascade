@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.3.9]
+- Fix: Improved MIDI connection robustness (added sysex retry and listener cleanup).
+- Feat: Dynamic keyboard range adjustment (fits song notes when no MIDI is connected).
+- Feat: Auto-expand keyboard range when MIDI is connected.
+
 ## [1.3.8]
 - Feat: Sort songs by difficulty (ascending).
 

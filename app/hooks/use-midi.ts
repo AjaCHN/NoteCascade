@@ -171,6 +171,8 @@ export function useMidi() {
     }
   }, []);
 
+// app/hooks/use-midi.ts v1.3.9
+// ... existing code ...
   const connectMidi = useCallback(async (isMounted: () => boolean = () => true) => {
     if (typeof navigator === 'undefined' || !navigator.requestMIDIAccess) {
       if (isMounted()) setIsSupported(false);
@@ -178,21 +180,33 @@ export function useMidi() {
     }
 
     try {
-      const access = await navigator.requestMIDIAccess({ sysex: false }) as unknown as WebMidi.MIDIAccess;
+      // Try with sysex: true first, then fallback to false if it fails
+      let access: WebMidi.MIDIAccess;
+      try {
+        access = await navigator.requestMIDIAccess({ sysex: true }) as unknown as WebMidi.MIDIAccess;
+      } catch (e) {
+        console.warn('Sysex MIDI access denied, trying without sysex');
+        access = await navigator.requestMIDIAccess({ sysex: false }) as unknown as WebMidi.MIDIAccess;
+      }
+
       if (!isMounted()) return false;
       
       midiAccessRef.current = access;
       setIsSupported(true);
       updateDevices(access);
       
+      // Clear existing listeners first
       access.inputs.forEach((input) => {
+        input.onmidimessage = null;
         input.onmidimessage = onMidiMessage;
       });
 
       access.onstatechange = (e: WebMidi.MIDIConnectionEvent) => {
         updateDevices(access);
         if (e.port.type === 'input') {
-           (e.port as WebMidi.MIDIInput).onmidimessage = onMidiMessage;
+           const input = e.port as WebMidi.MIDIInput;
+           input.onmidimessage = null;
+           input.onmidimessage = onMidiMessage;
         }
       };
       return true;
@@ -202,6 +216,7 @@ export function useMidi() {
       return false;
     }
   }, [onMidiMessage, updateDevices]);
+// ... existing code ...
 
   useEffect(() => {
     let mounted = true;

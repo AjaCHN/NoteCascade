@@ -1,6 +1,6 @@
 {
   "id": "notecascade-v1",
-  "name": "NoteCascade v1.3.8",
+  "name": "NoteCascade v1.3.9",
   "description": "A visual/game-like MIDI keyboard practice app with real-time scoring and achievements.",
   "requestFramePermissions": ["midi"]
 }
