@@ -40,9 +40,9 @@ export function AppSidebar({
     <aside 
       id="sidebar" 
       className={`
-        absolute inset-y-0 left-0 z-40 w-full md:w-80 theme-bg-primary md:bg-transparent
+        h-full w-full theme-bg-primary md:bg-transparent
         flex flex-col border-r theme-border transition-transform duration-300 ease-in-out
-        ${showSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0 md:relative'}
+        ${showSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}
     >
       <div className="flex border-b theme-border bg-white/2 backdrop-blur-md">

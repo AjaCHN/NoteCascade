@@ -12,6 +12,7 @@ import { Keyboard } from './components/Keyboard';
 import { GameCanvas } from './components/GameCanvas';
 import { AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
+import { GripVertical } from 'lucide-react';
 
 import { SettingsModal } from './components/SettingsModal';
 import { ResultModal } from './components/ResultModal';
@@ -50,6 +51,8 @@ export default function MidiPlayApp() {
   const [lastScore, setLastScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
   const [volume, setVolumeState] = useState(80);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const [sidebarWidth, setSidebarWidth] = useState(320); // Default width 320px
+  const [isResizing, setIsResizing] = useState(false);
 
   const [mounted, setMounted] = useState(false);
 
@@ -62,6 +65,33 @@ export default function MidiPlayApp() {
       return () => window.removeEventListener('resize', handleResize);
     }
   }, []);
+
+  // Resizing logic
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+      const newWidth = Math.max(240, Math.min(600, e.clientX));
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
+    };
+
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
 
   useEffect(() => {
     if (!isSupported && mounted) {
@@ -312,20 +342,31 @@ export default function MidiPlayApp() {
       />
 
       <main id="main-content" className="flex flex-1 overflow-hidden relative z-10">
-        <AppSidebar 
-          showSidebar={showSidebar}
-          setShowSidebar={setShowSidebar}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          selectedSong={selectedSong}
-          setSelectedSong={setSelectedSong}
-          resetSong={resetSong}
-          togglePlay={togglePlay}
-          isPlaying={isPlaying}
-          currentTime={currentTime}
-          handleNextSong={handleNextSong}
-          t={t}
-        />
+        <div style={{ width: windowWidth >= 768 ? sidebarWidth : '100%', position: windowWidth >= 768 ? 'relative' : 'absolute', zIndex: 40, height: '100%' }} className={windowWidth < 768 && !showSidebar ? 'hidden' : ''}>
+          <AppSidebar 
+            showSidebar={showSidebar}
+            setShowSidebar={setShowSidebar}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            selectedSong={selectedSong}
+            setSelectedSong={setSelectedSong}
+            resetSong={resetSong}
+            togglePlay={togglePlay}
+            isPlaying={isPlaying}
+            currentTime={currentTime}
+            handleNextSong={handleNextSong}
+            t={t}
+          />
+        </div>
+        
+        {/* Resizer Handle */}
+        <div 
+          className="hidden md:flex w-1 hover:w-2 bg-transparent hover:bg-indigo-500/20 cursor-col-resize items-center justify-center transition-all z-50 absolute h-full"
+          style={{ left: sidebarWidth }}
+          onMouseDown={() => setIsResizing(true)}
+        >
+           <div className="h-8 w-1 bg-slate-400/50 rounded-full" />
+        </div>
 
         {/* Main Content Area */}
         <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden bg-transparent overflow-x-auto custom-scrollbar">

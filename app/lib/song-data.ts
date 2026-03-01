@@ -328,6 +328,69 @@ const songData = [
     style: 'Chinese',
     bpm: 90,
     melody: 'E4:1 G4:0.5 A4:0.5 C5:1.5 D5:0.5 E5:1 D5:0.5 C5:0.5 A4:1 G4:1 E4:1 G4:0.5 A4:0.5 C5:1.5 A4:0.5 G4:1 E4:0.5 D4:0.5 C4:2'
+  },
+  {
+    id: 'kangding_love_song',
+    title: 'Kangding Love Song',
+    artist: 'Traditional',
+    difficulty: 2,
+    style: 'Chinese',
+    bpm: 100,
+    melody: 'E4:1 D4:0.5 C4:0.5 A3:1 C4:1 D4:1 C4:1 E4:1 G4:1 E4:1 D4:0.5 C4:0.5 A3:1 A3:1 G3:1 A3:1 C4:1 D4:1 C4:3'
+  },
+  {
+    id: 'step_by_step_high',
+    title: 'Step by Step High',
+    artist: 'Lu Wencheng',
+    difficulty: 3,
+    style: 'Chinese',
+    bpm: 120,
+    melody: 'G4:0.5 A4:0.5 C5:1 D5:0.5 E5:0.5 G5:1 A5:0.5 G5:0.5 E5:0.5 D5:0.5 C5:1 A4:0.5 G4:0.5 E4:1 G4:1 A4:1 C5:2'
+  },
+  {
+    id: 'full_of_joy',
+    title: 'Full of Joy',
+    artist: 'Liu Mingyuan',
+    difficulty: 3,
+    style: 'Chinese',
+    bpm: 130,
+    melody: 'D5:0.5 D5:0.5 B4:0.5 B4:0.5 D5:0.5 D5:0.5 B4:1 G4:0.5 A4:0.5 B4:0.5 A4:0.5 G4:0.5 E4:0.5 D4:1 G4:0.5 A4:0.5 B4:1 A4:0.5 G4:0.5 E4:1 D4:0.5 E4:0.5 G4:2'
+  },
+  {
+    id: 'happy_new_year',
+    title: 'Happy New Year',
+    artist: 'Traditional',
+    difficulty: 1,
+    style: 'Holiday',
+    bpm: 120,
+    melody: 'C4:1 C4:1 C4:1 G3:1 E4:1 E4:1 E4:1 C4:1 C4:1 E4:1 G4:1 G4:1 F4:1 E4:1 D4:2 D4:1 E4:1 F4:1 F4:1 E4:1 D4:1 C4:1 C4:1 C4:1 E4:1 D4:1 G3:1 B3:1 D4:1 C4:2'
+  },
+  {
+    id: 'hai_kuo_tian_kong',
+    title: 'Boundless Oceans, Vast Skies',
+    artist: 'Beyond',
+    difficulty: 3,
+    style: 'Rock',
+    bpm: 72,
+    melody: 'F4:0.5 G4:0.5 A4:1.5 G4:0.5 F4:0.5 G4:1 A4:0.5 G4:0.5 F4:0.5 E4:0.5 D4:2 F4:0.5 G4:0.5 A4:1.5 A#4:0.5 A4:0.5 G4:1 F4:0.5 E4:0.5 D4:0.5 C4:2'
+  },
+  {
+    id: 'zhen_de_ai_ni',
+    title: 'Really Love You',
+    artist: 'Beyond',
+    difficulty: 3,
+    style: 'Rock',
+    bpm: 90,
+    melody: 'C5:0.5 B4:0.5 A4:0.5 G4:0.5 F4:1 E4:0.5 F4:0.5 G4:2 C5:0.5 B4:0.5 A4:0.5 G4:0.5 F4:1 E4:0.5 D4:0.5 C4:2'
+  },
+  {
+    id: 'xi_huan_ni',
+    title: 'Like You',
+    artist: 'Beyond',
+    difficulty: 2,
+    style: 'Rock',
+    bpm: 80,
+    melody: 'C5:1 B4:0.5 A4:0.5 G4:1.5 E4:0.5 G4:2 A4:0.5 G4:0.5 E4:0.5 D4:0.5 C4:1 D4:1 E4:2'
   }
 ];
 

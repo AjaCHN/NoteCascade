@@ -53,13 +53,16 @@ export function Keyboard({
   }, [onNoteOn]);
 
   const handleKeyRelease = useCallback((midi: number) => {
-    stopAudioNote(midi);
-    setLocalActiveNotes(prev => {
-      const next = new Set(prev);
-      next.delete(midi);
-      return next;
-    });
-    onNoteOff?.(midi);
+    // Delay note release slightly to simulate sustain/resonance for clicks
+    setTimeout(() => {
+      stopAudioNote(midi);
+      setLocalActiveNotes(prev => {
+        const next = new Set(prev);
+        next.delete(midi);
+        return next;
+      });
+      onNoteOff?.(midi);
+    }, 100); // 100ms sustain
   }, [onNoteOff]);
 
   const handlePointerDown = (e: React.PointerEvent) => {

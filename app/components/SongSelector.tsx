@@ -89,21 +89,21 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   const activeFiltersCount = (filter !== 'all' ? 1 : 0) + (difficultyFilter !== 'all' ? 1 : 0);
 
   return (
-    <div className="flex flex-col space-y-4 p-6">
+    <div className="flex flex-col space-y-4 p-4 md:p-6">
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <h2 className="text-xl font-black theme-text-primary flex items-center gap-3 text-glow">
             <Music className="w-6 h-6 text-indigo-500 dark:text-indigo-400" />
             {t.library}
           </h2>
           
-          <div className="flex items-center gap-2">
-            <div className="flex bg-slate-200 dark:bg-slate-800 rounded-xl p-1 mr-2">
+          <div className="flex items-center gap-2 self-end md:self-auto">
+            <div className="flex bg-slate-200 dark:bg-slate-800 rounded-xl p-1 mr-1">
               {(['perform', 'demo'] as PlayMode[]).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setPlayMode(mode)}
-                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
+                  className={`px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
                     playMode === mode
                       ? 'bg-white dark:bg-slate-700 text-indigo-500 dark:text-indigo-400 shadow-sm'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
@@ -111,7 +111,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
                   title={t[`mode_${mode}`]}
                 >
                   {mode === 'perform' ? <Mic2 className="w-3 h-3" /> : <PlayCircle className="w-3 h-3" />}
-                  <span className="hidden sm:inline">{t[`mode_${mode}`]}</span>
+                  <span className="hidden lg:inline">{t[`mode_${mode}`]}</span>
                 </button>
               ))}
             </div>
