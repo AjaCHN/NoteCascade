@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.4.7]
+- Chore: Fixed various linting warnings (unused imports, missing dependencies in `useEffect`).
+
 ## [1.4.6]
 - Fix: Added missing import for `PERFECT_THRESHOLD` in `use-game-renderer.ts`.
 

@@ -1,4 +1,4 @@
-// app/hooks/use-midi.ts v1.4.3
+// app/hooks/use-midi.ts v1.4.7
 import { useEffect, useState, useRef, useCallback } from 'react';
 
 export interface MidiDevice {
@@ -242,7 +242,7 @@ export function useMidi() {
           for (let input = inputsIter.next(); !input.done; input = inputsIter.next()) {
             input.value.onmidimessage = null;
           }
-        } catch (e) {
+        } catch (_) {
           // Ignore cleanup errors
         }
       }

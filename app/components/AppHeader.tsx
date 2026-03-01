@@ -1,8 +1,8 @@
-// app/components/AppHeader.tsx v1.3.5
+// app/components/AppHeader.tsx v1.4.7
 'use client';
 
 import React from 'react';
-import { Menu, X, Keyboard as KeyboardIcon, Settings } from 'lucide-react';
+import { Menu, X, Settings } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { useLocale } from '../lib/store';
 import pkg from '../../package.json';

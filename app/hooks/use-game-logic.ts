@@ -1,4 +1,4 @@
-// app/hooks/use-game-logic.ts v1.4.4
+// app/hooks/use-game-logic.ts v1.4.7
 import { useState, useEffect, useCallback, useRef } from 'react';
 import * as Tone from 'tone';
 import { Song, builtInSongs } from '../lib/songs';
@@ -127,7 +127,6 @@ export function useGameLogic(
   const prevActiveNotesSize = useRef(0);
   useEffect(() => {
     if (activeNotes.size > 0 && prevActiveNotesSize.current === 0 && !isPlaying) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       togglePlay();
     }
     prevActiveNotesSize.current = activeNotes.size;
