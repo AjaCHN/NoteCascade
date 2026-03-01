@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.4.8]
+- Audio: Enhanced instrument sounds for a thicker, warmer tone. Added a master EQ (boosting lows and highs), a master Reverb, and a Chorus effect for the EPiano. Upgraded Synth and Strings to use fat oscillators.
+
 ## [1.4.7]
 - Chore: Fixed various linting warnings (unused imports, missing dependencies in `useEffect`).
 

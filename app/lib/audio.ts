@@ -1,4 +1,4 @@
-// app/lib/audio.ts v1.3.5
+// app/lib/audio.ts v1.4.8
 import * as Tone from 'tone';
 
 let synth: Tone.PolySynth | null = null;
@@ -6,6 +6,8 @@ let piano: Tone.Sampler | null = null;
 let epiano: Tone.PolySynth | null = null;
 let strings: Tone.PolySynth | null = null;
 let masterVolume: Tone.Volume | null = null;
+let masterEq: Tone.EQ3 | null = null;
+let masterReverb: Tone.Freeverb | null = null;
 let metronomeSynth: Tone.MembraneSynth | null = null;
 let currentInstrument: string = 'piano';
 
@@ -17,7 +19,24 @@ export const initAudio = async () => {
   await Tone.start();
   
   if (!masterVolume) {
-    masterVolume = new Tone.Volume(0).toDestination();
+    // Add EQ to boost lows and slightly boost highs for clarity
+    masterEq = new Tone.EQ3({
+      low: 4,     // Boost bass
+      mid: -1,    // Slightly scoop mids
+      high: 2     // Boost highs
+    });
+    
+    // Add a subtle room reverb to make it sound less dry
+    masterReverb = new Tone.Freeverb({
+      roomSize: 0.6,
+      dampening: 2000,
+      wet: 0.2
+    });
+
+    masterVolume = new Tone.Volume(0);
+    
+    // Chain: Volume -> EQ -> Reverb -> Destination
+    masterVolume.chain(masterEq, masterReverb, Tone.Destination);
   }
   
   if (!piano) {
@@ -54,38 +73,66 @@ export const initAudio = async () => {
         A7: "A7.mp3",
         C8: "C8.mp3"
       },
-      release: 1,
+      release: 1.5,
       baseUrl: "https://tonejs.github.io/audio/salamander/"
     }).connect(masterVolume);
   }
 
   if (!synth) {
+    // Use a fat oscillator for a thicker, modern synth sound
     synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: "triangle" },
-      envelope: { attack: 0.005, decay: 0.1, sustain: 0.3, release: 1 }
-    }).connect(masterVolume);
+      oscillator: { 
+        type: "fatsawtooth",
+        count: 3,
+        spread: 20
+      },
+      envelope: { 
+        attack: 0.01, 
+        decay: 0.3, 
+        sustain: 0.4, 
+        release: 1.2 
+      }
+    });
+    
+    const synthFilter = new Tone.Filter(3000, "lowpass");
+    synth.chain(synthFilter, masterVolume);
   }
 
   if (!epiano) {
+    // Classic Rhodes-like FM Synth patch
     epiano = new Tone.PolySynth(Tone.FMSynth, {
       harmonicity: 3,
-      modulationIndex: 10,
-      detune: 0,
+      modulationIndex: 5,
       oscillator: { type: "sine" },
-      envelope: { attack: 0.01, decay: 0.2, sustain: 0.5, release: 0.5 },
-      modulation: { type: "square" },
-      modulationEnvelope: { attack: 0.01, decay: 0.2, sustain: 0.5, release: 0.5 }
-    }).connect(masterVolume);
+      envelope: { attack: 0.01, decay: 2, sustain: 0.2, release: 1.5 },
+      modulation: { type: "triangle" },
+      modulationEnvelope: { attack: 0.01, decay: 0.5, sustain: 0, release: 0.5 }
+    });
+    
+    // Add Chorus for that classic EPiano shimmer
+    const epianoChorus = new Tone.Chorus(4, 2.5, 0.5).start();
+    epiano.chain(epianoChorus, masterVolume);
   }
 
   if (!strings) {
-    strings = new Tone.PolySynth(Tone.AMSynth, {
-      harmonicity: 2.5,
-      oscillator: { type: "sawtooth" },
-      envelope: { attack: 0.1, decay: 0.3, sustain: 0.8, release: 1.5 },
-      modulation: { type: "square" },
-      modulationEnvelope: { attack: 0.5, decay: 0, sustain: 1, release: 0.5 }
-    }).connect(masterVolume);
+    // Thick ensemble strings using fat sawtooth
+    strings = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { 
+        type: "fatsawtooth",
+        count: 4,
+        spread: 30
+      },
+      envelope: { 
+        attack: 0.4, 
+        decay: 0.2, 
+        sustain: 0.8, 
+        release: 2 
+      }
+    });
+    
+    // Filter to remove harsh highs and make it sound more like strings
+    const stringsFilter = new Tone.Filter(1500, "lowpass");
+    strings.chain(stringsFilter, masterVolume);
   }
 
   if (!metronomeSynth) {
