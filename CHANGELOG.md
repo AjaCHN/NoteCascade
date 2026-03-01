@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.0]
+- Design: New SVG logo and favicon.
+- Branding: Updated app header with the new logo.
+
 ## [1.3.9]
 - Fix: Improved MIDI connection robustness (added sysex retry and listener cleanup).
 - Feat: Dynamic keyboard range adjustment (fits song notes when no MIDI is connected).

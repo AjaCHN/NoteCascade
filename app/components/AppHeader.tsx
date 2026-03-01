@@ -41,10 +41,10 @@ export function AppHeader({
           {showSidebar ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
         
-        <div className={`flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-xl shadow-lg glow-indigo transition-all ${
+        <div className={`flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-xl shadow-lg glow-indigo transition-all overflow-hidden ${
           theme === 'cyber' ? 'bg-green-500' : theme === 'classic' ? 'bg-amber-700' : 'bg-gradient-to-br from-indigo-500 to-purple-600'
         }`}>
-          <KeyboardIcon className="text-white h-5 w-5 md:h-6 md:w-6" />
+          <img src="/logo.svg" alt="NoteCascade Logo" className="h-full w-full object-cover" />
         </div>
         <div>
           <h1 id="app-title" className="text-lg md:text-xl font-bold tracking-tight theme-text-primary text-glow">

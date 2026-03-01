@@ -1,4 +1,4 @@
-// app/layout.tsx v1.3.6
+// app/layout.tsx v1.4.0
 import type {Metadata, Viewport} from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
@@ -25,6 +25,10 @@ export const metadata: Metadata = {
   creator: 'Sut',
   publisher: 'Sut',
   robots: 'index, follow',
+  icons: {
+    icon: '/logo.svg',
+    apple: '/logo.svg',
+  },
   openGraph: {
     title: `NoteCascade - Keyboard Practice v${version}`,
     description: 'A visual/game-like MIDI keyboard practice app with real-time scoring and achievements.',
@@ -32,7 +36,7 @@ export const metadata: Metadata = {
     siteName: 'NoteCascade',
     images: [
       {
-        url: '/og-image.png',
+        url: '/logo.svg',
         width: 1200,
         height: 630,
         alt: 'NoteCascade Preview',
@@ -46,7 +50,7 @@ export const metadata: Metadata = {
     title: `NoteCascade - Keyboard Practice v${version}`,
     description: 'A visual/game-like MIDI keyboard practice app with real-time scoring and achievements.',
     creator: '@sutchan',
-    images: ['/og-image.png'],
+    images: ['/logo.svg'],
   },
   other: {
     'geo.region': 'US',
