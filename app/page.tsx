@@ -173,6 +173,7 @@ export default function MidiPlayApp() {
         inputs={inputs}
         setShowSettings={setShowSettings}
         showSettings={showSettings}
+        connectMidi={connectMidi}
       />
 
       <main id="main-content" className="flex flex-1 overflow-hidden relative z-10">

@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.4.10]
+- Feature: Made the "NO DEVICE" indicator in the top header clickable. Clicking it now manually triggers the MIDI connection process, which correctly prompts the browser's MIDI permission dialog (required by recent Chrome security policies).
+
 ## [1.4.9]
 - Fix: Fixed a bug where the result modal showed all 0s for the score data because the game engine was resetting the score immediately upon the song ending.
 

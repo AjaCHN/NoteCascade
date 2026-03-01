@@ -1,8 +1,8 @@
-// app/components/AppHeader.tsx v1.4.7
+// app/components/AppHeader.tsx v1.4.10
 'use client';
 
 import React from 'react';
-import { Menu, X, Settings } from 'lucide-react';
+import { Menu, X, Settings, RefreshCw } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { useLocale } from '../lib/store';
 import pkg from '../../package.json';
@@ -17,6 +17,7 @@ interface AppHeaderProps {
   inputs: { id: string; name: string }[];
   setShowSettings: (show: boolean) => void;
   showSettings: boolean;
+  connectMidi?: () => void;
 }
 
 export function AppHeader({ 
@@ -26,7 +27,8 @@ export function AppHeader({
   selectedInputId, 
   inputs, 
   setShowSettings,
-  showSettings
+  showSettings,
+  connectMidi
 }: AppHeaderProps) {
   const locale = useLocale();
   const t = translations[locale] || translations.en;
@@ -56,12 +58,17 @@ export function AppHeader({
       </div>
 
       <div className="flex items-center gap-2 md:gap-4">
-        <div className="hidden md:flex items-center gap-2 rounded-full bg-white/5 px-4 py-1.5 border theme-border backdrop-blur-md">
+        <button 
+          onClick={() => connectMidi && connectMidi()}
+          className="hidden md:flex items-center gap-2 rounded-full bg-white/5 px-4 py-1.5 border theme-border backdrop-blur-md hover:bg-white/10 transition-colors cursor-pointer"
+          title="Click to connect or refresh MIDI devices"
+        >
           <div className={`h-2 w-2 rounded-full ${selectedInputId ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]'}`} />
           <span className="text-[10px] uppercase tracking-widest font-bold theme-text-secondary">
             {selectedInputId ? inputs.find(i => i.id === selectedInputId)?.name : t.noDevice}
           </span>
-        </div>
+          {!selectedInputId && <RefreshCw className="h-3 w-3 theme-text-secondary ml-1" />}
+        </button>
         <button 
           onClick={() => setShowSettings(!showSettings)}
           className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
