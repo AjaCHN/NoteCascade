@@ -30,6 +30,7 @@ export function useMidi() {
   const [lastMessage, setLastMessage] = useState<MidiMessage | null>(null);
   const [isSupported, setIsSupported] = useState<boolean>(true);
   const [activeNotes, setActiveNotes] = useState<Map<number, number>>(new Map());
+  const midiAccessRef = useRef<WebMidi.MIDIAccess | null>(null);
 
   // Use refs to keep track of latest settings inside event listeners
   const settingsRef = useRef({
@@ -63,165 +64,168 @@ export function useMidi() {
     }
   }, []);
 
-  useEffect(() => {
-    let midiAccess: WebMidi.MIDIAccess | null = null;
+  const onMidiMessage = useCallback((event: WebMidi.MIDIMessageEvent) => {
+    const { selectedInputId, midiChannel, velocityCurve, transpose } = settingsRef.current;
 
-    const onMidiMessage = (event: WebMidi.MIDIMessageEvent) => {
-      const { selectedInputId, midiChannel, velocityCurve, transpose } = settingsRef.current;
+    // Filter by Input Device
+    const inputId = (event.target as WebMidi.MIDIInput)?.id;
+    if (selectedInputId && selectedInputId !== 'all' && inputId && inputId !== selectedInputId) {
+      return;
+    }
 
-      // Filter by Input Device
-      const inputId = (event.target as WebMidi.MIDIInput)?.id;
-      if (selectedInputId && inputId && inputId !== selectedInputId) {
-        return;
+    const [statusByte, data1, data2] = event.data;
+    const command = statusByte & 0xf0;
+    const channel = (statusByte & 0x0f) + 1; // 1-16
+
+    // Filter by Channel
+    if (midiChannel !== 'all' && channel !== midiChannel) {
+      return;
+    }
+
+    // Handle Note On/Off
+    if (command === 0x90 || command === 0x80) {
+      let note = data1;
+      let velocity = data2;
+
+      // Apply Transpose
+      note = Math.max(0, Math.min(127, note + transpose));
+
+      // Apply Velocity Curve
+      if (command === 0x90 && velocity > 0) {
+        velocity = Math.round(applyVelocityCurve(velocity, velocityCurve));
       }
 
-      const [statusByte, data1, data2] = event.data;
-      const command = statusByte & 0xf0;
-      const channel = (statusByte & 0x0f) + 1; // 1-16
-
-      // Filter by Channel
-      if (midiChannel !== 'all' && channel !== midiChannel) {
-        return;
-      }
-
-      // Handle Note On/Off
-      if (command === 0x90 || command === 0x80) {
-        let note = data1;
-        let velocity = data2;
-
-        // Apply Transpose
-        note = Math.max(0, Math.min(127, note + transpose));
-
-        // Apply Velocity Curve
-        if (command === 0x90 && velocity > 0) {
-          velocity = Math.round(applyVelocityCurve(velocity, velocityCurve));
-        }
-
-        setLastMessage({
-          command,
-          note,
-          velocity,
-          channel,
-          timestamp: event.timeStamp,
-        });
-
-        // Note On (Velocity > 0)
-        if (command === 0x90 && velocity > 0) {
-          setActiveNotes(prev => {
-            const next = new Map(prev);
-            next.set(note, velocity / 127);
-            return next;
-          });
-        }
-        // Note Off (Velocity 0 or Note Off command)
-        else {
-          setActiveNotes(prev => {
-            const next = new Map(prev);
-            next.delete(note);
-            return next;
-          });
-        }
-      }
-      // All Notes Off (CC 123) or Reset All Controllers (CC 121)
-      else if (command === 0xB0 && (data1 === 123 || data1 === 121)) {
-        setActiveNotes(new Map());
-      }
-      // Sustain Pedal (CC 64)
-      else if (command === 0xB0 && data1 === 64) {
-        import('../lib/audio').then(audio => {
-          audio.setSustainPedal(data2 >= 64);
-        });
-      }
-    };
-
-    const updateDevices = (access: WebMidi.MIDIAccess) => {
-      const inputList: MidiDevice[] = [];
-      const outputList: MidiDevice[] = [];
-      const seenInputIds = new Set<string>();
-      const seenOutputIds = new Set<string>();
-
-      access.inputs.forEach((input) => {
-        if (!seenInputIds.has(input.id)) {
-          inputList.push({
-            id: input.id,
-            name: input.name || 'Unknown Device',
-            manufacturer: input.manufacturer,
-          });
-          seenInputIds.add(input.id);
-        }
+      setLastMessage({
+        command,
+        note,
+        velocity,
+        channel,
+        timestamp: event.timeStamp,
       });
 
-      access.outputs.forEach((output) => {
-        if (!seenOutputIds.has(output.id)) {
-          outputList.push({
-            id: output.id,
-            name: output.name || 'Unknown Device',
-            manufacturer: output.manufacturer,
-          });
-          seenOutputIds.add(output.id);
-        }
-      });
-
-      setInputs(inputList);
-      setOutputs(outputList);
-
-      // Auto-select logic
-      if (inputList.length > 0) {
-        // If nothing selected, or selected is gone, pick first
-        if (!settingsRef.current.selectedInputId || !inputList.find(i => i.id === settingsRef.current.selectedInputId)) {
-          setSelectedInputId(inputList[0].id);
-        }
-      } else {
-        setSelectedInputId(null);
+      // Note On (Velocity > 0)
+      if (command === 0x90 && velocity > 0) {
+        setActiveNotes(prev => {
+          const next = new Map(prev);
+          next.set(note, velocity / 127);
+          return next;
+        });
       }
-    };
+      // Note Off (Velocity 0 or Note Off command)
+      else {
+        setActiveNotes(prev => {
+          const next = new Map(prev);
+          next.delete(note);
+          return next;
+        });
+      }
+    }
+    // All Notes Off (CC 123) or Reset All Controllers (CC 121)
+    else if (command === 0xB0 && (data1 === 123 || data1 === 121)) {
+      setActiveNotes(new Map());
+    }
+    // Sustain Pedal (CC 64)
+    else if (command === 0xB0 && data1 === 64) {
+      import('../lib/audio').then(audio => {
+        audio.setSustainPedal(data2 >= 64);
+      });
+    }
+  }, [applyVelocityCurve]);
 
-    const bindListeners = (access: WebMidi.MIDIAccess) => {
+  const updateDevices = useCallback((access: WebMidi.MIDIAccess) => {
+    const inputList: MidiDevice[] = [];
+    const outputList: MidiDevice[] = [];
+    const seenInputIds = new Set<string>();
+    const seenOutputIds = new Set<string>();
+
+    access.inputs.forEach((input) => {
+      if (!seenInputIds.has(input.id)) {
+        inputList.push({
+          id: input.id,
+          name: input.name || 'Unknown Device',
+          manufacturer: input.manufacturer,
+        });
+        seenInputIds.add(input.id);
+      }
+    });
+
+    access.outputs.forEach((output) => {
+      if (!seenOutputIds.has(output.id)) {
+        outputList.push({
+          id: output.id,
+          name: output.name || 'Unknown Device',
+          manufacturer: output.manufacturer,
+        });
+        seenOutputIds.add(output.id);
+      }
+    });
+
+    setInputs(inputList);
+    setOutputs(outputList);
+
+    // Auto-select logic
+    if (inputList.length > 0) {
+      // If nothing selected, or selected is gone, default to 'all'
+      if (!settingsRef.current.selectedInputId || (settingsRef.current.selectedInputId !== 'all' && !inputList.find(i => i.id === settingsRef.current.selectedInputId))) {
+        setSelectedInputId('all');
+      }
+    } else {
+      setSelectedInputId(null);
+    }
+  }, []);
+
+  const connectMidi = useCallback(async (isMounted: () => boolean = () => true) => {
+    if (typeof navigator === 'undefined' || !navigator.requestMIDIAccess) {
+      if (isMounted()) setIsSupported(false);
+      return false;
+    }
+
+    try {
+      const access = await navigator.requestMIDIAccess({ sysex: false }) as unknown as WebMidi.MIDIAccess;
+      if (!isMounted()) return false;
+      
+      midiAccessRef.current = access;
+      setIsSupported(true);
+      updateDevices(access);
+      
       access.inputs.forEach((input) => {
         input.onmidimessage = onMidiMessage;
       });
-    };
 
-    const onStateChange = (e: WebMidi.MIDIConnectionEvent) => {
-      if (midiAccess) {
-        updateDevices(midiAccess);
-        // Re-bind listener for the specific port that changed
+      access.onstatechange = (e: WebMidi.MIDIConnectionEvent) => {
+        updateDevices(access);
         if (e.port.type === 'input') {
            (e.port as WebMidi.MIDIInput).onmidimessage = onMidiMessage;
         }
-      }
+      };
+      return true;
+    } catch (err) {
+      console.error('MIDI access denied or failed', err);
+      if (isMounted()) setIsSupported(false);
+      return false;
+    }
+  }, [onMidiMessage, updateDevices]);
+
+  useEffect(() => {
+    let mounted = true;
+    const isMounted = () => mounted;
+    
+    const init = async () => {
+      await connectMidi(isMounted);
     };
-
-    const initMidi = async () => {
-      if (typeof navigator === 'undefined' || !navigator.requestMIDIAccess) {
-        setIsSupported(false);
-        return;
-      }
-
-      try {
-        const access = await navigator.requestMIDIAccess({ sysex: false }) as unknown as WebMidi.MIDIAccess;
-        midiAccess = access;
-        setIsSupported(true);
-        updateDevices(access);
-        bindListeners(access);
-        access.onstatechange = onStateChange;
-      } catch (err) {
-        console.error('MIDI access denied or failed', err);
-        setIsSupported(false);
-      }
-    };
-
-    initMidi();
+    
+    init();
 
     return () => {
-      if (midiAccess) {
-        midiAccess.onstatechange = null;
-        midiAccess.inputs.forEach((input) => {
+      mounted = false;
+      if (midiAccessRef.current) {
+        midiAccessRef.current.onstatechange = null;
+        midiAccessRef.current.inputs.forEach((input) => {
           input.onmidimessage = null;
         });
       }
     };
-  }, [applyVelocityCurve]); // Added applyVelocityCurve to dependencies
+  }, [connectMidi]);
 
   return {
     inputs,
@@ -238,5 +242,6 @@ export function useMidi() {
     isSupported,
     activeNotes,
     setActiveNotes,
+    connectMidi,
   };
 }

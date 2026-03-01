@@ -39,7 +39,7 @@ export function useGameEngine(
     if (!geo) return;
     const x = geo.x + geo.width / 2;
     const id = ++feedbackIdCounter.current;
-    setFeedbacks((prev) => [...prev, { id, text, type, x, y: dimensions.height - HIT_LINE_Y - 50 }]);
+    setFeedbacks((prev) => [...prev, { id, text, type, x, y: dimensions.height * 0.4 }]);
     hitEffects.current.push({ x, y: dimensions.height - HIT_LINE_Y, type, timestamp: Date.now() });
     setTimeout(() => {
       setFeedbacks((prev) => prev.filter((f) => f.id !== id));

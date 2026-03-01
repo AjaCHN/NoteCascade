@@ -17,14 +17,30 @@ import { AudioSettings } from './settings/AudioSettings';
 import { MidiSettings } from './settings/MidiSettings';
 import { AppInfoSection } from './settings/AppInfoSection';
 
+import { MidiDevice, VelocityCurve, MidiMessage } from '../hooks/use-midi';
+
 interface SettingsModalProps {
   show: boolean;
   onClose: () => void;
   volume: number;
   setVolume: (val: number) => void;
+  midiProps: {
+    isSupported: boolean;
+    inputs: MidiDevice[];
+    selectedInputId: string | null;
+    setSelectedInputId: (id: string | null) => void;
+    midiChannel: number | 'all';
+    setMidiChannel: (channel: number | 'all') => void;
+    velocityCurve: VelocityCurve;
+    setVelocityCurve: (curve: VelocityCurve) => void;
+    transpose: number;
+    setTranspose: (transpose: number) => void;
+    connectMidi: () => void;
+    lastMessage: MidiMessage | null;
+  };
 }
 
-export function SettingsModal({ onClose, volume, setVolume }: SettingsModalProps) {
+export function SettingsModal({ onClose, volume, setVolume, midiProps }: SettingsModalProps) {
   const locale = useLocale();
   const theme = useTheme();
   const instrument = useInstrument();
@@ -106,7 +122,7 @@ export function SettingsModal({ onClose, volume, setVolume }: SettingsModalProps
               setShowKeymap={setShowKeymap}
               t={t}
             />
-            <MidiSettings t={t} />
+            <MidiSettings t={t} midiProps={midiProps} />
           </div>
           
           <div className="md:col-span-2">

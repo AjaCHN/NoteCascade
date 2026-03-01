@@ -70,6 +70,20 @@ export function useGameRenderer(
       ctx.lineTo(width, height - HIT_LINE_Y);
       ctx.stroke();
 
+      // Draw key markers on the baseline
+      ctx.fillStyle = theme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)';
+      for (let midi = keyboardRange.start; midi <= keyboardRange.end; midi++) {
+        const geo = keyGeometries.get(midi);
+        if (geo) {
+          ctx.fillRect(geo.x, height - HIT_LINE_Y, 1, HIT_LINE_Y);
+          if (geo.isBlack) {
+            ctx.fillStyle = theme === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)';
+            ctx.fillRect(geo.x, height - HIT_LINE_Y, geo.width, HIT_LINE_Y);
+            ctx.fillStyle = theme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)';
+          }
+        }
+      }
+
       // Draw hit effects
       const now = Date.now();
       hitEffects.current = hitEffects.current.filter(effect => now - effect.timestamp < 500);
@@ -222,6 +236,15 @@ export function useGameRenderer(
           
           ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
           ctx.fillRect(noteX + 4, noteY - noteHeight + 2, currentKeyWidth - 8, 4);
+
+          // Add baseline touch effect
+          if (noteY >= height - HIT_LINE_Y && noteY - noteHeight <= height - HIT_LINE_Y) {
+            ctx.fillStyle = `hsla(${hue}, 100%, 70%, 0.8)`;
+            ctx.shadowColor = `hsla(${hue}, 100%, 70%, 1)`;
+            ctx.shadowBlur = 15;
+            ctx.fillRect(noteX + 1, height - HIT_LINE_Y - 2, currentKeyWidth - 2, 4);
+            ctx.shadowBlur = 0;
+          }
 
           if (showNoteNames && noteHeight > 20) {
             const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];

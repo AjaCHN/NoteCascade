@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useMidi } from './hooks/use-midi';
 import { useKeyboardInput } from './hooks/use-keyboard-input';
 import { initAudio, startNote, stopNote, setVolume, startTransport, stopTransport, setAudioInstrument, scheduleNote, clearScheduledEvents, ensureAudioContext, setMetronome } from './lib/audio';
@@ -20,7 +20,9 @@ import { AppSidebar } from './components/AppSidebar';
 
 export default function MidiPlayApp() {
   const { 
-    activeNotes, setActiveNotes, lastMessage, isSupported, inputs, selectedInputId
+    activeNotes, setActiveNotes, lastMessage, isSupported, inputs, selectedInputId,
+    setSelectedInputId, midiChannel, setMidiChannel, velocityCurve, setVelocityCurve,
+    transpose, setTranspose, connectMidi
   } = useMidi();
   const { 
     addScore, incrementPracticeTime, updateStreak, 
@@ -199,6 +201,15 @@ export default function MidiPlayApp() {
     }
   }, [isPlaying, currentTime, selectedSong, playMode, setActiveNotes]);
 
+  const prevActiveNotesSize = useRef(0);
+  useEffect(() => {
+    if (activeNotes.size > 0 && prevActiveNotesSize.current === 0 && !isPlaying) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      togglePlay();
+    }
+    prevActiveNotesSize.current = activeNotes.size;
+  }, [activeNotes.size, isPlaying, togglePlay]);
+
   // Update currentTime from Transport
   useEffect(() => {
     let animationFrame: number;
@@ -262,6 +273,12 @@ export default function MidiPlayApp() {
   const minCanvasWidth = windowWidth < 768 
     ? Math.max(windowWidth, whiteKeyCount * 32) 
     : '100%';
+
+  const midiProps = {
+    activeNotes, setActiveNotes, lastMessage, isSupported, inputs, selectedInputId,
+    setSelectedInputId, midiChannel, setMidiChannel, velocityCurve, setVelocityCurve,
+    transpose, setTranspose, connectMidi
+  };
 
   if (!mounted) {
     return <div className="flex h-dvh w-full items-center justify-center bg-slate-950 text-slate-500">{t.loading}</div>;
@@ -369,6 +386,7 @@ export default function MidiPlayApp() {
               setVolumeState(val);
               setVolume(val);
             }}
+            midiProps={midiProps}
           />
         )}
       </AnimatePresence>
