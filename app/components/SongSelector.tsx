@@ -90,8 +90,8 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   const activeFiltersCount = (filter !== 'all' ? 1 : 0) + (difficultyFilter !== 'all' ? 1 : 0);
 
   return (
-    <div className="flex flex-col space-y-4 p-4 md:p-6">
-      <div className="flex flex-col gap-4">
+    <div className="flex flex-col min-h-full relative">
+      <div className="sticky top-0 z-20 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md p-4 md:p-6 border-b border-slate-200/50 dark:border-slate-800/50 flex flex-col gap-4 shadow-sm transition-colors duration-200">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <h2 className="text-xl font-black theme-text-primary flex items-center gap-3 text-glow">
             <Music className="w-6 h-6 text-indigo-500 dark:text-indigo-400" />
@@ -145,7 +145,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
 
         <AnimatePresence>
           {showFilters && (
-            <motion.div key="filters-panel" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <motion.div key="filters-panel" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden w-full">
               <div className="p-4 rounded-2xl theme-bg-secondary theme-border border space-y-4">
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
@@ -192,7 +192,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
         </AnimatePresence>
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-1 gap-3 p-4 md:p-6 pt-2">
         {filteredSongs.length > 0 ? filteredSongs.map((song, idx) => (
           <SongCard 
             key={`${song.id}-${idx}`}

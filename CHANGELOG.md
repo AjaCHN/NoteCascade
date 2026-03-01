@@ -1,0 +1,7 @@
+# Changelog
+
+## [1.3.7]
+- Fix: Syntax error in SongSelector component.
+
+## [1.3.6]
+- Fix: Make song selector header sticky to prevent it from disappearing on scroll.
