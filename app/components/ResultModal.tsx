@@ -1,9 +1,9 @@
-// app/components/ResultModal.tsx v1.3.5
+// app/components/ResultModal.tsx v1.4.4
 'use client';
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Trophy, RefreshCw } from 'lucide-react';
+import { Trophy, RefreshCw, Play } from 'lucide-react';
 import { Song } from '../lib/songs';
 import { translations } from '../lib/translations';
 import { useLocale } from '../lib/store';
@@ -87,8 +87,9 @@ export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps)
           </button>
           <button 
             onClick={onClose}
-            className="flex-1 rounded-2xl bg-indigo-500 py-4 font-bold text-white hover:bg-indigo-400 transition-colors"
+            className="flex-1 rounded-2xl bg-indigo-500 py-4 font-bold text-white hover:bg-indigo-400 transition-colors flex items-center justify-center gap-2"
           >
+            <Play className="h-5 w-5 fill-current" />
             {t.continue}
           </button>
         </div>

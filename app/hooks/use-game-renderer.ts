@@ -1,9 +1,9 @@
-// app/hooks/use-game-renderer.ts v1.3.5
+// app/hooks/use-game-renderer.ts v1.4.6
 'use client';
 
 import { useEffect, useRef } from 'react';
 import { Song } from '../lib/songs';
-import { Feedback, HIT_LINE_Y, GOOD_THRESHOLD } from './use-game-engine';
+import { Feedback, HIT_LINE_Y, GOOD_THRESHOLD, PERFECT_THRESHOLD } from './use-game-engine';
 
 const FALL_SPEED = 200;
 
@@ -166,20 +166,30 @@ export function useGameRenderer(
       });
 
       // Draw timing bar
-      const barWidth = 300;
-      const barHeight = 8;
+      const barWidth = Math.min(400, width * 0.6);
+      const barHeight = 12;
       const barX = (width - barWidth) / 2;
-      const barY = height - 100;
+      const barY = 40; // Moved to top
 
-      ctx.fillStyle = theme === 'light' ? 'rgba(241, 245, 249, 0.8)' : 'rgba(15, 23, 42, 0.6)';
+      // Timing bar background
+      ctx.fillStyle = theme === 'light' ? 'rgba(241, 245, 249, 0.9)' : 'rgba(15, 23, 42, 0.8)';
       ctx.beginPath();
-      ctx.roundRect(barX, barY, barWidth, barHeight, 4);
+      ctx.roundRect(barX, barY, barWidth, barHeight, 6);
       ctx.fill();
-      ctx.strokeStyle = theme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.05)';
+      
+      // Timing bar border
+      ctx.strokeStyle = theme === 'light' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)';
+      ctx.lineWidth = 1;
       ctx.stroke();
 
-      ctx.fillStyle = theme === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)';
-      ctx.fillRect(barX + barWidth / 2 - 1, barY - 4, 2, barHeight + 8);
+      // Center perfect line
+      ctx.fillStyle = theme === 'light' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
+      ctx.fillRect(barX + barWidth / 2 - 1.5, barY - 6, 3, barHeight + 12);
+
+      // Perfect zone highlight
+      const perfectZoneWidth = barWidth * (PERFECT_THRESHOLD / GOOD_THRESHOLD);
+      ctx.fillStyle = 'rgba(52, 211, 153, 0.15)';
+      ctx.fillRect(barX + barWidth / 2 - perfectZoneWidth / 2, barY + 1, perfectZoneWidth, barHeight - 2);
 
       recentHits.current = recentHits.current.filter(h => now - h.timestamp < 1500);
       recentHits.current.forEach(hit => {
@@ -194,25 +204,30 @@ export function useGameRenderer(
             ? `rgba(96, 165, 250, ${opacity})` 
             : `rgba(251, 191, 36, ${opacity})`;
 
+        // Draw hit marker
         ctx.beginPath();
-        ctx.arc(hitX, barY + barHeight / 2, 4, 0, Math.PI * 2);
+        ctx.roundRect(hitX - 3, barY - 2, 6, barHeight + 4, 3);
         ctx.fill();
         
+        // Ripple effect for recent hits
         if (age < 500) {
-          ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.5})`;
-          ctx.lineWidth = 1;
+          ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.6})`;
+          ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.arc(hitX, barY + barHeight / 2, 4 + (age / 500) * 10, 0, Math.PI * 2);
+          ctx.roundRect(hitX - 3 - (age / 500) * 8, barY - 2 - (age / 500) * 4, 6 + (age / 500) * 16, barHeight + 4 + (age / 500) * 8, 4);
           ctx.stroke();
         }
       });
 
-      ctx.fillStyle = 'rgba(148, 163, 184, 0.6)';
-      ctx.font = 'bold 9px Inter';
+      // Timing labels
+      ctx.fillStyle = theme === 'light' ? 'rgba(100, 116, 139, 0.9)' : 'rgba(148, 163, 184, 0.9)';
+      ctx.font = 'bold 11px Inter';
       ctx.textAlign = 'center';
-      ctx.fillText(t.early.toUpperCase(), barX, barY + 24);
-      ctx.fillText(t.late.toUpperCase(), barX + barWidth, barY + 24);
-      ctx.fillText(t.perfect.toUpperCase(), barX + barWidth / 2, barY + 24);
+      ctx.fillText(t.early.toUpperCase(), barX, barY + 28);
+      ctx.fillText(t.late.toUpperCase(), barX + barWidth, barY + 28);
+      
+      ctx.fillStyle = 'rgba(52, 211, 153, 0.9)';
+      ctx.fillText(t.perfect.toUpperCase(), barX + barWidth / 2, barY + 28);
 
       // Draw falling notes
       song.notes?.forEach((note) => {

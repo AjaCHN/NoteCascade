@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.4.6]
+- Fix: Added missing import for `PERFECT_THRESHOLD` in `use-game-renderer.ts`.
+
+## [1.4.5]
+- UI: Moved the timing bar (Early/Perfect/Late indicator) to the top center of the screen and enhanced its visual styling, including a highlighted perfect zone and ripple effects for hits.
+- UI: Adjusted the GameStatsOverlay layout to prevent overlapping with the new timing bar position.
+
+## [1.4.4]
+- Fix: Fixed a bug where the final score shown in the result modal was occasionally stale by using a ref to track the latest score state.
+- UI: Added icons to the buttons in the Result Modal.
+
 ## [1.4.3]
 - Fix: Extremely robust MIDI device enumeration using iterators instead of `forEach`.
 - Fix: Prioritize `sysex: false` for MIDI access to avoid permission blocks in strict environments.

@@ -1,4 +1,4 @@
-// app/hooks/use-game-logic.ts v1.3.5
+// app/hooks/use-game-logic.ts v1.4.4
 import { useState, useEffect, useCallback, useRef } from 'react';
 import * as Tone from 'tone';
 import { Song, builtInSongs } from '../lib/songs';
@@ -22,6 +22,11 @@ export function useGameLogic(
   const [currentTime, setCurrentTime] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [lastScore, setLastScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
+  const latestScoreRef = useRef(lastScore);
+
+  useEffect(() => {
+    latestScoreRef.current = lastScore;
+  }, [lastScore]);
 
   useEffect(() => {
     const syncMetronome = async () => {
@@ -44,20 +49,21 @@ export function useGameLogic(
       return;
     }
 
-    const totalNotes = lastScore.perfect + lastScore.good + lastScore.miss + lastScore.wrong;
-    const accuracy = totalNotes > 0 ? (lastScore.perfect + lastScore.good) / totalNotes : 0;
+    const currentScoreData = latestScoreRef.current;
+    const totalNotes = currentScoreData.perfect + currentScoreData.good + currentScoreData.miss + currentScoreData.wrong;
+    const accuracy = totalNotes > 0 ? (currentScoreData.perfect + currentScoreData.good) / totalNotes : 0;
 
     const maxScore = (selectedSong.notes?.length || 0) * 100;
 
     addScore({
       songId: selectedSong.id,
-      score: lastScore.currentScore,
+      score: currentScoreData.currentScore,
       maxScore,
       accuracy,
-      perfect: lastScore.perfect,
-      good: lastScore.good,
-      miss: lastScore.miss,
-      wrong: lastScore.wrong,
+      perfect: currentScoreData.perfect,
+      good: currentScoreData.good,
+      miss: currentScoreData.miss,
+      wrong: currentScoreData.wrong,
       maxCombo: 0,
       date: Date.now(),
     });
@@ -74,7 +80,7 @@ export function useGameLogic(
     
     updateStreak();
     setShowResult(true);
-  }, [lastScore, updateStreak, addScore, selectedSong.id, selectedSong.notes?.length, playMode]);
+  }, [updateStreak, addScore, selectedSong.id, selectedSong.notes?.length, playMode]);
 
   const togglePlay = useCallback(async () => {
     if (isPlaying) {
