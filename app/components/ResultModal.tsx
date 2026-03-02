@@ -1,9 +1,9 @@
 // app/components/ResultModal.tsx v1.4.4
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { Trophy, RefreshCw, Play } from 'lucide-react';
+import { Trophy, RefreshCw, Play, Clock } from 'lucide-react';
 import { Song } from '../lib/songs';
 import { translations } from '../lib/translations';
 import { useLocale } from '../lib/store';
@@ -25,6 +25,22 @@ interface ResultModalProps {
 export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps) {
   const locale = useLocale();
   const t = translations[locale] || translations.en;
+  const [countdown, setCountdown] = useState(10);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          onClose();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [onClose]);
 
   const totalNotes = score.perfect + score.good + score.miss + score.wrong;
   const accuracy = totalNotes > 0 
@@ -41,8 +57,18 @@ export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps)
       <motion.div 
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        className="w-full max-w-lg rounded-[2.5rem] bg-slate-900 border border-slate-800 p-8 md:p-12 shadow-2xl text-center"
+        className="w-full max-w-lg rounded-[2.5rem] bg-slate-900 border border-slate-800 p-8 md:p-12 shadow-2xl text-center relative overflow-hidden"
       >
+        {/* Auto-dismiss progress bar */}
+        <div className="absolute top-0 left-0 h-1 bg-indigo-500/30 w-full">
+          <motion.div 
+            initial={{ width: '100%' }}
+            animate={{ width: '0%' }}
+            transition={{ duration: 10, ease: 'linear' }}
+            className="h-full bg-indigo-500"
+          />
+        </div>
+
         <div className="mb-8">
           <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-400 mb-4">
             <Trophy className="h-10 w-10" />
@@ -87,10 +113,14 @@ export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps)
           </button>
           <button 
             onClick={onClose}
-            className="flex-1 rounded-2xl bg-indigo-500 py-4 font-bold text-white hover:bg-indigo-400 transition-colors flex items-center justify-center gap-2"
+            className="flex-1 rounded-2xl bg-indigo-500 py-4 font-bold text-white hover:bg-indigo-400 transition-colors flex items-center justify-center gap-2 relative"
           >
             <Play className="h-5 w-5 fill-current" />
             {t.continue}
+            <div className="absolute right-4 flex items-center gap-1 text-[10px] opacity-50">
+              <Clock className="h-3 w-3" />
+              {countdown}s
+            </div>
           </button>
         </div>
       </motion.div>

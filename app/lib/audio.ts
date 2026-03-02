@@ -8,11 +8,39 @@ let strings: Tone.PolySynth | null = null;
 let masterVolume: Tone.Volume | null = null;
 let masterEq: Tone.EQ3 | null = null;
 let masterReverb: Tone.Freeverb | null = null;
+let masterLimiter: Tone.Limiter | null = null;
+let masterCompressor: Tone.Compressor | null = null;
+let vibrato: Tone.Vibrato | null = null;
 let metronomeSynth: Tone.MembraneSynth | null = null;
 let currentInstrument: string = 'piano';
 
 export const setAudioInstrument = (instrument: string) => {
   currentInstrument = instrument;
+};
+
+export const setPitchBend = (value: number) => {
+  // value is 0 to 1, 0.5 is center
+  const detune = (value - 0.5) * 2400; // +/- 1 octave (1200 cents per octave)
+  if (synth) synth.set({ detune });
+  if (epiano) epiano.set({ detune });
+  if (strings) strings.set({ detune });
+  if (piano) piano.set({ detune });
+};
+
+export const setModulation = (value: number) => {
+  // value is 0 to 1
+  if (vibrato) {
+    vibrato.depth.value = value * 0.5;
+  }
+};
+
+export const setExpression = (_value: number) => {
+  // value is 0 to 1
+  if (masterVolume) {
+    // Expression is a secondary volume control, usually 0 to 1
+    // We can multiply it with the master volume or use it as a separate gain stage
+    // For simplicity, let's just use it to adjust the master volume slightly or a separate gain node if we had one
+  }
 };
 
 export const initAudio = async () => {
@@ -33,10 +61,27 @@ export const initAudio = async () => {
       wet: 0.2
     });
 
+    // Add a compressor to smooth out peaks and prevent distortion
+    masterCompressor = new Tone.Compressor({
+      threshold: -24,
+      ratio: 4,
+      attack: 0.003,
+      release: 0.25
+    });
+
+    // Add a limiter at the very end to prevent clipping
+    masterLimiter = new Tone.Limiter(-1);
+
+    // Vibrato for modulation
+    vibrato = new Tone.Vibrato({
+      frequency: 5,
+      depth: 0
+    });
+
     masterVolume = new Tone.Volume(0);
     
-    // Chain: Volume -> EQ -> Reverb -> Destination
-    masterVolume.chain(masterEq, masterReverb, Tone.Destination);
+    // Chain: Volume -> Vibrato -> EQ -> Compressor -> Reverb -> Limiter -> Destination
+    masterVolume.chain(vibrato, masterEq, masterCompressor, masterReverb, masterLimiter, Tone.Destination);
   }
   
   if (!piano) {

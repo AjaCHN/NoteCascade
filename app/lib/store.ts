@@ -31,7 +31,7 @@ export interface ScoreRecord {
 
 export type Theme = 'dark' | 'light' | 'cyber' | 'classic';
 export type Instrument = 'piano' | 'synth' | 'epiano' | 'strings';
-export type PlayMode = 'perform' | 'demo';
+export type PlayMode = 'perform' | 'demo' | 'follow' | 'free';
 
 interface AppState {
   achievements: Achievement[];

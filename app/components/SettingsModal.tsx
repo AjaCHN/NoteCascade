@@ -40,9 +40,10 @@ interface SettingsModalProps {
     isConnecting: boolean;
     lastMessage: MidiMessage | null;
   };
+  setIsRangeManuallySet?: (val: boolean) => void;
 }
 
-export function SettingsModal({ onClose, volume, setVolume, midiProps }: SettingsModalProps) {
+export function SettingsModal({ onClose, volume, setVolume, midiProps, setIsRangeManuallySet }: SettingsModalProps) {
   const locale = useLocale();
   const theme = useTheme();
   const instrument = useInstrument();
@@ -123,6 +124,7 @@ export function SettingsModal({ onClose, volume, setVolume, midiProps }: Setting
               showKeymap={showKeymap}
               setShowKeymap={setShowKeymap}
               t={t}
+              setIsRangeManuallySet={setIsRangeManuallySet}
             />
             <MidiSettings t={t} midiProps={midiProps} />
           </div>

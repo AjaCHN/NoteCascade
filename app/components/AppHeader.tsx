@@ -2,9 +2,9 @@
 'use client';
 
 import React from 'react';
-import { Menu, X, Settings, RefreshCw } from 'lucide-react';
+import { Menu, X, Settings, RefreshCw, Maximize2, Minimize2, Play, Eye, Keyboard as KeyboardIcon, Music } from 'lucide-react';
 import { translations } from '../lib/translations';
-import { useLocale } from '../lib/store';
+import { useLocale, usePlayMode, useAppActions, PlayMode } from '../lib/store';
 import pkg from '../../package.json';
 
 const { version } = pkg;
@@ -19,6 +19,8 @@ interface AppHeaderProps {
   showSettings: boolean;
   connectMidi?: () => void;
   isConnecting?: boolean;
+  isFullScreen: boolean;
+  toggleFullScreen: () => void;
 }
 
 export function AppHeader({ 
@@ -30,13 +32,24 @@ export function AppHeader({
   setShowSettings,
   showSettings,
   connectMidi,
-  isConnecting
+  isConnecting,
+  isFullScreen,
+  toggleFullScreen
 }: AppHeaderProps) {
   const locale = useLocale();
+  const playMode = usePlayMode();
+  const { setPlayMode } = useAppActions();
   const t = translations[locale] || translations.en;
 
+  const modes = [
+    { id: 'follow', icon: KeyboardIcon, label: t.follow || 'Follow' },
+    { id: 'demo', icon: Eye, label: t.demo || 'Demo' },
+    { id: 'free', icon: Music, label: t.freePlay || 'Free' },
+    { id: 'perform', icon: Play, label: t.perform || 'Perform' },
+  ];
+
   return (
-    <header id="app-header" className="flex h-14 md:h-16 shrink-0 items-center justify-between border-b theme-border px-4 md:px-6 glass-panel z-50">
+    <header id="app-header" className="flex h-14 md:h-20 shrink-0 items-center justify-between border-b theme-border px-4 md:px-6 glass-panel z-50">
       <div className="flex items-center gap-3">
         <button 
           className="md:hidden p-2 -ml-2 theme-text-secondary hover:theme-text-primary transition-colors"
@@ -45,21 +58,47 @@ export function AppHeader({
           {showSidebar ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
         
-        <div className={`flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-xl shadow-lg glow-indigo transition-all overflow-hidden ${
+        <div className={`flex h-8 w-8 md:h-12 md:w-12 items-center justify-center rounded-2xl shadow-lg glow-indigo transition-all overflow-hidden ${
           theme === 'cyber' ? 'bg-green-500' : theme === 'classic' ? 'bg-amber-700' : 'bg-gradient-to-br from-indigo-500 to-purple-600'
         }`}>
           <img src="/logo.svg" alt="NoteCascade Logo" className="h-full w-full object-cover" />
         </div>
-        <div>
+        <div className="hidden lg:block">
           <h1 id="app-title" className="text-lg md:text-xl font-bold tracking-tight theme-text-primary text-glow">
             {t.title} 
             <span className="text-[10px] font-mono text-indigo-400 ml-1 opacity-70">v{version}</span>
           </h1>
-          <p className="text-[10px] uppercase tracking-[0.2em] theme-text-secondary font-bold hidden md:block opacity-80">{t.subtitle}</p>
+          <p className="text-[10px] uppercase tracking-[0.2em] theme-text-secondary font-bold opacity-80">{t.subtitle}</p>
         </div>
       </div>
 
+      {/* Mode Switcher - Center */}
+      <div className="flex items-center bg-black/20 rounded-2xl p-1 border theme-border backdrop-blur-md">
+        {modes.map((mode) => (
+          <button
+            key={mode.id}
+            onClick={() => setPlayMode(mode.id as PlayMode)}
+            className={`flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-xl transition-all ${
+              playMode === mode.id 
+                ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' 
+                : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'
+            }`}
+          >
+            <mode.icon className={`h-4 w-4 ${playMode === mode.id ? 'animate-pulse' : ''}`} />
+            <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{mode.label}</span>
+          </button>
+        ))}
+      </div>
+
       <div className="flex items-center gap-2 md:gap-4">
+        <button 
+          onClick={toggleFullScreen}
+          className="hidden md:flex rounded-full p-2.5 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
+          title="Toggle Full Screen"
+        >
+          {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+        </button>
+        
         <button 
           onClick={() => connectMidi && connectMidi()}
           disabled={isConnecting}

@@ -46,18 +46,18 @@ export default function MidiPlayApp() {
   const [volume, setVolumeState] = useState(80);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const [mounted, setMounted] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isRangeManuallySet, setIsRangeManuallySet] = useState(false);
 
   // Dynamic keyboard range logic
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || isRangeManuallySet) return;
 
     const hasMidi = inputs.length > 0;
     
     if (hasMidi) {
       // MIDI connected: Use a fixed standard 88-key range and stop auto-adjusting to songs
       if (keyboardRange.start !== 21 || keyboardRange.end !== 108) {
-         // We only set this once when MIDI is detected or if it's not already full range
-         // This prevents the keyboard from jumping around when switching songs
          setKeyboardRange(21, 108);
       }
       return;
@@ -73,20 +73,40 @@ export default function MidiPlayApp() {
       const start = Math.max(21, minMidi - 2);
       const end = Math.min(108, maxMidi + 2);
       
-      // Ensure at least an octave or reasonable range
+      // Ensure at least 25 keys width as requested
       const finalStart = start;
-      const finalEnd = Math.max(start + 12, end);
+      const finalEnd = Math.max(start + 24, end); // 24 diff means 25 keys
       
       if (finalStart !== keyboardRange.start || finalEnd !== keyboardRange.end) {
         setKeyboardRange(finalStart, finalEnd);
       }
     } else {
-      // Default range for no song
+      // Default range for no song: ensure 25 keys
       if (keyboardRange.start !== 48 || keyboardRange.end !== 72) {
-        setKeyboardRange(48, 72);
+        setKeyboardRange(48, 72); // 48 to 72 is 25 keys
       }
     }
-  }, [inputs.length, selectedSong, setKeyboardRange, mounted, keyboardRange.start, keyboardRange.end]);
+  }, [inputs.length, selectedSong, setKeyboardRange, mounted, keyboardRange.start, keyboardRange.end, isRangeManuallySet]);
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+      setIsFullScreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+        setIsFullScreen(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleFsChange = () => setIsFullScreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -125,7 +145,7 @@ export default function MidiPlayApp() {
 
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       setTimeout(() => {
-        setKeyboardRange(48, 64);
+        setKeyboardRange(48, 72); // 25 keys
         setShowSidebar(false);
       }, 0);
     }
@@ -178,6 +198,8 @@ export default function MidiPlayApp() {
         showSettings={showSettings}
         connectMidi={connectMidi}
         isConnecting={isConnecting}
+        isFullScreen={isFullScreen}
+        toggleFullScreen={toggleFullScreen}
       />
 
       <main id="main-content" className="flex flex-1 overflow-hidden relative z-10">
@@ -265,6 +287,7 @@ export default function MidiPlayApp() {
               setVolume(val);
             }}
             midiProps={midiProps}
+            setIsRangeManuallySet={setIsRangeManuallySet}
           />
         )}
       </AnimatePresence>

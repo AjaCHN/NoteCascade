@@ -13,6 +13,7 @@ interface KeyboardSettingsProps {
   showKeymap: boolean;
   setShowKeymap: (show: boolean) => void;
   t: Record<string, string>;
+  setIsRangeManuallySet?: (val: boolean) => void;
 }
 
 export function KeyboardSettings({
@@ -22,8 +23,11 @@ export function KeyboardSettings({
   setShowNoteNames,
   showKeymap,
   setShowKeymap,
-  t
+  t,
+  setIsRangeManuallySet
 }: KeyboardSettingsProps) {
+  const currentKeys = keyboardRange.end - keyboardRange.start + 1;
+
   return (
     <section>
       <div className="flex items-center gap-2 mb-4">
@@ -40,12 +44,10 @@ export function KeyboardSettings({
                 if (keys === 49) setKeyboardRange(36, 84);
                 if (keys === 61) setKeyboardRange(36, 96);
                 if (keys === 88) setKeyboardRange(21, 108);
+                if (setIsRangeManuallySet) setIsRangeManuallySet(true);
               }}
               className={`px-2 py-3 rounded-xl border text-[10px] font-bold transition-all ${
-                (keys === 25 && keyboardRange.start === 48) ||
-                (keys === 49 && keyboardRange.start === 36 && keyboardRange.end === 84) ||
-                (keys === 61 && keyboardRange.start === 36 && keyboardRange.end === 96) ||
-                (keys === 88 && keyboardRange.start === 21)
+                currentKeys === keys
                   ? 'border-indigo-500 bg-indigo-500/10 text-indigo-400'
                   : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-text-primary'
               }`}

@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.7.0]
+- Audio: Added Master Limiter and Compressor to prevent distortion during complex MIDI playback.
+- MIDI: Added support for Pitch Bend, Modulation (vibrato), and Volume/Expression from external MIDI hardware.
+- UI: Added Full Screen toggle button in the header.
+- UI: Added a Mode Switcher in the header (Follow, Demo, Free Play, Perform).
+- UI: Result card now auto-dismisses after 10 seconds with a visual countdown.
+- Bugfix: Fixed keyboard range selection bug and ensured a minimum width of 25 keys.
+- Bugfix: Allowed manual keyboard range override even when MIDI is connected.
+
 ## [1.6.2]
 - UI: Swapped positions of song difficulty stars and song style tags for a more logical information hierarchy.
 
