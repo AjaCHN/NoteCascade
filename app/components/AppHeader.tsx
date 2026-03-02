@@ -2,6 +2,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { Menu, X, Settings, RefreshCw, Maximize2, Minimize2, Play, Eye, Keyboard as KeyboardIcon, Music } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { useLocale, usePlayMode, useAppActions, PlayMode } from '../lib/store';
@@ -58,10 +59,10 @@ export function AppHeader({
           {showSidebar ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
         
-        <div className={`flex h-8 w-8 md:h-12 md:w-12 items-center justify-center rounded-2xl shadow-lg glow-indigo transition-all overflow-hidden ${
+        <div className={`flex h-8 w-8 md:h-12 md:w-12 items-center justify-center rounded-2xl shadow-lg glow-indigo transition-all overflow-hidden relative ${
           theme === 'cyber' ? 'bg-green-500' : theme === 'classic' ? 'bg-amber-700' : 'bg-gradient-to-br from-indigo-500 to-purple-600'
         }`}>
-          <img src="/logo.svg" alt="NoteCascade Logo" className="h-full w-full object-cover" />
+          <Image src="/logo.svg" alt="NoteCascade Logo" fill className="object-cover" referrerPolicy="no-referrer" />
         </div>
         <div className="hidden lg:block">
           <h1 id="app-title" className="text-lg md:text-xl font-bold tracking-tight theme-text-primary text-glow">

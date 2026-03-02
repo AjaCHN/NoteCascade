@@ -10,6 +10,7 @@ let masterEq: Tone.EQ3 | null = null;
 let masterReverb: Tone.Freeverb | null = null;
 let masterLimiter: Tone.Limiter | null = null;
 let masterCompressor: Tone.Compressor | null = null;
+let expressionGain: Tone.Gain | null = null;
 let vibrato: Tone.Vibrato | null = null;
 let metronomeSynth: Tone.MembraneSynth | null = null;
 let currentInstrument: string = 'piano';
@@ -24,7 +25,8 @@ export const setPitchBend = (value: number) => {
   if (synth) synth.set({ detune });
   if (epiano) epiano.set({ detune });
   if (strings) strings.set({ detune });
-  if (piano) piano.set({ detune });
+  // Use a type cast to bypass the missing detune property in the Sampler type definition
+  if (piano) (piano as unknown as { set: (opt: { detune: number }) => void }).set({ detune });
 };
 
 export const setModulation = (value: number) => {
@@ -34,12 +36,10 @@ export const setModulation = (value: number) => {
   }
 };
 
-export const setExpression = (_value: number) => {
+export const setExpression = (value: number) => {
   // value is 0 to 1
-  if (masterVolume) {
-    // Expression is a secondary volume control, usually 0 to 1
-    // We can multiply it with the master volume or use it as a separate gain stage
-    // For simplicity, let's just use it to adjust the master volume slightly or a separate gain node if we had one
+  if (expressionGain) {
+    expressionGain.gain.rampTo(value, 0.05);
   }
 };
 
@@ -63,14 +63,14 @@ export const initAudio = async () => {
 
     // Add a compressor to smooth out peaks and prevent distortion
     masterCompressor = new Tone.Compressor({
-      threshold: -24,
-      ratio: 4,
+      threshold: -30, // Lower threshold to start compressing earlier
+      ratio: 12,      // Higher ratio for stronger compression
       attack: 0.003,
       release: 0.25
     });
 
     // Add a limiter at the very end to prevent clipping
-    masterLimiter = new Tone.Limiter(-1);
+    masterLimiter = new Tone.Limiter(-3); // More headroom
 
     // Vibrato for modulation
     vibrato = new Tone.Vibrato({
@@ -78,10 +78,12 @@ export const initAudio = async () => {
       depth: 0
     });
 
-    masterVolume = new Tone.Volume(0);
+    expressionGain = new Tone.Gain(1);
+
+    masterVolume = new Tone.Volume(-6); // Lower base volume to provide more headroom for polyphony
     
-    // Chain: Volume -> Vibrato -> EQ -> Compressor -> Reverb -> Limiter -> Destination
-    masterVolume.chain(vibrato, masterEq, masterCompressor, masterReverb, masterLimiter, Tone.Destination);
+    // Chain: Volume -> Vibrato -> Expression -> EQ -> Compressor -> Reverb -> Limiter -> Destination
+    masterVolume.chain(vibrato, expressionGain, masterEq, masterCompressor, masterReverb, masterLimiter, Tone.Destination);
   }
   
   if (!piano) {
@@ -138,6 +140,7 @@ export const initAudio = async () => {
         release: 1.2 
       }
     });
+    synth.maxPolyphony = 32;
     
     const synthFilter = new Tone.Filter(3000, "lowpass");
     synth.chain(synthFilter, masterVolume);
@@ -153,6 +156,7 @@ export const initAudio = async () => {
       modulation: { type: "triangle" },
       modulationEnvelope: { attack: 0.01, decay: 0.5, sustain: 0, release: 0.5 }
     });
+    epiano.maxPolyphony = 32;
     
     // Add Chorus for that classic EPiano shimmer
     const epianoChorus = new Tone.Chorus(4, 2.5, 0.5).start();
@@ -174,6 +178,7 @@ export const initAudio = async () => {
         release: 2 
       }
     });
+    strings.maxPolyphony = 32;
     
     // Filter to remove harsh highs and make it sound more like strings
     const stringsFilter = new Tone.Filter(1500, "lowpass");

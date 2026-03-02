@@ -243,8 +243,7 @@ export default function MidiPlayApp() {
               />
             </div>
 
-            <div id="keyboard-wrapper" className="shrink-0 relative z-20 h-24 md:h-32">
-              <div className="absolute inset-x-0 -top-8 h-8 bg-gradient-to-t theme-bg-primary to-transparent pointer-events-none" />
+            <div id="keyboard-wrapper" className="shrink-0 relative z-20 h-24 md:h-32 border-t theme-border">
               <Keyboard 
                 activeNotes={activeNotes} 
                 startNote={keyboardRange.start} 

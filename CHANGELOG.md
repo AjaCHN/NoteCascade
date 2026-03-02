@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.7.1]
+- Audio: Optimized polyphony management and voice limiting to prevent audio dropouts during complex passages.
+- Audio: Fine-tuned compressor and limiter settings to eliminate clipping when multiple keys are pressed simultaneously.
+- Audio: Lowered default master volume to provide more headroom for polyphonic playback.
+
 ## [1.7.0]
 - Audio: Added Master Limiter and Compressor to prevent distortion during complex MIDI playback.
 - MIDI: Added support for Pitch Bend, Modulation (vibrato), and Volume/Expression from external MIDI hardware.

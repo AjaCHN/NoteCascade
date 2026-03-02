@@ -14,7 +14,7 @@ export interface Feedback {
 
 export const PERFECT_THRESHOLD = 0.1;
 export const GOOD_THRESHOLD = 0.25;
-export const HIT_LINE_Y = 20;
+export const HIT_LINE_Y = 0;
 
 export function useGameEngine(
   song: Song,

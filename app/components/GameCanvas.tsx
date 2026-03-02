@@ -4,7 +4,7 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Song } from '../lib/songs';
-import { useLocale } from '../lib/store';
+import { useLocale, usePlayMode } from '../lib/store';
 import { translations } from '../lib/translations';
 import { GameStatsOverlay } from './GameStatsOverlay';
 import { useGameEngine } from '../hooks/use-game-engine';
@@ -41,6 +41,7 @@ export function GameCanvas({
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
   const locale = useLocale();
+  const playMode = usePlayMode();
   const t = translations[locale] || translations.en;
 
   const keyGeometries = useMemo(() => {
@@ -96,7 +97,8 @@ export function GameCanvas({
     t,
     showNoteNames,
     recentHits,
-    hitEffects
+    hitEffects,
+    playMode
   );
 
   useEffect(() => {

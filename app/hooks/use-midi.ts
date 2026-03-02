@@ -271,7 +271,7 @@ export function useMidi() {
           for (let input = inputsIter.next(); !input.done; input = inputsIter.next()) {
             input.value.onmidimessage = null;
           }
-        } catch (_) {
+        } catch {
           // Ignore
         }
       }
