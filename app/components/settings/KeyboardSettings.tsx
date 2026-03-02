@@ -70,7 +70,7 @@ export function KeyboardSettings({
             </button>
           </div>
           <div className="flex items-center justify-between p-4 rounded-2xl theme-bg-secondary border theme-border">
-            <span className="text-xs font-bold theme-text-primary">{t.showKeymap || 'Show PC Keyboard Map'}</span>
+            <span className="text-xs font-bold theme-text-primary">{t.showKeymap}</span>
             <button 
               onClick={() => setShowKeymap(!showKeymap)}
               className={`w-12 h-6 rounded-full transition-all relative ${showKeymap ? 'bg-indigo-500' : 'bg-slate-700'}`}

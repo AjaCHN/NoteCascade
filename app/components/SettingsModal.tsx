@@ -6,15 +6,13 @@ import { motion } from 'motion/react';
 import { Settings as SettingsIcon, X } from 'lucide-react';
 import { 
   useLocale, useTheme, useInstrument, useAppActions, 
-  useKeyboardRange, useShowNoteNames, useShowKeymap,
-  useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats
+  useKeyboardRange, useShowNoteNames, useShowKeymap
 } from '../lib/store';
 import { translations } from '../lib/translations';
 
 // Sub-components
 import { GeneralSettings } from './settings/GeneralSettings';
 import { KeyboardSettings } from './settings/KeyboardSettings';
-import { AudioSettings } from './settings/AudioSettings';
 import { MidiSettings } from './settings/MidiSettings';
 import { AppInfoSection } from './settings/AppInfoSection';
 
@@ -23,8 +21,6 @@ import { MidiDevice, VelocityCurve, MidiMessage } from '../hooks/use-midi';
 interface SettingsModalProps {
   show: boolean;
   onClose: () => void;
-  volume: number;
-  setVolume: (val: number) => void;
   midiProps: {
     isSupported: boolean;
     inputs: MidiDevice[];
@@ -43,21 +39,17 @@ interface SettingsModalProps {
   setIsRangeManuallySet?: (val: boolean) => void;
 }
 
-export function SettingsModal({ onClose, volume, setVolume, midiProps, setIsRangeManuallySet }: SettingsModalProps) {
+export function SettingsModal({ onClose, midiProps, setIsRangeManuallySet }: SettingsModalProps) {
   const locale = useLocale();
   const theme = useTheme();
   const instrument = useInstrument();
   const keyboardRange = useKeyboardRange();
   const showNoteNames = useShowNoteNames();
   const showKeymap = useShowKeymap();
-  const metronomeEnabled = useMetronomeEnabled();
-  const metronomeBpm = useMetronomeBpm();
-  const metronomeBeats = useMetronomeBeats();
 
   const { 
     setLocale, setTheme, setInstrument, 
-    setKeyboardRange, setShowNoteNames, setShowKeymap,
-    setMetronomeEnabled, setMetronomeBpm, setMetronomeBeats
+    setKeyboardRange, setShowNoteNames, setShowKeymap
   } = useAppActions();
 
   const t = translations[locale] || translations.en;
@@ -100,17 +92,6 @@ export function SettingsModal({ onClose, volume, setVolume, midiProps, setIsRang
               setTheme={setTheme}
               instrument={instrument}
               setInstrument={setInstrument}
-              t={t}
-            />
-            <AudioSettings 
-              volume={volume}
-              setVolume={setVolume}
-              metronomeEnabled={metronomeEnabled}
-              setMetronomeEnabled={setMetronomeEnabled}
-              metronomeBpm={metronomeBpm}
-              setMetronomeBpm={setMetronomeBpm}
-              metronomeBeats={metronomeBeats}
-              setMetronomeBeats={setMetronomeBeats}
               t={t}
             />
           </div>

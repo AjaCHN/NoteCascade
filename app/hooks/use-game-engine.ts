@@ -25,7 +25,8 @@ export function useGameEngine(
   t: Record<string, string>,
   dimensions: { width: number; height: number },
   keyGeometries: Map<number, { x: number, width: number, isBlack: boolean }>,
-  onScoreUpdate: (score: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => void
+  onScoreUpdate: (score: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => void,
+  playMode: string
 ) {
   const [score, setScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
@@ -36,6 +37,7 @@ export function useGameEngine(
   const hitEffects = useRef<{ x: number; y: number; type: Feedback['type']; timestamp: number }[]>([]);
 
   const addFeedback = useCallback((text: string, type: Feedback['type'], midi: number) => {
+    if (playMode === 'free') return; // No feedback in free play
     const geo = keyGeometries.get(midi);
     if (!geo) return;
     const x = geo.x + geo.width / 2;
@@ -45,10 +47,14 @@ export function useGameEngine(
     setTimeout(() => {
       setFeedbacks((prev) => prev.filter((f) => f.id !== id));
     }, 1000);
-  }, [dimensions.height, keyGeometries]);
+  }, [dimensions.height, keyGeometries, playMode]);
 
   useEffect(() => {
     if (!isPlaying) return;
+    if (playMode === 'free') {
+      lastActiveNotes.current = new Set(activeNotes.keys());
+      return;
+    }
 
     activeNotes.forEach((velocity, midi) => {
       if (!lastActiveNotes.current.has(midi)) {
@@ -112,7 +118,7 @@ export function useGameEngine(
     });
 
     lastActiveNotes.current = new Set(activeNotes.keys());
-  }, [currentTime, activeNotes, song, isPlaying, addFeedback, t, keyboardRange.start, keyboardRange.end]);
+  }, [currentTime, activeNotes, song, isPlaying, addFeedback, t, keyboardRange.start, keyboardRange.end, playMode]);
 
   useEffect(() => {
     onScoreUpdate(score);

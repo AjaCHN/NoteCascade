@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Globe, Palette, Mic2, ChevronDown, Check } from 'lucide-react';
-import { Locale, translations } from '../../lib/translations';
+import { Locale, translations, languageNames } from '../../lib/translations';
 import { Theme, Instrument } from '../../lib/store';
 
 interface GeneralSettingsProps {
@@ -39,7 +39,7 @@ export function GeneralSettings({
             className="w-full appearance-none theme-bg-secondary border theme-border rounded-2xl px-5 py-4 theme-text-primary font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all cursor-pointer"
           >
             {(Object.keys(translations) as Locale[]).map((lang) => (
-              <option key={lang} value={lang}>{lang.toUpperCase()}</option>
+              <option key={lang} value={lang}>{languageNames[lang]}</option>
             ))}
           </select>
           <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 h-5 w-5 theme-text-secondary pointer-events-none group-hover:theme-text-primary transition-colors" />

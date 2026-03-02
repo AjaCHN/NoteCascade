@@ -137,7 +137,37 @@ export function useGameLogic(
     let animationFrame: number;
     const updateTime = () => {
       if (isPlaying) {
-        const time = Tone.Transport.seconds;
+        let time = Tone.Transport.seconds;
+
+        // Practice Mode Logic
+        if (playMode === 'practice') {
+           // Find notes that are "current" (within a small window)
+           const notesToHit = selectedSong.notes?.filter(n => 
+              n.time >= time - 0.05 && 
+              n.time <= time + 0.05
+           ) || [];
+           
+           const allHit = notesToHit.every(n => activeNotes.has(n.midi));
+           
+           if (notesToHit.length > 0 && !allHit) {
+              if (Tone.Transport.state === 'started') {
+                 Tone.Transport.pause();
+              }
+              // Snap to the note time
+              const firstUnhit = notesToHit.find(n => !activeNotes.has(n.midi));
+              if (firstUnhit) {
+                 time = firstUnhit.time;
+                 if (Math.abs(Tone.Transport.seconds - time) > 0.001) {
+                    Tone.Transport.seconds = time;
+                 }
+              }
+           } else {
+              if (Tone.Transport.state === 'paused') {
+                 Tone.Transport.start();
+              }
+           }
+        }
+
         setCurrentTime(time);
         
         if (time >= (selectedSong.duration || 0)) {
@@ -158,12 +188,12 @@ export function useGameLogic(
     }
     
     return () => cancelAnimationFrame(animationFrame);
-  }, [isPlaying, selectedSong.duration, handleSongEnd, setActiveNotes]);
+  }, [isPlaying, selectedSong, handleSongEnd, setActiveNotes, playMode, activeNotes]);
 
   // Practice time accumulator (approximate)
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isPlaying && playMode === 'perform') {
+    if (isPlaying && (playMode === 'perform' || playMode === 'practice')) {
       interval = setInterval(() => {
         incrementPracticeTime(1);
       }, 1000);

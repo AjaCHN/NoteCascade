@@ -82,7 +82,8 @@ export function GameCanvas({
     t,
     dimensions,
     keyGeometries,
-    onScoreUpdate
+    onScoreUpdate,
+    playMode
   );
 
   useGameRenderer(
@@ -129,7 +130,7 @@ export function GameCanvas({
   return (
     <div ref={containerRef} className={`relative h-full w-full overflow-hidden ${theme === 'light' ? 'bg-slate-50' : 'bg-slate-950'}`}>
       <canvas ref={canvasRef} className="h-full w-full" />
-      <GameStatsOverlay song={song} score={score} theme={theme} t={t} />
+      {playMode !== 'free' && <GameStatsOverlay song={song} score={score} theme={theme} t={t} />}
 
       <div className="absolute inset-0 pointer-events-none z-30">
         <AnimatePresence>

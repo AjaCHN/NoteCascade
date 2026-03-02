@@ -3,9 +3,9 @@
 
 import React, { useState, useRef } from 'react';
 import { Song, builtInSongs, parseMidiFile } from '../lib/songs';
-import { Music, PlayCircle, Mic2, Filter, Upload } from 'lucide-react';
+import { Music, Filter, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useLocale, useScores, useAchievements, usePlayMode, useAppActions, PlayMode } from '../lib/store';
+import { useLocale, useScores, useAchievements } from '../lib/store';
 import { translations } from '../lib/translations';
 import { SongCard } from './SongCard';
 
@@ -18,8 +18,6 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   const locale = useLocale();
   const scores = useScores();
   const achievements = useAchievements();
-  const playMode = usePlayMode();
-  const { setPlayMode } = useAppActions();
   const t = translations[locale] || translations.en;
   
   const [filter, setFilter] = useState<string>('all');
@@ -99,24 +97,6 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
           </h2>
           
           <div className="flex items-center gap-2 self-end md:self-auto">
-            <div className="flex bg-slate-200 dark:bg-slate-800 rounded-xl p-1 mr-1">
-              {(['perform', 'demo'] as PlayMode[]).map((mode) => (
-                <button
-                  key={mode}
-                  onClick={() => setPlayMode(mode)}
-                  className={`px-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
-                    playMode === mode
-                      ? 'bg-white dark:bg-slate-700 text-indigo-500 dark:text-indigo-400 shadow-sm'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-                  }`}
-                  title={t[`mode_${mode}`]}
-                >
-                  {mode === 'perform' ? <Mic2 className="w-3 h-3" /> : <PlayCircle className="w-3 h-3" />}
-                  <span className="hidden lg:inline">{t[`mode_${mode}`]}</span>
-                </button>
-              ))}
-            </div>
-
             <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept=".mid,.midi" className="hidden" />
             <button
               onClick={() => fileInputRef.current?.click()}
@@ -192,7 +172,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
         </AnimatePresence>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 p-4 md:p-6 pt-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4 md:p-6 pt-2">
         {filteredSongs.length > 0 ? filteredSongs.map((song, idx) => (
           <SongCard 
             key={`${song.id}-${idx}`}

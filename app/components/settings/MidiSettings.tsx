@@ -155,9 +155,9 @@ export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold theme-text-primary">{t.transpose || 'Transpose'}</span>
             <div className="flex items-center gap-3">
-              <button onClick={() => setTranspose(transpose - 1)} className="theme-text-secondary hover:theme-text-primary">-</button>
-              <span className="text-xs font-bold theme-text-primary w-4 text-center">{transpose}</span>
-              <button onClick={() => setTranspose(transpose + 1)} className="theme-text-secondary hover:theme-text-primary">+</button>
+              <button onClick={() => setTranspose(transpose - 1)} className="theme-text-secondary hover:theme-text-primary px-2">-</button>
+              <span className="text-xs font-bold theme-text-primary w-6 text-center">{transpose}</span>
+              <button onClick={() => setTranspose(transpose + 1)} className="theme-text-secondary hover:theme-text-primary px-2">+</button>
             </div>
           </div>
         </div>

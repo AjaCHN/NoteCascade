@@ -257,7 +257,7 @@ export function useGameRenderer(
           const noteY = hitLineY - (note.time - currentTime) * FALL_SPEED;
           const noteHeight = note.duration * FALL_SPEED;
 
-          if (noteY + noteHeight > 0 && noteY < height) {
+          if (noteY + noteHeight > 0) {
             const hue = (note.midi * 137.5) % 360;
             
             // Use solid color for performance
