@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
   Play, Eye, Keyboard as KeyboardIcon, Music, 
-  Volume2, VolumeX, Clock, Library as LibraryIcon, Trophy, Sliders 
+  Volume2, VolumeX, Clock, Library as LibraryIcon, Sliders 
 } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { 
@@ -30,8 +30,8 @@ interface AppHeaderProps {
   toggleFullScreen: () => void;
   volume: number;
   setVolume: (val: number) => void;
-  setShowAchievements: (show: boolean) => void;
-  showAchievements: boolean;
+  setShowLibrary: (show: boolean) => void;
+  showLibrary: boolean;
 }
 
 export function AppHeader({ 
@@ -46,8 +46,8 @@ export function AppHeader({
   toggleFullScreen,
   volume,
   setVolume,
-  setShowAchievements,
-  showAchievements
+  setShowLibrary,
+  showLibrary
 }: AppHeaderProps) {
   const locale = useLocale();
   const playMode = usePlayMode();
@@ -59,7 +59,6 @@ export function AppHeader({
   const [showAudioControls, setShowAudioControls] = useState(false);
 
   const modes = [
-    { id: 'library', icon: LibraryIcon, label: t.library || 'Library' },
     { id: 'practice', icon: KeyboardIcon, label: t.practice || 'Practice' },
     { id: 'demo', icon: Eye, label: t.demo || 'Demo' },
     { id: 'perform', icon: Play, label: t.perform || 'Perform' },
@@ -177,11 +176,11 @@ export function AppHeader({
         </div>
 
         <button 
-          onClick={() => setShowAchievements(!showAchievements)}
-          className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${showAchievements ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
-          title={t.achievements}
+          onClick={() => setShowLibrary(!showLibrary)}
+          className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${showLibrary ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
+          title={t.library || 'Library'}
         >
-          <Trophy className="h-5 w-5" />
+          <LibraryIcon className="h-5 w-5" />
         </button>
 
         <button 

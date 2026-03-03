@@ -10,11 +10,12 @@ import { translations } from '../lib/translations';
 import { SongCard } from './SongCard';
 
 interface SongSelectorProps {
-  onSelect: (song: Song) => void;
+  onPlayPractice: (song: Song) => void;
+  onPlayDemo: (song: Song) => void;
   selectedSongId?: string;
 }
 
-export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
+export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: SongSelectorProps) {
   const locale = useLocale();
   const scores = useScores();
   const achievements = useAchievements();
@@ -36,7 +37,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
     setIsUploading(true);
     try {
       const song = await parseMidiFile(file);
-      onSelect(song);
+      onPlayPractice(song);
     } catch (error) {
       console.error('Failed to parse MIDI:', error);
       alert(t.midiParseError);
