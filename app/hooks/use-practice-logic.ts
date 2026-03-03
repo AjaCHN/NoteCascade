@@ -2,7 +2,7 @@
 'use client';
 
 import * as Tone from 'tone';
-import { Song } from '../lib/songs';
+import { Song } from '../lib/songs/types';
 
 export function usePracticeLogic(
   playMode: string,

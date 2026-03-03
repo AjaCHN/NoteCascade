@@ -3,7 +3,7 @@ import { AnimatePresence } from 'motion/react';
 import { ResultModal } from './ResultModal';
 import { SettingsModal } from './SettingsModal';
 import { LibraryModal } from './LibraryModal';
-import { Song } from '../lib/songs';
+import { Song } from '../lib/songs/types';
 import { ScoreRecord, PlayMode } from '../lib/store/types';
 import { MidiDevice, MidiMessage } from '../hooks/use-midi';
 import { VelocityCurve } from '../lib/midi-utils';

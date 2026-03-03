@@ -1,7 +1,7 @@
 // app/hooks/use-game-logic.ts v1.7.2
 import { useState, useEffect, useCallback, useRef } from 'react';
 import * as Tone from 'tone';
-import { Song, builtInSongs } from '../lib/songs';
+import { Song } from '../lib/songs/types';
 import { useAppActions, usePlayMode, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, getNextSong } from '../lib/store';
 import { ScoreRecord } from '../lib/store/types';
 import { initAudio, startTransport, stopTransport, clearScheduledEvents, ensureAudioContext, setMetronome, scheduleNote, resetAudioEffects } from '../lib/audio';
@@ -10,7 +10,8 @@ import { usePracticeLogic } from './use-practice-logic';
 
 export function useGameLogic(
   activeNotes: Map<number, number>,
-  setActiveNotes: React.Dispatch<React.SetStateAction<Map<number, number>>>
+  setActiveNotes: React.Dispatch<React.SetStateAction<Map<number, number>>>,
+  songs: Song[]
 ) {
   const { addScore, incrementPracticeTime, updateStreak } = useAppActions();
   const playMode = usePlayMode();
@@ -18,7 +19,13 @@ export function useGameLogic(
   const metronomeBpm = useMetronomeBpm();
   const metronomeBeats = useMetronomeBeats();
 
-  const [selectedSong, setSelectedSong] = useState<Song>(builtInSongs[0]);
+  const [selectedSong, setSelectedSong] = useState<Song>(songs[0] || { id: 'loading', title: 'Loading...', artist: '', difficulty: 0, midiUrl: '' });
+
+  useEffect(() => {
+    if (songs.length > 0 && selectedSong.id === 'loading') {
+      setSelectedSong(songs[0]);
+    }
+  }, [songs, selectedSong.id]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [showResult, setShowResult] = useState(false);
@@ -198,12 +205,12 @@ export function useGameLogic(
   }, [isPlaying, playMode, incrementPracticeTime]);
 
   const handleNextSong = useCallback(() => {
-    const nextSong = getNextSong(selectedSong);
+    const nextSong = getNextSong(selectedSong, songs);
     if (nextSong) {
       setSelectedSong(nextSong);
       resetSong();
     }
-  }, [selectedSong, resetSong]);
+  }, [selectedSong, resetSong, songs]);
 
   return {
     selectedSong, setSelectedSong, isPlaying, currentTime, showResult, setShowResult,

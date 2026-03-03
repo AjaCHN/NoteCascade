@@ -1,8 +1,8 @@
 // app/lib/store/achievement-logic.ts v1.0.0
 import { AppState, Achievement } from './types';
-import { builtInSongs } from '../songs';
+import { Song } from '../songs/types';
 
-export function checkAchievementsLogic(state: AppState): Achievement[] {
+export function checkAchievementsLogic(state: AppState, songs: Song[]): Achievement[] {
   const { scores, totalPracticeTime, dailyStreak, totalNotesHit, achievements } = state;
   const lastScore = scores[0];
 
@@ -28,7 +28,7 @@ export function checkAchievementsLogic(state: AppState): Achievement[] {
         break;
       case 'play_3_styles':
         const styles = new Set(scores.map(s => {
-          const song = builtInSongs.find(song => song.id === s.songId);
+          const song = songs.find(song => song.id === s.songId);
           return song?.style;
         }).filter(Boolean));
         progress = styles.size;

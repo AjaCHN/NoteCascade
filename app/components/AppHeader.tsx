@@ -5,12 +5,11 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
-  Play, Eye, Keyboard as KeyboardIcon, Music, 
   Volume2, VolumeX, Clock, Library as LibraryIcon, Sliders 
 } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { 
-  useLocale, usePlayMode, useAppActions, PlayMode,
+  useLocale, useAppActions,
   useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats
 } from '../lib/store';
 import pkg from '../../package.json';
@@ -50,20 +49,12 @@ export function AppHeader({
   showLibrary
 }: AppHeaderProps) {
   const locale = useLocale();
-  const playMode = usePlayMode();
   const metronomeEnabled = useMetronomeEnabled();
   const metronomeBpm = useMetronomeBpm();
   const metronomeBeats = useMetronomeBeats();
-  const { setPlayMode, setMetronomeEnabled, setMetronomeBpm, setMetronomeBeats } = useAppActions();
+  const { setMetronomeEnabled, setMetronomeBpm, setMetronomeBeats } = useAppActions();
   const t = translations[locale] || translations.en;
   const [showAudioControls, setShowAudioControls] = useState(false);
-
-  const modes = [
-    { id: 'practice', icon: KeyboardIcon, label: t.practice || 'Practice' },
-    { id: 'demo', icon: Eye, label: t.demo || 'Demo' },
-    { id: 'perform', icon: Play, label: t.perform || 'Perform' },
-    { id: 'free', icon: Music, label: t.freePlay || 'Free' },
-  ];
 
   return (
     <header id="app-header" className="flex h-14 md:h-20 shrink-0 items-center justify-between border-b theme-border px-4 md:px-6 glass-panel z-50">
@@ -82,23 +73,7 @@ export function AppHeader({
         </div>
       </div>
 
-      {/* Mode Switcher - Center */}
-      <div className="flex items-center bg-black/20 rounded-2xl p-1 border theme-border backdrop-blur-md">
-        {modes.map((mode) => (
-          <button
-            key={mode.id}
-            onClick={() => setPlayMode(mode.id as PlayMode)}
-            className={`flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-xl transition-all ${
-              playMode === mode.id 
-                ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' 
-                : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'
-            }`}
-          >
-            <mode.icon className={`h-4 w-4 ${playMode === mode.id ? 'animate-pulse' : ''}`} />
-            <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{mode.label}</span>
-          </button>
-        ))}
-      </div>
+      {/* Mode Switcher - Removed */}
 
       <div className="flex items-center gap-2 md:gap-4">
         {/* Audio Controls Button */}

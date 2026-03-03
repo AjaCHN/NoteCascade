@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Song } from '../lib/songs';
+import { Song } from '../lib/songs/types';
 
 interface KeyboardRange {
   start: number;

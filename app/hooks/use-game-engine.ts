@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Song } from '../lib/songs';
+import { Song } from '../lib/songs/types';
 
 export interface Feedback {
   id: number;
@@ -122,7 +122,7 @@ export function useGameEngine(
 
   useEffect(() => {
     onScoreUpdate(score);
-  }, [score, onScoreUpdate]);
+  }, [score]);
 
   useEffect(() => {
     if (currentTime === 0) {

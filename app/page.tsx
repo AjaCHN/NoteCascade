@@ -5,7 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { useMidi } from './hooks/use-midi';
 import { useKeyboardInput } from './hooks/use-keyboard-input';
 import { setVolume } from './lib/audio';
-import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, useShowNoteNames, useShowKeymap, useIsRangeManuallySet } from './lib/store';
+import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, useShowNoteNames, useShowKeymap, useIsRangeManuallySet, useAppStore } from './lib/store';
+import { builtInSongs } from './lib/songs';
 import { translations } from './lib/translations';
 import { Keyboard } from './components/Keyboard';
 import { GameCanvas } from './components/GameCanvas';
@@ -28,7 +29,12 @@ export default function MidiPlayApp() {
     selectedInputId, setSelectedInputId, midiChannel, setMidiChannel,
     velocityCurve, setVelocityCurve, transpose, setTranspose, connectMidi
   } = useMidi();
-  const { setKeyboardRange, setPlayMode } = useAppActions();
+  const { setKeyboardRange, setPlayMode, setSongs } = useAppActions();
+  const songs = useAppStore(state => state.songs);
+
+  useEffect(() => {
+    setSongs(builtInSongs);
+  }, [setSongs]);
 
   const locale = useLocale();
   const theme = useTheme();
@@ -43,7 +49,7 @@ export default function MidiPlayApp() {
   const {
     selectedSong, setSelectedSong, isPlaying, currentTime, showResult, setShowResult,
     lastScore, setLastScore, togglePlay, resetSong, handleNextSong
-  } = useGameLogic(activeNotes, setActiveNotes);
+  } = useGameLogic(activeNotes, setActiveNotes, songs);
 
   const [volume, setVolumeState] = useState(80);
   const { mounted, windowWidth } = useAppInitialization(volume, instrument);

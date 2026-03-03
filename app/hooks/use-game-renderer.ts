@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Song } from '../lib/songs';
+import { Song } from '../lib/songs/types';
 import { Feedback, HIT_LINE_Y, GOOD_THRESHOLD, PERFECT_THRESHOLD } from './use-game-engine';
 import { PlayMode } from '../lib/store';
 import { drawGrid, drawHitLine, drawKeyMarkers, drawTimingBar, FALL_SPEED } from '../lib/renderer-utils';

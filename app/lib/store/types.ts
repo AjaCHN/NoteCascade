@@ -1,5 +1,6 @@
 // app/lib/store/types.ts v1.0.0
 import { Locale } from '../translations';
+import { Song } from '../songs/types';
 
 export interface Achievement {
   id: string;
@@ -37,6 +38,7 @@ export interface AppState {
   lastPracticeDate: string | null;
   totalNotesHit: number;
   songsCompleted: number;
+  songs: Song[];
   locale: Locale;
   theme: Theme;
   instrument: Instrument;
@@ -52,6 +54,7 @@ export interface AppState {
     unlockAchievement: (id: string) => void;
     addScore: (score: ScoreRecord) => void;
     incrementPracticeTime: (seconds: number) => void;
+    setSongs: (songs: Song[]) => void;
     setLocale: (locale: Locale) => void;
     setTheme: (theme: Theme) => void;
     setInstrument: (instrument: Instrument) => void;

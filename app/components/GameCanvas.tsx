@@ -3,7 +3,7 @@
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Song } from '../lib/songs';
+import { Song } from '../lib/songs/types';
 import { useLocale, usePlayMode } from '../lib/store';
 import { translations } from '../lib/translations';
 import { GameStatsOverlay } from './GameStatsOverlay';

@@ -1,7 +1,7 @@
 // app/lib/store.ts v1.7.2
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { builtInSongs, Song } from './songs';
+import { Song } from './songs/types';
 import { INITIAL_ACHIEVEMENTS } from './achievements-data';
 import { AppState, Achievement, ScoreRecord, Theme, Instrument, PlayMode } from './store/types';
 import { checkAchievementsLogic } from './store/achievement-logic';
@@ -18,6 +18,7 @@ export const useAppStore = create<AppState>()(
       lastPracticeDate: null,
       totalNotesHit: 0,
       songsCompleted: 0,
+      songs: [],
       locale: 'en',
       theme: 'dark',
       instrument: 'piano',
@@ -68,11 +69,12 @@ export const useAppStore = create<AppState>()(
         },
         checkAchievements: () => {
           const state = get();
-          const newAchievements = checkAchievementsLogic(state);
+          const newAchievements = checkAchievementsLogic(state, state.songs);
           if (JSON.stringify(newAchievements) !== JSON.stringify(state.achievements)) {
             set({ achievements: newAchievements });
           }
         },
+        setSongs: (songs) => set({ songs }),
         setLocale: (locale) => set({ locale }),
         setTheme: (theme) => set({ theme }),
         setInstrument: (instrument) => set({ instrument }),
@@ -137,9 +139,9 @@ export const useMetronomeBpm = () => useAppStore((state) => state.metronomeBpm);
 export const useMetronomeBeats = () => useAppStore((state) => state.metronomeBeats);
 export const useAppActions = () => useAppStore((state) => state.actions);
 
-export function getNextSong(currentSong: Song): Song {
-  const currentIndex = builtInSongs.findIndex(s => s.id === currentSong.id);
-  if (currentIndex === -1) return builtInSongs[0];
-  return builtInSongs[(currentIndex + 1) % builtInSongs.length];
+export function getNextSong(currentSong: Song, allSongs: Song[]): Song {
+  const currentIndex = allSongs.findIndex(s => s.id === currentSong.id);
+  if (currentIndex === -1) return allSongs[0] || currentSong;
+  return allSongs[(currentIndex + 1) % allSongs.length];
 }
 
