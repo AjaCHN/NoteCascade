@@ -1,5 +1,5 @@
 // app/lib/songs/utils.ts v1.7.2
-import type { Note } from '../songs';
+import { Note } from './types';
 
 export function parseMelody(melody: string, bpm: number = 120): { notes: Note[], duration: number } {
   const notes: Note[] = [];

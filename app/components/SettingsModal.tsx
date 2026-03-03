@@ -16,7 +16,8 @@ import { KeyboardSettings } from './settings/KeyboardSettings';
 import { MidiSettings } from './settings/MidiSettings';
 import { AppInfoSection } from './settings/AppInfoSection';
 
-import { MidiDevice, VelocityCurve, MidiMessage } from '../hooks/use-midi';
+import { MidiDevice, MidiMessage } from '../hooks/use-midi';
+import { VelocityCurve } from '../lib/midi-utils';
 
 interface SettingsModalProps {
   show: boolean;
@@ -36,10 +37,9 @@ interface SettingsModalProps {
     isConnecting: boolean;
     lastMessage: MidiMessage | null;
   };
-  setIsRangeManuallySet?: (val: boolean) => void;
 }
 
-export function SettingsModal({ onClose, midiProps, setIsRangeManuallySet }: SettingsModalProps) {
+export function SettingsModal({ onClose, midiProps }: SettingsModalProps) {
   const locale = useLocale();
   const theme = useTheme();
   const instrument = useInstrument();
@@ -49,7 +49,8 @@ export function SettingsModal({ onClose, midiProps, setIsRangeManuallySet }: Set
 
   const { 
     setLocale, setTheme, setInstrument, 
-    setKeyboardRange, setShowNoteNames, setShowKeymap
+    setKeyboardRange, setShowNoteNames, setShowKeymap,
+    setIsRangeManuallySet
   } = useAppActions();
 
   const t = translations[locale] || translations.en;

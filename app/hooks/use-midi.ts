@@ -1,5 +1,6 @@
 // app/hooks/use-midi.ts v1.7.2
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { applyVelocityCurve, parseMidiMessage, VelocityCurve } from '../lib/midi-utils';
 
 export interface MidiDevice {
   id: string;
@@ -15,7 +16,7 @@ export interface MidiMessage {
   timestamp: number;
 }
 
-export type VelocityCurve = 'linear' | 'log' | 'exp' | 'fixed';
+export type { VelocityCurve };
 
 export function useMidi() {
   const [inputs, setInputs] = useState<MidiDevice[]>([]);
@@ -30,7 +31,6 @@ export function useMidi() {
   const [activeNotes, setActiveNotes] = useState<Map<number, number>>(new Map());
   const midiAccessRef = useRef<WebMidi.MIDIAccess | null>(null);
 
-  // Use refs to keep track of latest settings inside event listeners
   const settingsRef = useRef({
     selectedInputId,
     midiChannel,
@@ -47,128 +47,65 @@ export function useMidi() {
     };
   }, [selectedInputId, midiChannel, velocityCurve, transpose]);
 
-  const applyVelocityCurve = useCallback((velocity: number, curve: VelocityCurve): number => {
-    const norm = velocity / 127;
-    switch (curve) {
-      case 'log':
-        return Math.pow(norm, 0.5) * 127;
-      case 'exp':
-        return Math.pow(norm, 2) * 127;
-      case 'fixed':
-        return 100;
-      case 'linear':
-      default:
-        return velocity;
-    }
-  }, []);
-
   const onMidiMessage = useCallback((event: WebMidi.MIDIMessageEvent) => {
     const { selectedInputId, midiChannel, velocityCurve, transpose } = settingsRef.current;
-
     const inputId = (event.target as WebMidi.MIDIInput)?.id;
-    if (selectedInputId && selectedInputId !== 'all' && inputId && inputId !== selectedInputId) {
-      return;
-    }
+    
+    if (selectedInputId && selectedInputId !== 'all' && inputId && inputId !== selectedInputId) return;
 
-    if (!event.data || event.data.length < 3) return;
+    const parsed = parseMidiMessage(event);
+    if (!parsed) return;
 
-    const [statusByte, data1, data2] = event.data;
-    const command = statusByte & 0xf0;
-    const channel = (statusByte & 0x0f) + 1;
+    const { command, channel, note: rawNote, velocity: rawVelocity, timestamp } = parsed;
 
-    if (midiChannel !== 'all' && channel !== midiChannel) {
-      return;
-    }
+    if (midiChannel !== 'all' && channel !== midiChannel) return;
 
     if (command === 0x90 || command === 0x80) {
-      let note = data1;
-      let velocity = data2;
-
-      note = Math.max(0, Math.min(127, note + transpose));
+      const note = Math.max(0, Math.min(127, rawNote + transpose));
+      let velocity = rawVelocity;
 
       if (command === 0x90 && velocity > 0) {
         velocity = Math.round(applyVelocityCurve(velocity, velocityCurve));
       }
 
-      setLastMessage({
-        command,
-        note,
-        velocity,
-        channel,
-        timestamp: event.timeStamp,
-      });
+      setLastMessage({ command, note, velocity, channel, timestamp });
 
       if (command === 0x90 && velocity > 0) {
-        setActiveNotes(prev => {
-          const next = new Map(prev);
-          next.set(note, velocity / 127);
-          return next;
-        });
-      }
-      else {
+        setActiveNotes(prev => new Map(prev).set(note, velocity / 127));
+      } else {
         setActiveNotes(prev => {
           const next = new Map(prev);
           next.delete(note);
           return next;
         });
       }
-    }
-    else if (command === 0xE0) {
-      // Pitch Bend
-      const value = (data2 << 7 | data1) / 16383; // 0 to 1
-      import('../lib/audio').then(audio => {
-        audio.setPitchBend(value);
-      });
-    }
-    else if (command === 0xB0) {
-      // Control Change
-      if (data1 === 1) {
-        // Modulation
-        import('../lib/audio').then(audio => {
-          audio.setModulation(data2 / 127);
-        });
-      }
-      else if (data1 === 7 || data1 === 11) {
-        // Volume or Expression
-        import('../lib/audio').then(audio => {
-          audio.setExpression(data2 / 127);
-        });
-      }
-      else if (data1 === 64) {
-        // Sustain Pedal
-        import('../lib/audio').then(audio => {
-          audio.setSustainPedal(data2 >= 64);
-        });
-      }
-      else if (data1 === 123 || data1 === 121) {
-        // All notes off
+    } else if (command === 0xE0) {
+      const value = (rawVelocity << 7 | rawNote) / 16383;
+      import('../lib/audio').then(audio => audio.setPitchBend(value));
+    } else if (command === 0xB0) {
+      if (rawNote === 1) {
+        import('../lib/audio').then(audio => audio.setModulation(rawVelocity / 127));
+      } else if (rawNote === 7 || rawNote === 11) {
+        import('../lib/audio').then(audio => audio.setExpression(rawVelocity / 127));
+      } else if (rawNote === 64) {
+        import('../lib/audio').then(audio => audio.setSustainPedal(rawVelocity >= 64));
+      } else if (rawNote === 123 || rawNote === 121) {
         setActiveNotes(new Map());
       }
     }
-  }, [applyVelocityCurve]);
+  }, []);
 
   const updateDevices = useCallback((access: WebMidi.MIDIAccess) => {
     const inputList: MidiDevice[] = [];
     const outputList: MidiDevice[] = [];
 
     try {
-      const inputsIter = access.inputs.values();
-      for (let input = inputsIter.next(); !input.done; input = inputsIter.next()) {
-        inputList.push({
-          id: input.value.id,
-          name: input.value.name || 'Unknown Input Device',
-          manufacturer: input.value.manufacturer,
-        });
-      }
-
-      const outputsIter = access.outputs.values();
-      for (let output = outputsIter.next(); !output.done; output = outputsIter.next()) {
-        outputList.push({
-          id: output.value.id,
-          name: output.value.name || 'Unknown Output Device',
-          manufacturer: output.value.manufacturer,
-        });
-      }
+      access.inputs.forEach(input => {
+        inputList.push({ id: input.id, name: input.name || 'Unknown Input Device', manufacturer: input.manufacturer });
+      });
+      access.outputs.forEach(output => {
+        outputList.push({ id: output.id, name: output.name || 'Unknown Output Device', manufacturer: output.manufacturer });
+      });
     } catch (e) {
       console.error('Error enumerating MIDI devices:', e);
     }
@@ -195,17 +132,12 @@ export function useMidi() {
     if (isMounted()) setIsConnecting(true);
 
     try {
-      // If we already have access, try to refresh it first
-      if (midiAccessRef.current) {
-        updateDevices(midiAccessRef.current);
-      }
+      if (midiAccessRef.current) updateDevices(midiAccessRef.current);
 
       let access: WebMidi.MIDIAccess;
       try {
-        // Requesting access again is the only way to trigger the browser prompt if it was dismissed
         access = await navigator.requestMIDIAccess({ sysex: true }) as unknown as WebMidi.MIDIAccess;
-      } catch (e) {
-        console.warn('MIDI access with sysex failed, trying without', e);
+      } catch {
         access = await navigator.requestMIDIAccess({ sysex: false }) as unknown as WebMidi.MIDIAccess;
       }
 
@@ -216,22 +148,14 @@ export function useMidi() {
       updateDevices(access);
       
       const attachListeners = () => {
-        try {
-          const inputsIter = access.inputs.values();
-          for (let input = inputsIter.next(); !input.done; input = inputsIter.next()) {
-            // Remove old listener if any to avoid duplicates
-            input.value.onmidimessage = null;
-            input.value.onmidimessage = onMidiMessage;
-          }
-        } catch (e) {
-          console.error('Error attaching MIDI listeners:', e);
-        }
+        access.inputs.forEach(input => {
+          input.onmidimessage = onMidiMessage;
+        });
       };
 
       attachListeners();
 
-      access.onstatechange = (e: WebMidi.MIDIConnectionEvent) => {
-        console.log('MIDI state change:', e.port.name, e.port.state);
+      access.onstatechange = () => {
         if (isMounted()) {
           updateDevices(access);
           attachListeners();
@@ -241,7 +165,7 @@ export function useMidi() {
       if (isMounted()) setIsConnecting(false);
       return true;
     } catch (err) {
-      console.error('MIDI access completely denied or failed', err);
+      console.error('MIDI access failed', err);
       if (isMounted()) {
         setIsSupported(false);
         setIsConnecting(false);
@@ -253,47 +177,22 @@ export function useMidi() {
   useEffect(() => {
     let mounted = true;
     const isMounted = () => mounted;
-    
-    const init = async () => {
-      // On initial load, we call it. If it fails due to no gesture, isSupported becomes false.
-      // This is expected. The user can then click the "Connect" button.
-      await connectMidi(isMounted);
-    };
-    
-    init();
+    connectMidi(isMounted);
 
     return () => {
       mounted = false;
       if (midiAccessRef.current) {
         midiAccessRef.current.onstatechange = null;
-        try {
-          const inputsIter = midiAccessRef.current.inputs.values();
-          for (let input = inputsIter.next(); !input.done; input = inputsIter.next()) {
-            input.value.onmidimessage = null;
-          }
-        } catch {
-          // Ignore
-        }
+        midiAccessRef.current.inputs.forEach(input => {
+          input.onmidimessage = null;
+        });
       }
     };
   }, [connectMidi]);
 
   return {
-    inputs,
-    outputs,
-    selectedInputId,
-    setSelectedInputId,
-    midiChannel,
-    setMidiChannel,
-    velocityCurve,
-    setVelocityCurve,
-    transpose,
-    setTranspose,
-    lastMessage,
-    isSupported,
-    isConnecting,
-    activeNotes,
-    setActiveNotes,
-    connectMidi,
+    inputs, outputs, selectedInputId, setSelectedInputId, midiChannel, setMidiChannel,
+    velocityCurve, setVelocityCurve, transpose, setTranspose, lastMessage,
+    isSupported, isConnecting, activeNotes, setActiveNotes, connectMidi,
   };
 }

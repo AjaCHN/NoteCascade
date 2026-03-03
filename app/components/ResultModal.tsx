@@ -8,17 +8,13 @@ import { Song } from '../lib/songs';
 import { translations } from '../lib/translations';
 import { useLocale } from '../lib/store';
 
+import { ScoreRecord } from '../lib/store/types';
+
 interface ResultModalProps {
   show: boolean;
   onClose: () => void;
   onRetry: () => void;
-  score: {
-    perfect: number;
-    good: number;
-    miss: number;
-    wrong: number;
-    currentScore: number;
-  };
+  score: ScoreRecord;
   song: Song;
 }
 
@@ -80,7 +76,7 @@ export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps)
         <div className="grid grid-cols-2 gap-4 mb-10">
           <div className="bg-slate-800/50 rounded-3xl p-6 border border-slate-700/50">
             <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">{t.totalScore}</div>
-            <div className="text-3xl font-black text-white tabular-nums">{score.currentScore.toLocaleString()}</div>
+            <div className="text-3xl font-black text-white tabular-nums">{score.score.toLocaleString()}</div>
           </div>
           <div className="bg-slate-800/50 rounded-3xl p-6 border border-slate-700/50">
             <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">{t.accuracy}</div>

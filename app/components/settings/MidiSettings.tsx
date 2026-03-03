@@ -3,7 +3,8 @@
 
 import React from 'react';
 import { Cpu, Zap, Check, AlertCircle, Sliders, RefreshCw } from 'lucide-react';
-import { MidiDevice, VelocityCurve, MidiMessage } from '../../hooks/use-midi';
+import { MidiDevice, MidiMessage } from '../../hooks/use-midi';
+import { VelocityCurve } from '../../lib/midi-utils';
 
 interface MidiSettingsProps {
   t: Record<string, string>;

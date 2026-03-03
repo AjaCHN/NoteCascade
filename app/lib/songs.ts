@@ -1,31 +1,9 @@
 // app/lib/songs.ts v1.7.2
 import { Midi } from '@tonejs/midi';
 import { generatedSongs } from './songs/index';
+import { Note, UnlockCondition, Song } from './songs/types';
 
-export interface Note {
-  midi: number;
-  time: number;
-  duration: number;
-  velocity: number;
-}
-
-export interface UnlockCondition {
-  type: 'achievement' | 'score' | 'level';
-  value: string | number;
-  description: string;
-}
-
-export interface Song {
-  id: string;
-  title: string;
-  artist: string;
-  difficulty: number;
-  midiUrl: string;
-  style?: string;
-  duration?: number;
-  notes?: Note[];
-  unlockCondition?: UnlockCondition;
-}
+export type { Note, UnlockCondition, Song };
 
 export const builtInSongs: Song[] = generatedSongs;
 

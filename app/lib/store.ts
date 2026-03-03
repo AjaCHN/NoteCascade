@@ -1,75 +1,12 @@
 // app/lib/store.ts v1.7.2
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { Locale } from './translations';
 import { builtInSongs, Song } from './songs';
 import { INITIAL_ACHIEVEMENTS } from './achievements-data';
+import { AppState, Achievement, ScoreRecord, Theme, Instrument, PlayMode } from './store/types';
+import { checkAchievementsLogic } from './store/achievement-logic';
 
-export interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  unlockedAt?: number;
-  progress?: number;
-  maxProgress?: number;
-  category?: 'practice' | 'skill' | 'collection';
-}
-
-export interface ScoreRecord {
-  songId: string;
-  score: number;
-  maxScore: number;
-  accuracy: number;
-  perfect: number;
-  good: number;
-  miss: number;
-  wrong: number;
-  maxCombo: number;
-  date: number;
-}
-
-export type Theme = 'dark' | 'light' | 'cyber' | 'classic';
-export type Instrument = 'piano' | 'synth' | 'epiano' | 'strings';
-export type PlayMode = 'perform' | 'demo' | 'practice' | 'free';
-
-interface AppState {
-  achievements: Achievement[];
-  scores: ScoreRecord[];
-  totalPracticeTime: number; // in seconds
-  dailyStreak: number;
-  lastPracticeDate: string | null; // YYYY-MM-DD
-  totalNotesHit: number;
-  songsCompleted: number;
-  locale: Locale;
-  theme: Theme;
-  instrument: Instrument;
-  playMode: PlayMode;
-  keyboardRange: { start: number; end: number };
-  showNoteNames: boolean;
-  showKeymap: boolean;
-  metronomeEnabled: boolean;
-  metronomeBpm: number;
-  metronomeBeats: number;
-  actions: {
-    unlockAchievement: (id: string) => void;
-    addScore: (score: ScoreRecord) => void;
-    incrementPracticeTime: (seconds: number) => void;
-    setLocale: (locale: Locale) => void;
-    setTheme: (theme: Theme) => void;
-    setInstrument: (instrument: Instrument) => void;
-    setPlayMode: (mode: PlayMode) => void;
-    setKeyboardRange: (start: number, end: number) => void;
-    setShowNoteNames: (show: boolean) => void;
-    setShowKeymap: (show: boolean) => void;
-    setMetronomeEnabled: (enabled: boolean) => void;
-    setMetronomeBpm: (bpm: number) => void;
-    setMetronomeBeats: (beats: number) => void;
-    resetProgress: () => void;
-    checkAchievements: () => void;
-    updateStreak: () => void;
-  };
-}
+export type { Achievement, ScoreRecord, Theme, Instrument, PlayMode };
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -88,6 +25,7 @@ export const useAppStore = create<AppState>()(
       keyboardRange: { start: 48, end: 84 },
       showNoteNames: true,
       showKeymap: true,
+      isRangeManuallySet: false,
       metronomeEnabled: false,
       metronomeBpm: 120,
       metronomeBeats: 4,
@@ -114,22 +52,14 @@ export const useAppStore = create<AppState>()(
           get().actions.checkAchievements();
         },
         incrementPracticeTime: (seconds) => {
-          set((state) => ({
-            totalPracticeTime: state.totalPracticeTime + seconds,
-          }));
-          // Check time-based achievements periodically
-          if (get().totalPracticeTime % 60 === 0) {
-             get().actions.checkAchievements();
-          }
+          set((state) => ({ totalPracticeTime: state.totalPracticeTime + seconds }));
+          if (get().totalPracticeTime % 60 === 0) get().actions.checkAchievements();
         },
         updateStreak: () => {
           const today = new Date().toISOString().split('T')[0];
           const state = get();
-          
           if (state.lastPracticeDate === today) return;
-
           const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-          
           if (state.lastPracticeDate === yesterday) {
             set({ dailyStreak: state.dailyStreak + 1, lastPracticeDate: today });
           } else {
@@ -138,66 +68,8 @@ export const useAppStore = create<AppState>()(
         },
         checkAchievements: () => {
           const state = get();
-          const { scores, totalPracticeTime, dailyStreak, totalNotesHit, achievements } = state;
-          const lastScore = scores[0]; // Most recent score
-
-          const newAchievements = achievements.map(ach => {
-            if (ach.unlockedAt) return ach;
-
-            let unlocked = false;
-            let progress = ach.progress || 0;
-
-            switch (ach.id) {
-              case 'first_song':
-                if (scores.length > 0) unlocked = true;
-                break;
-              case 'perfect_10':
-                if (lastScore && lastScore.perfect >= 10) unlocked = true; // Simplified check, ideally needs consecutive tracking in game
-                break;
-              case 'practice_1h':
-                progress = totalPracticeTime;
-                if (totalPracticeTime >= 3600) unlocked = true;
-                break;
-              case 'score_90':
-                if (lastScore && lastScore.accuracy >= 0.9) unlocked = true;
-                break;
-              case 'play_3_styles':
-                const styles = new Set(scores.map(s => {
-                  const song = builtInSongs.find(song => song.id === s.songId);
-                  return song?.style;
-                }).filter(Boolean));
-                progress = styles.size;
-                if (styles.size >= 3) unlocked = true;
-                break;
-              case 'streak_3':
-                progress = dailyStreak;
-                if (dailyStreak >= 3) unlocked = true;
-                break;
-              case 'notes_1000':
-                progress = totalNotesHit;
-                if (totalNotesHit >= 1000) unlocked = true;
-                break;
-              case 'full_combo':
-                if (lastScore && lastScore.miss === 0 && lastScore.wrong === 0) unlocked = true;
-                break;
-              case 'early_bird':
-                const hour = new Date().getHours();
-                if (hour < 8 && lastScore) unlocked = true;
-                break;
-              case 'night_owl':
-                const hourOwl = new Date().getHours();
-                if (hourOwl >= 22 && lastScore) unlocked = true;
-                break;
-            }
-
-            if (unlocked) {
-              return { ...ach, unlockedAt: Date.now(), progress: ach.maxProgress || progress };
-            }
-            return { ...ach, progress };
-          });
-
-          // Only update if changes
-          if (JSON.stringify(newAchievements) !== JSON.stringify(achievements)) {
+          const newAchievements = checkAchievementsLogic(state);
+          if (JSON.stringify(newAchievements) !== JSON.stringify(state.achievements)) {
             set({ achievements: newAchievements });
           }
         },
@@ -206,6 +78,7 @@ export const useAppStore = create<AppState>()(
         setInstrument: (instrument) => set({ instrument }),
         setPlayMode: (playMode) => set({ playMode }),
         setKeyboardRange: (start, end) => set({ keyboardRange: { start, end } }),
+        setIsRangeManuallySet: (isRangeManuallySet) => set({ isRangeManuallySet }),
         setShowNoteNames: (showNoteNames) => set({ showNoteNames }),
         setShowKeymap: (showKeymap) => set({ showKeymap }),
         setMetronomeEnabled: (metronomeEnabled) => set({ metronomeEnabled }),
@@ -213,75 +86,42 @@ export const useAppStore = create<AppState>()(
         setMetronomeBeats: (metronomeBeats) => set({ metronomeBeats }),
         resetProgress: () =>
           set({
-            achievements: INITIAL_ACHIEVEMENTS,
-            scores: [],
-            totalPracticeTime: 0,
-            dailyStreak: 0,
-            lastPracticeDate: null,
-            totalNotesHit: 0,
-            songsCompleted: 0,
-            locale: 'en',
-            theme: 'dark',
-            instrument: 'piano',
-            playMode: 'perform',
-            keyboardRange: { start: 48, end: 84 },
-            showNoteNames: true,
-            showKeymap: true,
-            metronomeEnabled: false,
-            metronomeBpm: 120,
-            metronomeBeats: 4,
+            achievements: INITIAL_ACHIEVEMENTS, scores: [], totalPracticeTime: 0, dailyStreak: 0,
+            lastPracticeDate: null, totalNotesHit: 0, songsCompleted: 0, locale: 'en',
+            theme: 'dark', instrument: 'piano', playMode: 'perform',
+            keyboardRange: { start: 48, end: 84 }, showNoteNames: true, showKeymap: true,
+            isRangeManuallySet: false, metronomeEnabled: false, metronomeBpm: 120, metronomeBeats: 4,
           }),
       },
     }),
     {
       name: 'notecascade-storage',
       storage: createJSONStorage(() => typeof window !== 'undefined' ? window.localStorage : {
-        getItem: () => null,
-        setItem: () => {},
-        removeItem: () => {},
+        getItem: () => null, setItem: () => {}, removeItem: () => {},
       } as unknown as Storage),
       partialize: (state) => ({
-        achievements: state.achievements,
-        scores: state.scores,
-        totalPracticeTime: state.totalPracticeTime,
-        dailyStreak: state.dailyStreak,
-        lastPracticeDate: state.lastPracticeDate,
-        totalNotesHit: state.totalNotesHit,
-        songsCompleted: state.songsCompleted,
-        locale: state.locale,
-        theme: state.theme,
-        keyboardRange: state.keyboardRange,
-        showNoteNames: state.showNoteNames,
-        showKeymap: state.showKeymap,
-        metronomeEnabled: state.metronomeEnabled,
-        metronomeBpm: state.metronomeBpm,
-        metronomeBeats: state.metronomeBeats,
+        achievements: state.achievements, scores: state.scores, totalPracticeTime: state.totalPracticeTime,
+        dailyStreak: state.dailyStreak, lastPracticeDate: state.lastPracticeDate, totalNotesHit: state.totalNotesHit,
+        songsCompleted: state.songsCompleted, locale: state.locale, theme: state.theme,
+        keyboardRange: state.keyboardRange, isRangeManuallySet: state.isRangeManuallySet,
+        showNoteNames: state.showNoteNames, showKeymap: state.showKeymap,
+        metronomeEnabled: state.metronomeEnabled, metronomeBpm: state.metronomeBpm, metronomeBeats: state.metronomeBeats,
       }),
       merge: (persistedState, currentState) => {
-        // Merge logic to ensure new achievements are added to persisted state
         const persisted = persistedState as AppState;
         const mergedAchievements = [...INITIAL_ACHIEVEMENTS];
-        
         if (persisted && persisted.achievements) {
           persisted.achievements.forEach(pAch => {
             const index = mergedAchievements.findIndex(a => a.id === pAch.id);
-            if (index !== -1) {
-              mergedAchievements[index] = { ...mergedAchievements[index], ...pAch };
-            }
+            if (index !== -1) mergedAchievements[index] = { ...mergedAchievements[index], ...pAch };
           });
         }
-        
-        return {
-          ...currentState,
-          ...persisted,
-          achievements: mergedAchievements,
-        };
+        return { ...currentState, ...persisted, achievements: mergedAchievements };
       },
     }
   )
 );
 
-// Helper hooks for easier access
 export const useAchievements = () => useAppStore((state) => state.achievements);
 export const useScores = () => useAppStore((state) => state.scores);
 export const useLocale = () => useAppStore((state) => state.locale);
@@ -291,6 +131,7 @@ export const usePlayMode = () => useAppStore((state) => state.playMode);
 export const useKeyboardRange = () => useAppStore((state) => state.keyboardRange);
 export const useShowNoteNames = () => useAppStore((state) => state.showNoteNames);
 export const useShowKeymap = () => useAppStore((state) => state.showKeymap);
+export const useIsRangeManuallySet = () => useAppStore((state) => state.isRangeManuallySet);
 export const useMetronomeEnabled = () => useAppStore((state) => state.metronomeEnabled);
 export const useMetronomeBpm = () => useAppStore((state) => state.metronomeBpm);
 export const useMetronomeBeats = () => useAppStore((state) => state.metronomeBeats);
@@ -298,9 +139,7 @@ export const useAppActions = () => useAppStore((state) => state.actions);
 
 export function getNextSong(currentSong: Song): Song {
   const currentIndex = builtInSongs.findIndex(s => s.id === currentSong.id);
-  if (currentIndex === -1) {
-    return builtInSongs[0];
-  }
-  const nextIndex = (currentIndex + 1) % builtInSongs.length;
-  return builtInSongs[nextIndex];
+  if (currentIndex === -1) return builtInSongs[0];
+  return builtInSongs[(currentIndex + 1) % builtInSongs.length];
 }
+

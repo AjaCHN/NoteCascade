@@ -1,5 +1,5 @@
 // app/lib/songs/index.ts v1.7.2
-import type { Song } from '../songs';
+import { Song } from './types';
 import { parseMelody } from './utils';
 import { classicSongs } from './classic';
 import { holidaySongs } from './holiday';

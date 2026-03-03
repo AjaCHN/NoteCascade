@@ -3,15 +3,16 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import * as Tone from 'tone';
 import { Song, builtInSongs } from '../lib/songs';
 import { useAppActions, usePlayMode, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, getNextSong } from '../lib/store';
+import { ScoreRecord } from '../lib/store/types';
 import { initAudio, startTransport, stopTransport, clearScheduledEvents, ensureAudioContext, setMetronome, scheduleNote, resetAudioEffects } from '../lib/audio';
+
+import { usePracticeLogic } from './use-practice-logic';
 
 export function useGameLogic(
   activeNotes: Map<number, number>,
   setActiveNotes: React.Dispatch<React.SetStateAction<Map<number, number>>>
 ) {
-  const { 
-    addScore, incrementPracticeTime, updateStreak
-  } = useAppActions();
+  const { addScore, incrementPracticeTime, updateStreak } = useAppActions();
   const playMode = usePlayMode();
   const metronomeEnabled = useMetronomeEnabled();
   const metronomeBpm = useMetronomeBpm();
@@ -21,15 +22,39 @@ export function useGameLogic(
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [showResult, setShowResult] = useState(false);
-  const [lastScore, setLastScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
+  const [lastScore, setLastScore] = useState<ScoreRecord>({
+    songId: '',
+    score: 0,
+    maxScore: 0,
+    accuracy: 0,
+    perfect: 0,
+    good: 0,
+    miss: 0,
+    wrong: 0,
+    maxCombo: 0,
+    date: 0
+  });
   const latestScoreRef = useRef(lastScore);
+
+  const { handlePracticePause } = usePracticeLogic(playMode, selectedSong, activeNotes);
 
   const resetSong = useCallback(() => {
     setIsPlaying(false);
     stopTransport();
     resetAudioEffects();
     setCurrentTime(0);
-    setLastScore({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
+    setLastScore({
+      songId: '',
+      score: 0,
+      maxScore: 0,
+      accuracy: 0,
+      perfect: 0,
+      good: 0,
+      miss: 0,
+      wrong: 0,
+      maxCombo: 0,
+      date: 0
+    });
   }, []);
 
   useEffect(() => {
@@ -54,6 +79,14 @@ export function useGameLogic(
     syncMetronome();
   }, [metronomeEnabled, metronomeBpm, metronomeBeats, isPlaying]);
 
+  const handleScoreUpdate = useCallback((scoreData: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => {
+    setLastScore(prev => ({
+      ...prev,
+      ...scoreData,
+      score: scoreData.currentScore
+    }));
+  }, []);
+
   const handleSongEnd = useCallback(() => {
     if (playMode === 'demo' || playMode === 'free') {
       setIsPlaying(false);
@@ -64,12 +97,11 @@ export function useGameLogic(
     const currentScoreData = latestScoreRef.current;
     const totalNotes = currentScoreData.perfect + currentScoreData.good + currentScoreData.miss + currentScoreData.wrong;
     const accuracy = totalNotes > 0 ? (currentScoreData.perfect + currentScoreData.good) / totalNotes : 0;
-
     const maxScore = (selectedSong.notes?.length || 0) * 100;
 
     addScore({
       songId: selectedSong.id,
-      score: currentScoreData.currentScore,
+      score: currentScoreData.score,
       maxScore,
       accuracy,
       perfect: currentScoreData.perfect,
@@ -82,11 +114,7 @@ export function useGameLogic(
 
     if (accuracy > 0.8) {
       import('canvas-confetti').then((confetti) => {
-        confetti.default({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
+        confetti.default({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       });
     }
     
@@ -98,35 +126,27 @@ export function useGameLogic(
     if (isPlaying) {
       setIsPlaying(false);
       stopTransport();
+      resetAudioEffects();
       clearScheduledEvents();
       setActiveNotes(new Map());
     } else {
       await initAudio();
       await ensureAudioContext();
       
-      if (currentTime >= (selectedSong.duration || 0)) {
-        setCurrentTime(0);
-      }
+      if (currentTime >= (selectedSong.duration || 0)) setCurrentTime(0);
       Tone.Transport.seconds = currentTime;
 
-      // Schedule notes for Demo mode
       if (playMode === 'demo') {
         clearScheduledEvents();
         selectedSong.notes?.forEach(note => {
           scheduleNote(
             note,
-            () => {
-              // On Start
-              setActiveNotes(prev => new Map(prev).set(note.midi, note.velocity));
-            },
-            () => {
-              // On End
-              setActiveNotes(prev => {
-                const next = new Map(prev);
-                next.delete(note.midi);
-                return next;
-              });
-            }
+            () => setActiveNotes(prev => new Map(prev).set(note.midi, note.velocity)),
+            () => setActiveNotes(prev => {
+              const next = new Map(prev);
+              next.delete(note.midi);
+              return next;
+            })
           );
         });
       }
@@ -144,71 +164,35 @@ export function useGameLogic(
     prevActiveNotesSize.current = activeNotes.size;
   }, [activeNotes.size, isPlaying, togglePlay]);
 
-  // Update currentTime from Transport
   useEffect(() => {
     let animationFrame: number;
     const updateTime = () => {
       if (isPlaying) {
         let time = Tone.Transport.seconds;
-
-        // Practice Mode Logic
-        if (playMode === 'practice') {
-           // Find notes that are "current" (within a small window)
-           const notesToHit = selectedSong.notes?.filter(n => 
-              n.time >= time - 0.05 && 
-              n.time <= time + 0.05
-           ) || [];
-           
-           const allHit = notesToHit.every(n => activeNotes.has(n.midi));
-           
-           if (notesToHit.length > 0 && !allHit) {
-              if (Tone.Transport.state === 'started') {
-                 Tone.Transport.pause();
-              }
-              // Snap to the note time
-              const firstUnhit = notesToHit.find(n => !activeNotes.has(n.midi));
-              if (firstUnhit) {
-                 time = firstUnhit.time;
-                 if (Math.abs(Tone.Transport.seconds - time) > 0.001) {
-                    Tone.Transport.seconds = time;
-                 }
-              }
-           } else {
-              if (Tone.Transport.state === 'paused') {
-                 Tone.Transport.start();
-              }
-           }
-        }
-
+        time = handlePracticePause(time);
         setCurrentTime(time);
         
         if (time >= (selectedSong.duration || 0)) {
            setIsPlaying(false);
            stopTransport();
+           resetAudioEffects();
            clearScheduledEvents();
            handleSongEnd();
            setActiveNotes(new Map());
            return;
         }
-
         animationFrame = requestAnimationFrame(updateTime);
       }
     };
     
-    if (isPlaying) {
-      updateTime();
-    }
-    
+    if (isPlaying) updateTime();
     return () => cancelAnimationFrame(animationFrame);
-  }, [isPlaying, selectedSong, handleSongEnd, setActiveNotes, playMode, activeNotes]);
+  }, [isPlaying, selectedSong, handleSongEnd, setActiveNotes, playMode, activeNotes, handlePracticePause]);
 
-  // Practice time accumulator (approximate)
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPlaying && (playMode === 'perform' || playMode === 'practice')) {
-      interval = setInterval(() => {
-        incrementPracticeTime(1);
-      }, 1000);
+      interval = setInterval(() => incrementPracticeTime(1), 1000);
     }
     return () => clearInterval(interval);
   }, [isPlaying, playMode, incrementPracticeTime]);
@@ -222,16 +206,8 @@ export function useGameLogic(
   }, [selectedSong, resetSong]);
 
   return {
-    selectedSong,
-    setSelectedSong,
-    isPlaying,
-    currentTime,
-    showResult,
-    setShowResult,
-    lastScore,
-    setLastScore,
-    togglePlay,
-    resetSong,
-    handleNextSong
+    selectedSong, setSelectedSong, isPlaying, currentTime, showResult, setShowResult,
+    lastScore, setLastScore: handleScoreUpdate, togglePlay, resetSong, handleNextSong
   };
 }
+
