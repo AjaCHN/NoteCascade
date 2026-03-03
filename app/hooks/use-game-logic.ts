@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import * as Tone from 'tone';
 import { Song, builtInSongs } from '../lib/songs';
 import { useAppActions, usePlayMode, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, getNextSong } from '../lib/store';
-import { initAudio, startTransport, stopTransport, clearScheduledEvents, ensureAudioContext, setMetronome, scheduleNote } from '../lib/audio';
+import { initAudio, startTransport, stopTransport, clearScheduledEvents, ensureAudioContext, setMetronome, scheduleNote, resetAudioEffects } from '../lib/audio';
 
 export function useGameLogic(
   activeNotes: Map<number, number>,
@@ -27,6 +27,7 @@ export function useGameLogic(
   const resetSong = useCallback(() => {
     setIsPlaying(false);
     stopTransport();
+    resetAudioEffects();
     setCurrentTime(0);
     setLastScore({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
   }, []);

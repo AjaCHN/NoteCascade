@@ -43,6 +43,12 @@ export const setExpression = (value: number) => {
   }
 };
 
+export const resetAudioEffects = () => {
+  setPitchBend(0.5);
+  setModulation(0);
+  setExpression(1);
+};
+
 export const initAudio = async () => {
   await Tone.start();
   
