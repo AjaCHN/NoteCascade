@@ -80,6 +80,8 @@ export const en = {
     demo: 'Demo',
     freePlay: 'Free Play',
     perform: 'Perform',
+    pressKeyToStart: 'Press any key to start practice',
+    feelFreeToPlay: 'Feel free to play',
     keyboardRange: 'Keyboard Range',
     keys: 'Keys',
     showNoteNames: 'Show Note Names',

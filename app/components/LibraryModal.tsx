@@ -12,11 +12,12 @@ import { Song } from '../lib/songs';
 interface LibraryModalProps {
   show: boolean;
   onClose: () => void;
-  onSelectSong: (song: Song) => void;
+  onPlayPractice: (song: Song) => void;
+  onPlayDemo: (song: Song) => void;
   selectedSongId: string;
 }
 
-export function LibraryModal({ show, onClose, onSelectSong, selectedSongId }: LibraryModalProps) {
+export function LibraryModal({ show, onClose, onPlayPractice, onPlayDemo, selectedSongId }: LibraryModalProps) {
   const locale = useLocale();
   const t = translations[locale] || translations.en;
   const [activeTab, setActiveTab] = useState<'songs' | 'achievements'>('songs');
@@ -71,8 +72,12 @@ export function LibraryModal({ show, onClose, onSelectSong, selectedSongId }: Li
               {activeTab === 'songs' ? (
                 <div className="h-full w-full bg-slate-50/50 dark:bg-slate-950/50">
                   <SongSelector 
-                    onSelect={(song) => {
-                      onSelectSong(song);
+                    onPlayPractice={(song) => {
+                      onPlayPractice(song);
+                      onClose();
+                    }}
+                    onPlayDemo={(song) => {
+                      onPlayDemo(song);
                       onClose();
                     }}
                     selectedSongId={selectedSongId}

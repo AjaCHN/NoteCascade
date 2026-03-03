@@ -182,7 +182,8 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
             unlocked={isSongUnlocked(song)}
             highScore={getHighScore(song.id)}
             unlockDescription={getUnlockDescription(song.unlockCondition)}
-            onSelect={onSelect}
+            onPlayPractice={onPlayPractice}
+            onPlayDemo={onPlayDemo}
             t={t}
           />
         )) : (
