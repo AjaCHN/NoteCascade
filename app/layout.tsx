@@ -1,4 +1,4 @@
-// app/layout.tsx v1.7.2
+// app/layout.tsx v1.7.3
 import type {Metadata, Viewport} from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';

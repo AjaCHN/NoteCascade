@@ -1,4 +1,4 @@
-// app/components/AppHeader.tsx v1.7.2
+// app/components/AppHeader.tsx v1.7.3
 'use client';
 
 import React, { useState } from 'react';
@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { 
-  useLocale, useAppActions,
+  useLocale, useAppActions, usePlayMode,
   useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats
 } from '../lib/store';
 import pkg from '../../package.json';
@@ -52,7 +52,8 @@ export function AppHeader({
   const metronomeEnabled = useMetronomeEnabled();
   const metronomeBpm = useMetronomeBpm();
   const metronomeBeats = useMetronomeBeats();
-  const { setMetronomeEnabled, setMetronomeBpm, setMetronomeBeats } = useAppActions();
+  const playMode = usePlayMode();
+  const { setMetronomeEnabled, setMetronomeBpm, setMetronomeBeats, setPlayMode } = useAppActions();
   const t = translations[locale] || translations.en;
   const [showAudioControls, setShowAudioControls] = useState(false);
 
@@ -73,9 +74,25 @@ export function AppHeader({
         </div>
       </div>
 
-      {/* Mode Switcher - Removed */}
+      <div className="flex-1 flex justify-center overflow-hidden px-2">
+        <div className="flex items-center gap-1 p-1 rounded-full theme-bg-secondary border theme-border overflow-x-auto custom-scrollbar-mini max-w-full">
+          {(['perform', 'demo', 'practice', 'free'] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setPlayMode(mode)}
+              className={`px-3 md:px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 ${
+                playMode === mode
+                  ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
+                  : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'
+              }`}
+            >
+              {t[mode] || mode}
+            </button>
+          ))}
+        </div>
+      </div>
 
-      <div className="flex items-center gap-2 md:gap-4">
+      <div className="flex items-center gap-2 md:gap-4 shrink-0">
         {/* Audio Controls Button */}
         <div className="relative">
           <button
