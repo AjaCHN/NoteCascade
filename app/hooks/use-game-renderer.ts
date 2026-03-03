@@ -1,4 +1,4 @@
-// app/hooks/use-game-renderer.ts v1.5.2
+// app/hooks/use-game-renderer.ts v1.7.2
 'use client';
 
 import { useEffect, useRef } from 'react';

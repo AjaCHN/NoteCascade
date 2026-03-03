@@ -1,4 +1,4 @@
-// app/lib/achievements-data.ts v1.3.5
+// app/lib/achievements-data.ts v1.7.2
 import { Achievement } from './store';
 
 export const INITIAL_ACHIEVEMENTS: Achievement[] = [

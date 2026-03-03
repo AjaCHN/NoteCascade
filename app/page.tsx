@@ -1,4 +1,4 @@
-// app/page.tsx v1.4.7
+// app/page.tsx v1.7.2
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -71,12 +71,25 @@ export default function MidiPlayApp() {
       const maxMidi = Math.max(...midis);
       
       // Add some padding (e.g., 2-3 notes on each side)
-      const start = Math.max(21, minMidi - 2);
-      const end = Math.min(108, maxMidi + 2);
+      let start = Math.max(21, minMidi - 2);
+      let end = Math.min(108, maxMidi + 2);
+      
+      // Ensure start and end are white keys for better visual rendering
+      while ([1, 3, 6, 8, 10].includes(start % 12) && start > 21) {
+        start--;
+      }
+      while ([1, 3, 6, 8, 10].includes(end % 12) && end < 108) {
+        end++;
+      }
       
       // Ensure at least 25 keys width as requested
       const finalStart = start;
-      const finalEnd = Math.max(start + 24, end); // 24 diff means 25 keys
+      let finalEnd = Math.max(start + 24, end); // 24 diff means 25 keys
+
+      // Ensure finalEnd is also a white key
+      while ([1, 3, 6, 8, 10].includes(finalEnd % 12) && finalEnd < 108) {
+        finalEnd++;
+      }
       
       if (finalStart !== keyboardRange.start || finalEnd !== keyboardRange.end) {
         setKeyboardRange(finalStart, finalEnd);
@@ -235,38 +248,40 @@ export default function MidiPlayApp() {
                     theme={theme}
                   />
 
-                  {/* Floating Controls */}
-                  <div className="absolute top-4 right-4 flex flex-col gap-3 z-40">
-                    <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md p-2 rounded-2xl border theme-border shadow-lg">
-                      <div className="flex items-center gap-1">
-                        <button onClick={resetSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.reset}>
-                          <RotateCcw className="w-4 h-4" />
+                  {/* Floating Controls - Hide in free play mode */}
+                  {playMode !== 'free' && (
+                    <div className="absolute top-4 right-4 flex flex-col gap-3 z-40">
+                      <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md p-2 rounded-2xl border theme-border shadow-lg">
+                        <div className="flex items-center gap-1">
+                          <button onClick={resetSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.reset}>
+                            <RotateCcw className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => { resetSong(); togglePlay(); }} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.retry}>
+                            <RefreshCw className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="w-px h-6 bg-white/10 mx-1"></div>
+                        <button onClick={togglePlay} className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/40 hover:bg-indigo-400 hover:scale-105 active:scale-95 transition-all">
+                          {isPlaying ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current ml-1" />}
                         </button>
-                        <button onClick={() => { resetSong(); togglePlay(); }} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.retry}>
-                          <RefreshCw className="w-4 h-4" />
+                        <div className="w-px h-6 bg-white/10 mx-1"></div>
+                        <button onClick={handleNextSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.nextSong}>
+                          <SkipForward className="w-4 h-4" />
                         </button>
                       </div>
-                      <div className="w-px h-6 bg-white/10 mx-1"></div>
-                      <button onClick={togglePlay} className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/40 hover:bg-indigo-400 hover:scale-105 active:scale-95 transition-all">
-                        {isPlaying ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current ml-1" />}
-                      </button>
-                      <div className="w-px h-6 bg-white/10 mx-1"></div>
-                      <button onClick={handleNextSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.nextSong}>
-                        <SkipForward className="w-4 h-4" />
-                      </button>
-                    </div>
 
-                    {/* Progress Bar */}
-                    <div className="bg-black/40 backdrop-blur-md p-3 rounded-2xl border theme-border shadow-lg w-64">
-                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest theme-text-secondary mb-1.5">
-                        <span>{Math.floor(currentTime / 60)}:{(currentTime % 60).toFixed(0).padStart(2, '0')}</span>
-                        <span>{Math.floor((selectedSong.duration || 0) / 60)}:{((selectedSong.duration || 0) % 60).toFixed(0).padStart(2, '0')}</span>
-                      </div>
-                      <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden border theme-border">
-                        <motion.div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500" style={{ width: `${(currentTime / (selectedSong.duration || 1)) * 100}%` }} />
+                      {/* Progress Bar */}
+                      <div className="bg-black/40 backdrop-blur-md p-3 rounded-2xl border theme-border shadow-lg w-64">
+                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest theme-text-secondary mb-1.5">
+                          <span>{Math.floor(currentTime / 60)}:{(currentTime % 60).toFixed(0).padStart(2, '0')}</span>
+                          <span>{Math.floor((selectedSong.duration || 0) / 60)}:{((selectedSong.duration || 0) % 60).toFixed(0).padStart(2, '0')}</span>
+                        </div>
+                        <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden border theme-border">
+                          <motion.div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500" style={{ width: `${(currentTime / (selectedSong.duration || 1)) * 100}%` }} />
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </>
               )}
             </div>

@@ -1,4 +1,4 @@
-// app/components/SongSelector.tsx v1.3.8
+// app/components/SongSelector.tsx v1.7.2
 'use client';
 
 import React, { useState, useRef } from 'react';

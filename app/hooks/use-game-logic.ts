@@ -1,4 +1,4 @@
-// app/hooks/use-game-logic.ts v1.4.7
+// app/hooks/use-game-logic.ts v1.7.2
 import { useState, useEffect, useCallback, useRef } from 'react';
 import * as Tone from 'tone';
 import { Song, builtInSongs } from '../lib/songs';
@@ -24,9 +24,20 @@ export function useGameLogic(
   const [lastScore, setLastScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
   const latestScoreRef = useRef(lastScore);
 
+  const resetSong = useCallback(() => {
+    setIsPlaying(false);
+    stopTransport();
+    setCurrentTime(0);
+    setLastScore({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
+  }, []);
+
   useEffect(() => {
     latestScoreRef.current = lastScore;
   }, [lastScore]);
+
+  useEffect(() => {
+    resetSong();
+  }, [playMode, resetSong]);
 
   useEffect(() => {
     const syncMetronome = async () => {
@@ -43,7 +54,7 @@ export function useGameLogic(
   }, [metronomeEnabled, metronomeBpm, metronomeBeats, isPlaying]);
 
   const handleSongEnd = useCallback(() => {
-    if (playMode === 'demo') {
+    if (playMode === 'demo' || playMode === 'free') {
       setIsPlaying(false);
       setCurrentTime(0);
       return;
@@ -200,13 +211,6 @@ export function useGameLogic(
     }
     return () => clearInterval(interval);
   }, [isPlaying, playMode, incrementPracticeTime]);
-
-  const resetSong = useCallback(() => {
-    setIsPlaying(false);
-    stopTransport();
-    setCurrentTime(0);
-    setLastScore({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
-  }, []);
 
   const handleNextSong = useCallback(() => {
     const nextSong = getNextSong(selectedSong);

@@ -1,4 +1,4 @@
-// app/lib/store.ts v1.3.5
+// app/lib/store.ts v1.7.2
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Locale } from './translations';

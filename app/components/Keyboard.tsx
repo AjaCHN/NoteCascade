@@ -1,4 +1,4 @@
-// app/components/Keyboard.tsx v1.3.5
+// app/components/Keyboard.tsx v1.7.2
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
@@ -181,7 +181,7 @@ export function Keyboard({
               </span>
             )}
             {showKeymap && mappedKey && (
-              <span className={`absolute ${isBlack ? 'bottom-2 text-white/70' : 'bottom-6 text-slate-500'} left-1/2 -translate-x-1/2 text-[10px] font-mono font-bold pointer-events-none`}>
+              <span className={`absolute ${isBlack ? 'bottom-2 text-white/70' : 'bottom-6 text-slate-500'} left-1/2 -translate-x-1/2 text-xs sm:text-sm font-mono font-black pointer-events-none`}>
                 {mappedKey}
               </span>
             )}

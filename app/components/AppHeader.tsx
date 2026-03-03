@@ -1,4 +1,4 @@
-// app/components/AppHeader.tsx v1.4.10
+// app/components/AppHeader.tsx v1.7.2
 'use client';
 
 import React, { useState } from 'react';

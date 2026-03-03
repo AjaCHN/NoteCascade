@@ -1,4 +1,4 @@
-// app/components/settings/KeyboardSettings.tsx v1.3.5
+// app/components/settings/KeyboardSettings.tsx v1.7.2
 'use client';
 
 import React from 'react';

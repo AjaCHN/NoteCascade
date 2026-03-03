@@ -1,4 +1,4 @@
-// app/lib/songs/index.ts v1.4.2
+// app/lib/songs/index.ts v1.7.2
 import type { Song } from '../songs';
 import { parseMelody } from './utils';
 import { classicSongs } from './classic';

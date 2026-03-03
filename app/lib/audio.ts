@@ -1,4 +1,4 @@
-// app/lib/audio.ts v1.4.8
+// app/lib/audio.ts v1.7.2
 import * as Tone from 'tone';
 
 let synth: Tone.PolySynth | null = null;

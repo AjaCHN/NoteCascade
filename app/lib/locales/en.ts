@@ -1,4 +1,4 @@
-// app/lib/locales/en.ts v1.3.5
+// app/lib/locales/en.ts v1.7.2
 export const en = {
     title: 'NoteCascade',
     subtitle: 'Master your keys',
