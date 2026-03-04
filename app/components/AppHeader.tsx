@@ -93,6 +93,14 @@ export function AppHeader({
       </div>
 
       <div className="flex items-center gap-2 md:gap-4 shrink-0">
+        <button 
+          onClick={() => setShowLibrary(!showLibrary)}
+          className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${showLibrary ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
+          title={t.library || 'Library'}
+        >
+          <LibraryIcon className="h-5 w-5" />
+        </button>
+
         {/* Audio Controls Button */}
         <div className="relative">
           <button
@@ -168,14 +176,6 @@ export function AppHeader({
         </div>
 
         <button 
-          onClick={() => setShowLibrary(!showLibrary)}
-          className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${showLibrary ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
-          title={t.library || 'Library'}
-        >
-          <LibraryIcon className="h-5 w-5" />
-        </button>
-
-        <button 
           onClick={toggleFullScreen}
           className="hidden md:flex rounded-full p-2.5 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
           title="Toggle Full Screen"
@@ -183,6 +183,13 @@ export function AppHeader({
           {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
         </button>
         
+        <button 
+          onClick={() => setShowSettings(!showSettings)}
+          className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
+        >
+          <Settings className="h-5 w-5" />
+        </button>
+
         <button 
           onClick={() => connectMidi && connectMidi()}
           disabled={isConnecting}
@@ -214,12 +221,6 @@ export function AppHeader({
           <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-black/80 backdrop-blur-md border theme-border rounded-lg text-[10px] font-bold uppercase tracking-widest theme-text-primary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
             {isConnecting ? 'Connecting...' : selectedInputId ? 'Connected' : t.noDevice}
           </div>
-        </button>
-        <button 
-          onClick={() => setShowSettings(!showSettings)}
-          className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
-        >
-          <Settings className="h-5 w-5" />
         </button>
       </div>
     </header>
