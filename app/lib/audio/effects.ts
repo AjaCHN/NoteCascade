@@ -10,7 +10,7 @@ export const setPitchBend = (value: number) => {
 };
 
 export const setModulation = (value: number) => {
-  if (audioState.vibrato) audioState.vibrato.depth.value = value * 0.5;
+  if (audioState.vibrato) audioState.vibrato.depth.value = value;
 };
 
 export const setExpression = (value: number) => {

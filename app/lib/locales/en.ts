@@ -76,6 +76,7 @@ export const en = {
     mode_perform: 'Perform',
     mode_demo: 'Demo',
     mode_library: 'Library',
+    mode_free: 'Free Play Mode',
     practice: 'Practice',
     demo: 'Demo',
     freePlay: 'Free Play',

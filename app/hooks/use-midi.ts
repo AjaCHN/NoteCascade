@@ -91,6 +91,7 @@ export function useMidi() {
         import('../lib/audio').then(audio => audio.setSustainPedal(rawVelocity >= 64));
       } else if (rawNote === 123 || rawNote === 121) {
         setActiveNotes(new Map());
+        import('../lib/audio').then(audio => audio.resetAudioEffects());
       }
     }
   }, []);

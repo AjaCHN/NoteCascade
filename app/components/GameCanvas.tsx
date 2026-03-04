@@ -3,6 +3,7 @@
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { CheckCircle, ThumbsUp, XCircle, AlertTriangle } from 'lucide-react';
 import { Song } from '../lib/songs/types';
 import { useLocale, usePlayMode } from '../lib/store';
 import { translations } from '../lib/translations';
@@ -140,15 +141,16 @@ export function GameCanvas({
               initial={{ y: f.y, x: f.x, opacity: 0, scale: 0.5 }}
               animate={{ y: f.y - 100, opacity: 1, scale: 1.2 }}
               exit={{ opacity: 0 }}
-              className={`absolute -translate-x-1/2 text-center font-black text-xl italic drop-shadow-lg ${
+              className={`absolute -translate-x-1/2 text-center font-black text-xl italic drop-shadow-lg flex flex-col items-center ${
                 f.type === 'perfect' ? 'text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]' : 
                 f.type === 'good' ? 'text-blue-400 drop-shadow-[0_0_10px_rgba(96,165,250,0.8)]' : 
                 f.type === 'miss' ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]' : 'text-rose-400 drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]'
               }`}
             >
-              {f.text.split('\n').map((line, i) => (
-                <div key={i} className={i > 0 ? 'text-sm opacity-80' : ''}>{line}</div>
-              ))}
+              {f.type === 'perfect' && <CheckCircle size={48} />}
+              {f.type === 'good' && <ThumbsUp size={48} />}
+              {f.type === 'miss' && <XCircle size={48} />}
+              {f.type === 'wrong' && <AlertTriangle size={48} />}
             </motion.div>
           ))}
         </AnimatePresence>

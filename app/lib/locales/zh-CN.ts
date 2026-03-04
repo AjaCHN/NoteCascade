@@ -76,6 +76,7 @@ export const zhCN = {
     mode_perform: '演奏',
     mode_demo: '演示',
     mode_library: '曲库',
+    mode_free: '自由演奏模式',
     practice: '练习',
     demo: '演示',
     freePlay: '自由演奏',
