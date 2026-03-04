@@ -1,4 +1,6 @@
 // app/hooks/use-sidebar-resize.ts v1.7.2
+'use client';
+
 import { useState, useEffect } from 'react';
 
 export function useSidebarResize(initialWidth = 320, minWidth = 240, maxWidth = 600) {

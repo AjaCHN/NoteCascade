@@ -9,6 +9,8 @@ import { useLocale, useScores, useAchievements } from '../lib/store';
 import { translations } from '../lib/translations';
 import { SongCard } from './SongCard';
 
+import { MidiUploadCard } from './MidiUploadCard';
+
 interface SongSelectorProps {
   onPlayPractice: (song: Song) => void;
   onPlayDemo: (song: Song) => void;
@@ -23,28 +25,13 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
   
   const [filter, setFilter] = useState<string>('all');
   const [difficultyFilter, setDifficultyFilter] = useState<number | 'all'>('all');
-  const [isUploading, setIsUploading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const styles = ['all', ...Array.from(new Set(builtInSongs.map(s => s.style?.toLowerCase()).filter((s): s is string => !!s && s !== 'all')))];
   const difficulties = ['all', 1, 2, 3, 4, 5];
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    setIsUploading(true);
-    try {
-      const song = await parseMidiFile(file);
-      onPlayPractice(song);
-    } catch (error) {
-      console.error('Failed to parse MIDI:', error);
-      alert(t.midiParseError);
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
+  const handleUpload = (song: Song) => {
+    onPlayPractice(song);
   };
 
   const isSongUnlocked = (song: Song) => {
@@ -98,16 +85,6 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
           </h2>
           
           <div className="flex items-center gap-2 self-end md:self-auto">
-            <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept=".mid,.midi" className="hidden" />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              className="p-2 rounded-xl theme-bg-secondary theme-border theme-text-secondary hover:theme-text-primary hover:theme-border-primary transition-all shadow-sm"
-              title={t.uploadMidi}
-            >
-              <Upload className={`w-4 h-4 ${isUploading ? 'animate-bounce' : ''}`} />
-            </button>
-            
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`p-2 rounded-xl border transition-all shadow-sm relative ${
@@ -174,6 +151,7 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4 md:p-6 pt-2">
+        <MidiUploadCard onUpload={handleUpload} />
         {filteredSongs.length > 0 ? filteredSongs.map((song, idx) => (
           <SongCard 
             key={`${song.id}-${idx}`}

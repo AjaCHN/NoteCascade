@@ -5,7 +5,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
-  Volume2, VolumeX, Clock, Library as LibraryIcon, Sliders 
+  Volume2, VolumeX, Clock, Library as LibraryIcon, Sliders,
+  Menu, Info, FileText, BookOpen
 } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { 
@@ -14,6 +15,7 @@ import {
 } from '../lib/store';
 import pkg from '../../package.json';
 import { motion, AnimatePresence } from 'motion/react';
+import { InfoModals } from './InfoModals';
 
 const { version } = pkg;
 
@@ -56,9 +58,17 @@ export function AppHeader({
   const { setMetronomeEnabled, setMetronomeBpm, setMetronomeBeats, setPlayMode } = useAppActions();
   const t = translations[locale] || translations.en;
   const [showAudioControls, setShowAudioControls] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [infoModalType, setInfoModalType] = useState<'about' | 'changelog' | 'guide' | null>(null);
 
   return (
-    <header id="app-header" className="flex h-14 md:h-20 shrink-0 items-center justify-between border-b theme-border px-4 md:px-6 glass-panel z-50">
+    <>
+      <InfoModals 
+        isOpen={!!infoModalType} 
+        onClose={() => setInfoModalType(null)} 
+        type={infoModalType} 
+      />
+      <header id="app-header" className="flex h-14 md:h-20 shrink-0 items-center justify-between border-b theme-border px-4 md:px-6 glass-panel z-50">
       <div className="flex items-center gap-3">
         <div className={`flex h-8 w-8 md:h-12 md:w-12 items-center justify-center rounded-2xl shadow-lg glow-indigo transition-all overflow-hidden relative ${
           theme === 'cyber' ? 'bg-green-500' : theme === 'classic' ? 'bg-amber-700' : 'bg-gradient-to-br from-indigo-500 to-purple-600'
@@ -71,6 +81,50 @@ export function AppHeader({
             <span className="text-[10px] font-mono text-indigo-400 ml-1 opacity-70">v{version}</span>
           </h1>
           <p className="text-[10px] uppercase tracking-[0.2em] theme-text-secondary font-bold opacity-80">{t.subtitle}</p>
+        </div>
+
+        {/* Menu Button */}
+        <div className="relative ml-2">
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className={`p-2 rounded-lg transition-all ${showMenu ? 'bg-white/10 theme-text-primary' : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'}`}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+
+          <AnimatePresence>
+            {showMenu && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute top-full left-0 mt-2 w-48 py-1 rounded-xl theme-bg-secondary border theme-border shadow-xl z-50 overflow-hidden"
+              >
+                <button
+                  onClick={() => { setInfoModalType('guide'); setShowMenu(false); }}
+                  className="w-full px-4 py-2 text-left text-sm theme-text-secondary hover:theme-text-primary hover:bg-white/5 flex items-center gap-2"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  {t.guide}
+                </button>
+                <button
+                  onClick={() => { setInfoModalType('changelog'); setShowMenu(false); }}
+                  className="w-full px-4 py-2 text-left text-sm theme-text-secondary hover:theme-text-primary hover:bg-white/5 flex items-center gap-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  {t.changelog}
+                </button>
+                <div className="h-px bg-white/5 my-1" />
+                <button
+                  onClick={() => { setInfoModalType('about'); setShowMenu(false); }}
+                  className="w-full px-4 py-2 text-left text-sm theme-text-secondary hover:theme-text-primary hover:bg-white/5 flex items-center gap-2"
+                >
+                  <Info className="w-4 h-4" />
+                  {t.about}
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -225,5 +279,6 @@ export function AppHeader({
         </button>
       </div>
     </header>
+    </>
   );
 }

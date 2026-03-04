@@ -1,4 +1,6 @@
 // app/components/GameModals.tsx v2.0.1
+'use client';
+
 import { AnimatePresence } from 'motion/react';
 import { ResultModal } from './ResultModal';
 import { SettingsModal } from './SettingsModal';

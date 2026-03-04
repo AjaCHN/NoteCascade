@@ -1,7 +1,7 @@
 // app/page.tsx v2.0.1
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useMidi } from './hooks/use-midi';
 import { useKeyboardInput } from './hooks/use-keyboard-input';
 import { setVolume } from './lib/audio';
@@ -20,7 +20,8 @@ import { useAppInitialization } from './hooks/use-app-initialization';
 import { useKeyboardRangeLogic } from './hooks/use-keyboard-range-logic';
 import { useUIState } from './hooks/use-ui-state';
 import { useCountdownAndPrompts } from './hooks/use-countdown-and-prompts';
-import { GameModals } from './components/GameModals';
+import { SheetMusicView } from './components/SheetMusicView';
+import { FileText, Music } from 'lucide-react';
 
 export default function MidiPlayApp() {
   const { 
@@ -30,10 +31,24 @@ export default function MidiPlayApp() {
   } = useMidi();
   const { setKeyboardRange, setPlayMode, setSongs } = useAppActions();
   const songs = useAppStore(state => state.songs);
+  const [viewMode, setViewMode] = useState<'waterfall' | 'sheet'>('waterfall');
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     setSongs(builtInSongs);
   }, [setSongs]);
+
+  useEffect(() => {
+    if (!canvasContainerRef.current) return;
+    const observer = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        setContainerSize({ width: entry.contentRect.width, height: entry.contentRect.height });
+      }
+    });
+    observer.observe(canvasContainerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const locale = useLocale();
   const theme = useTheme();
@@ -115,17 +130,35 @@ export default function MidiPlayApp() {
       <main id="main-content" className="flex flex-1 overflow-hidden relative z-10">
         <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden bg-transparent overflow-x-auto custom-scrollbar">
           <div className="flex-1 flex flex-col min-h-0 relative" style={{ minWidth: typeof minCanvasWidth === 'number' ? `${minCanvasWidth}px` : minCanvasWidth }}>
-            <div id="game-canvas-container" className="flex-1 relative min-h-0">
-              <GameCanvas
-                song={selectedSong}
-                currentTime={currentTime}
-                activeNotes={activeNotes}
-                isPlaying={isPlaying}
-                onScoreUpdate={setLastScore}
-                keyboardRange={keyboardRange}
-                showNoteNames={showNoteNames}
-                theme={theme}
-              />
+            <div id="game-canvas-container" ref={canvasContainerRef} className="flex-1 relative min-h-0">
+              {viewMode === 'waterfall' ? (
+                <GameCanvas
+                  song={selectedSong}
+                  currentTime={currentTime}
+                  activeNotes={activeNotes}
+                  isPlaying={isPlaying}
+                  onScoreUpdate={setLastScore}
+                  keyboardRange={keyboardRange}
+                  showNoteNames={showNoteNames}
+                  theme={theme}
+                />
+              ) : (
+                <SheetMusicView 
+                  song={selectedSong} 
+                  width={containerSize.width} 
+                  height={containerSize.height} 
+                />
+              )}
+
+              <div className="absolute top-4 right-4 z-30 flex gap-2">
+                <button
+                  onClick={() => setViewMode(viewMode === 'waterfall' ? 'sheet' : 'waterfall')}
+                  className="p-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all"
+                  title="Toggle View"
+                >
+                  {viewMode === 'waterfall' ? <FileText className="w-5 h-5" /> : <Music className="w-5 h-5" />}
+                </button>
+              </div>
 
               <GameOverlays 
                 countdown={countdown}

@@ -1,8 +1,12 @@
 # Changelog
 
 ## [2.0.1]
+- Fixed: Resolved circular dependencies by moving `getNextSong` to utils and inlining `usePracticeLogic`.
+- Fixed: `TypeError: Cannot read properties of undefined (reading 'call')` caused by module initialization order.
+- Fixed: Next.js build errors related to devtools and client manifest.
 - Chore: Removed redundant React imports across the codebase.
-- Chore: Bumped version to v2.0.1.
+- Added: Collapsible menu with "About", "Changelog", and "Guide" pages.
+- Added: Improved translations for practice mode.
 
 ## [2.0.0]
 - Refactor: Major architectural overhaul. Split `use-game-logic.ts` into `use-score-logic.ts` and `use-playback-logic.ts` to improve maintainability and resolve circular dependencies.

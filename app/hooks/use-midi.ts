@@ -1,4 +1,6 @@
 // app/hooks/use-midi.ts v2.0.1
+'use client';
+
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { applyVelocityCurve, parseMidiMessage, VelocityCurve } from '../lib/midi-utils';
 import { initAudio, startNote, stopNote, setPitchBend, setModulation, setExpression, setSustainPedal, resetAudioEffects } from '../lib/audio';
