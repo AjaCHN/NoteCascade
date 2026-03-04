@@ -3,9 +3,9 @@
 
 import { useEffect, useRef } from 'react';
 import { Song } from '../lib/songs/types';
-import { Feedback, HIT_LINE_Y, GOOD_THRESHOLD, PERFECT_THRESHOLD } from './use-game-engine';
+import { Feedback, HIT_LINE_Y } from './use-game-engine';
 import { PlayMode } from '../lib/store';
-import { drawGrid, drawHitLine, drawKeyMarkers, drawTimingBar, FALL_SPEED } from '../lib/renderer-utils';
+import { drawGrid, drawHitLine, drawKeyMarkers, FALL_SPEED } from '../lib/renderer-utils';
 
 interface FreePlayNote {
   midi: number;
@@ -25,12 +25,17 @@ export function useGameRenderer(
   theme: string,
   t: Record<string, string>,
   showNoteNames: boolean,
-  recentHits: React.MutableRefObject<{ timeDiff: number; timestamp: number; type: Feedback['type'] }[]>,
+  recentHits: { timeDiff: number; timestamp: number; type: Feedback['type'] }[],
   hitEffects: React.MutableRefObject<{ x: number; y: number; type: Feedback['type']; timestamp: number }[]>,
   playMode: PlayMode
 ) {
   const activeNoteStartTimes = useRef<Map<number, number>>(new Map());
   const freePlayNotes = useRef<FreePlayNote[]>([]);
+  const recentHitsRef = useRef(recentHits);
+
+  useEffect(() => {
+    recentHitsRef.current = recentHits;
+  }, [recentHits]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -128,7 +133,7 @@ export function useGameRenderer(
       }
 
       if (playMode !== 'free') {
-        drawTimingBar(ctx, width, theme, t, recentHits.current, PERFECT_THRESHOLD, GOOD_THRESHOLD);
+        // drawTimingBar(ctx, width, theme, t, recentHitsRef.current, PERFECT_THRESHOLD, GOOD_THRESHOLD);
       }
 
       // Draw falling notes

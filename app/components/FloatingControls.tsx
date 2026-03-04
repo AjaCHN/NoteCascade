@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { RotateCcw, RefreshCw, Play, Pause, SkipForward } from 'lucide-react';
-import { Song } from '../lib/songs';
+import { Song } from '../lib/songs/types';
 
 interface FloatingControlsProps {
   playMode: string;

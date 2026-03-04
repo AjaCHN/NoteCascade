@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.0.0]
+- License: Updated to GPL v3.
+
 ## [1.7.1]
 - Audio: Optimized polyphony management and voice limiting to prevent audio dropouts during complex passages.
 - Audio: Fine-tuned compressor and limiter settings to eliminate clipping when multiple keys are pressed simultaneously.

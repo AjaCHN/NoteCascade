@@ -30,9 +30,9 @@ export function useGameEngine(
 ) {
   const [score, setScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [recentHits, setRecentHits] = useState<{ timeDiff: number; timestamp: number; type: Feedback['type'] }[]>([]);
   const processedNotes = useRef<Set<number>>(new Set());
   const lastActiveNotes = useRef<Set<number>>(new Set());
-  const recentHits = useRef<{ timeDiff: number; timestamp: number; type: Feedback['type'] }[]>([]);
   const feedbackIdCounter = useRef(0);
   const hitEffects = useRef<{ x: number; y: number; type: Feedback['type']; timestamp: number }[]>([]);
 
@@ -90,7 +90,7 @@ export function useGameEngine(
             points = Math.floor(points * 0.8);
           }
 
-          recentHits.current.push({ timeDiff, timestamp: Date.now(), type });
+          setRecentHits(prev => [...prev, { timeDiff, timestamp: Date.now(), type }]);
 
           setScore(prev => ({
             ...prev,
@@ -122,14 +122,14 @@ export function useGameEngine(
 
   useEffect(() => {
     onScoreUpdate(score);
-  }, [score]);
+  }, [score, onScoreUpdate]);
 
   useEffect(() => {
     if (currentTime === 0) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setScore({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
       processedNotes.current = new Set();
-      recentHits.current = [];
+      setRecentHits([]);
     }
   }, [currentTime, song]);
 
