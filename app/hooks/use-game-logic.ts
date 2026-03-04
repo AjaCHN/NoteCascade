@@ -3,11 +3,11 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import * as Tone from 'tone';
-import { Song } from '../lib/songs/types';
+import type { Song } from '../lib/songs/types';
 import { useAppActions, usePlayMode, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats } from '../lib/store';
 import { getNextSong } from '../lib/songs/utils';
 import { initAudio, startTransport, stopTransport, ensureAudioContext, setMetronome, clearScheduledEvents, scheduleNote, resetAudioEffects } from '../lib/audio';
-import { ScoreRecord } from '../lib/store/types';
+import type { ScoreRecord } from '../lib/store/types';
 
 export function useGameLogic(
   activeNotes: Map<number, number>,

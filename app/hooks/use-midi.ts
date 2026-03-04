@@ -2,7 +2,8 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { applyVelocityCurve, parseMidiMessage, VelocityCurve } from '../lib/midi-utils';
+import { applyVelocityCurve, parseMidiMessage } from '../lib/midi-utils';
+import type { VelocityCurve } from '../lib/midi-utils';
 import { initAudio, startNote, stopNote, setPitchBend, setModulation, setExpression, setSustainPedal, resetAudioEffects } from '../lib/audio';
 
 export interface MidiDevice {

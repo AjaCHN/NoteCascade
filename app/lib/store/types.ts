@@ -1,6 +1,6 @@
 // app/lib/store/types.ts v1.0.0
-import { Locale } from '../translations';
-import { Song } from '../songs/types';
+import type { Locale } from '../translations';
+import type { Song } from '../songs/types';
 
 export interface Achievement {
   id: string;
@@ -50,7 +50,6 @@ export interface AppState {
   metronomeEnabled: boolean;
   metronomeBpm: number;
   metronomeBeats: number;
-  audioLatency: number;
   actions: {
     unlockAchievement: (id: string) => void;
     addScore: (score: ScoreRecord) => void;
@@ -67,7 +66,6 @@ export interface AppState {
     setMetronomeEnabled: (enabled: boolean) => void;
     setMetronomeBpm: (bpm: number) => void;
     setMetronomeBeats: (beats: number) => void;
-    setAudioLatency: (latency: number) => void;
     resetProgress: () => void;
     checkAchievements: () => void;
     updateStreak: () => void;

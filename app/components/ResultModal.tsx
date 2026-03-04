@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Trophy, RefreshCw, Play, Clock } from 'lucide-react';
-import { Song } from '../lib/songs';
+import type { Song } from '../lib/songs';
 import { translations } from '../lib/translations';
 import { useLocale } from '../lib/store';
 

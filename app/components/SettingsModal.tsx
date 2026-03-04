@@ -16,8 +16,8 @@ import { KeyboardSettings } from './settings/KeyboardSettings';
 import { MidiSettings } from './settings/MidiSettings';
 import { AppInfoSection } from './settings/AppInfoSection';
 
-import { MidiDevice, MidiMessage } from '../hooks/use-midi';
-import { VelocityCurve } from '../lib/midi-utils';
+import type { MidiDevice, MidiMessage } from '../hooks/use-midi';
+import type { VelocityCurve } from '../lib/midi-utils';
 
 interface SettingsModalProps {
   show: boolean;

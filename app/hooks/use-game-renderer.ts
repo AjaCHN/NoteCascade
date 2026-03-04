@@ -2,9 +2,10 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Song } from '../lib/songs/types';
-import { Feedback, HIT_LINE_Y } from './use-game-engine';
-import { PlayMode } from '../lib/store';
+import type { Song } from '../lib/songs/types';
+import { HIT_LINE_Y } from './use-game-engine';
+import type { Feedback } from './use-game-engine';
+import type { PlayMode } from '../lib/store';
 import { drawGrid, drawHitLine, drawKeyMarkers, FALL_SPEED } from '../lib/renderer-utils';
 
 interface FreePlayNote {

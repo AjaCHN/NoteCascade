@@ -7,7 +7,7 @@ import { AchievementList } from './AchievementList';
 import { SongSelector } from './SongSelector';
 import { useLocale } from '../lib/store';
 import { translations } from '../lib/translations';
-import { Song } from '../lib/songs';
+import type { Song } from '../lib/songs';
 
 interface LibraryModalProps {
   show: boolean;

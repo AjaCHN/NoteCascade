@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Song } from '../lib/songs/types';
+import type { Song } from '../lib/songs/types';
 
 export interface Feedback {
   id: number;

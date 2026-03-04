@@ -1,6 +1,6 @@
 // app/lib/store/achievement-logic.ts v1.0.0
-import { AppState, Achievement } from './types';
-import { Song } from '../songs/types';
+import type { AppState, Achievement } from './types';
+import type { Song } from '../songs/types';
 
 export function checkAchievementsLogic(state: AppState, songs: Song[]): Achievement[] {
   const { scores, totalPracticeTime, dailyStreak, totalNotesHit, achievements } = state;

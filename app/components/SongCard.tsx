@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Star, Trophy, Lock, Play, Keyboard as KeyboardIcon } from 'lucide-react';
-import { Song } from '../lib/songs';
+import type { Song } from '../lib/songs';
 
 interface SongCardProps {
   song: Song;

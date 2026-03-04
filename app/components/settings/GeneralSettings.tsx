@@ -4,7 +4,7 @@
 import React from 'react';
 import { Globe, Palette, Mic2, ChevronDown, Check } from 'lucide-react';
 import { Locale, translations, languageNames } from '../../lib/translations';
-import { Theme, Instrument } from '../../lib/store';
+import type { Theme, Instrument } from '../../lib/store';
 
 interface GeneralSettingsProps {
   locale: Locale;

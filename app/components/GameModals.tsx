@@ -5,10 +5,10 @@ import { AnimatePresence } from 'motion/react';
 import { ResultModal } from './ResultModal';
 import { SettingsModal } from './SettingsModal';
 import { LibraryModal } from './LibraryModal';
-import { Song } from '../lib/songs/types';
-import { ScoreRecord, PlayMode } from '../lib/store/types';
-import { MidiDevice, MidiMessage } from '../hooks/use-midi';
-import { VelocityCurve } from '../lib/midi-utils';
+import type { Song } from '../lib/songs/types';
+import type { ScoreRecord, PlayMode } from '../lib/store/types';
+import type { MidiDevice, MidiMessage } from '../hooks/use-midi';
+import type { VelocityCurve } from '../lib/midi-utils';
 
 interface GameModalsProps {
   showResult: boolean;

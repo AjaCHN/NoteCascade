@@ -3,7 +3,7 @@
 
 import { motion } from 'motion/react';
 import { TimingBar } from './TimingBar';
-import { Song } from '../lib/songs';
+import type { Song } from '../lib/songs';
 
 interface GameStatsOverlayProps {
   song: Song;
