@@ -1,4 +1,4 @@
-// app/lib/audio.ts v2.0.0
+// app/lib/audio.ts v2.0.1
 import * as Tone from 'tone';
 import { audioState } from './audio/state';
 import { initInstruments } from './audio/instruments';

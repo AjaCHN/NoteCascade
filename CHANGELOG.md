@@ -1,6 +1,14 @@
 # Changelog
 
+## [2.0.1]
+- Chore: Removed redundant React imports across the codebase.
+- Chore: Bumped version to v2.0.1.
+
 ## [2.0.0]
+- Refactor: Major architectural overhaul. Split `use-game-logic.ts` into `use-score-logic.ts` and `use-playback-logic.ts` to improve maintainability and resolve circular dependencies.
+- Fix: Resolved Next.js build errors related to dynamic imports in `use-midi.ts`.
+- Fix: Corrected `useEffect` state update issues in game logic hooks.
+- Chore: Updated dependencies and configuration files.
 - License: Updated to GPL v3.
 
 ## [1.7.1]

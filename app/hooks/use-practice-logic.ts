@@ -1,4 +1,4 @@
-// app/hooks/use-practice-logic.ts v1.0.0
+// app/hooks/use-practice-logic.ts v2.0.1
 'use client';
 
 import * as Tone from 'tone';

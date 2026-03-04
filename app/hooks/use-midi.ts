@@ -1,6 +1,7 @@
-// app/hooks/use-midi.ts v1.7.2
+// app/hooks/use-midi.ts v2.0.1
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { applyVelocityCurve, parseMidiMessage, VelocityCurve } from '../lib/midi-utils';
+import { initAudio, startNote, stopNote, setPitchBend, setModulation, setExpression, setSustainPedal, resetAudioEffects } from '../lib/audio';
 
 export interface MidiDevice {
   id: string;
@@ -71,14 +72,12 @@ export function useMidi() {
       setLastMessage({ command, note, velocity, channel, timestamp });
 
       // Direct audio trigger to bypass React state/effect latency
-      import('../lib/audio').then(audio => {
-        audio.initAudio(); // Ensure context is started
-        if (command === 0x90 && velocity > 0) {
-          audio.startNote(note, velocity / 127);
-        } else {
-          audio.stopNote(note);
-        }
-      });
+      initAudio(); // Ensure context is started
+      if (command === 0x90 && velocity > 0) {
+        startNote(note, velocity / 127);
+      } else {
+        stopNote(note);
+      }
 
       if (command === 0x90 && velocity > 0) {
         setActiveNotes(prev => new Map(prev).set(note, velocity / 127));
@@ -91,17 +90,17 @@ export function useMidi() {
       }
     } else if (command === 0xE0) {
       const value = (rawVelocity << 7 | rawNote) / 16383;
-      import('../lib/audio').then(audio => audio.setPitchBend(value));
+      setPitchBend(value);
     } else if (command === 0xB0) {
       if (rawNote === 1) {
-        import('../lib/audio').then(audio => audio.setModulation(rawVelocity / 127));
+        setModulation(rawVelocity / 127);
       } else if (rawNote === 7 || rawNote === 11) {
-        import('../lib/audio').then(audio => audio.setExpression(rawVelocity / 127));
+        setExpression(rawVelocity / 127);
       } else if (rawNote === 64) {
-        import('../lib/audio').then(audio => audio.setSustainPedal(rawVelocity >= 64));
+        setSustainPedal(rawVelocity >= 64);
       } else if (rawNote === 123 || rawNote === 121) {
         setActiveNotes(new Map());
-        import('../lib/audio').then(audio => audio.resetAudioEffects());
+        resetAudioEffects();
       }
     }
   }, []);
@@ -188,7 +187,11 @@ export function useMidi() {
   useEffect(() => {
     let mounted = true;
     const isMounted = () => mounted;
-    connectMidi(isMounted);
+    
+    const init = async () => {
+      await connectMidi(isMounted);
+    };
+    init();
 
     return () => {
       mounted = false;

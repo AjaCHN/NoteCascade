@@ -1,7 +1,7 @@
-// app/components/Keyboard.tsx v1.7.2
+// app/components/Keyboard.tsx v2.0.1
 'use client';
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { startNote as startAudioNote, stopNote as stopAudioNote } from '../lib/audio';
 

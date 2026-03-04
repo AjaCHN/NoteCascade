@@ -1,6 +1,6 @@
+// app/components/FloatingControls.tsx v2.0.1
 'use client';
 
-import React from 'react';
 import { motion } from 'motion/react';
 import { RotateCcw, RefreshCw, Play, Pause, SkipForward } from 'lucide-react';
 import { Song } from '../lib/songs/types';

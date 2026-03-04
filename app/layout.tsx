@@ -1,11 +1,9 @@
-// app/layout.tsx v1.7.3
+// app/layout.tsx v2.0.1
 import type {Metadata, Viewport} from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-import pkg from '../package.json';
-
-const { version } = pkg;
+const version = '2.0.1';
 
 const inter = Inter({
   subsets: ['latin'],

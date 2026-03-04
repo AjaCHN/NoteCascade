@@ -1,6 +1,6 @@
+// app/components/GameOverlays.tsx v2.0.1
 'use client';
 
-import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface GameOverlaysProps {

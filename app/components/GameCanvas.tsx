@@ -1,7 +1,7 @@
-// app/components/GameCanvas.tsx v1.7.2
+// app/components/GameCanvas.tsx v2.0.1
 'use client';
 
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle, ThumbsUp, XCircle, AlertTriangle } from 'lucide-react';
 import { Song } from '../lib/songs/types';

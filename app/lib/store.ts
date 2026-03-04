@@ -1,4 +1,4 @@
-// app/lib/store.ts v1.7.2
+// app/lib/store.ts v2.0.1
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Song } from './songs/types';

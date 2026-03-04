@@ -1,7 +1,7 @@
-// app/page.tsx v1.7.2
+// app/page.tsx v2.0.1
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useMidi } from './hooks/use-midi';
 import { useKeyboardInput } from './hooks/use-keyboard-input';
 import { setVolume } from './lib/audio';
@@ -20,7 +20,6 @@ import { useAppInitialization } from './hooks/use-app-initialization';
 import { useKeyboardRangeLogic } from './hooks/use-keyboard-range-logic';
 import { useUIState } from './hooks/use-ui-state';
 import { useCountdownAndPrompts } from './hooks/use-countdown-and-prompts';
-import { useMidiAudioBridge } from './hooks/use-midi-audio-bridge';
 import { GameModals } from './components/GameModals';
 
 export default function MidiPlayApp() {
@@ -61,7 +60,6 @@ export default function MidiPlayApp() {
   const { countdown, setCountdown, hasPressedKey, setHasPressedKey } = useCountdownAndPrompts(isPlaying, togglePlay, activeNotes.size, playMode);
 
   useKeyboardRangeLogic(mounted, isRangeManuallySet, inputs.length, selectedSong, keyboardRange, setKeyboardRange);
-  useMidiAudioBridge(lastMessage);
   useKeyboardInput(setActiveNotes);
 
   useEffect(() => {

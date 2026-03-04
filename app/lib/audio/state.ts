@@ -10,7 +10,7 @@ export const audioState = {
   pad: null as Tone.PolySynth | null,
   masterVolume: null as Tone.Volume | null,
   masterEq: null as Tone.EQ3 | null,
-  masterReverb: null as Tone.Freeverb | null,
+  masterReverb: null as Tone.Reverb | null,
   masterLimiter: null as Tone.Limiter | null,
   masterCompressor: null as Tone.Compressor | null,
   expressionGain: null as Tone.Gain | null,

@@ -1,7 +1,6 @@
-// app/components/GameStatsOverlay.tsx v1.7.2
+// app/components/GameStatsOverlay.tsx v2.0.1
 'use client';
 
-import React from 'react';
 import { motion } from 'motion/react';
 import { TimingBar } from './TimingBar';
 import { Song } from '../lib/songs';

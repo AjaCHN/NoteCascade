@@ -1,4 +1,4 @@
-// app/hooks/use-keyboard-range-logic.ts v1.0.0
+// app/hooks/use-keyboard-range-logic.ts v2.0.1
 'use client';
 
 import { useEffect } from 'react';

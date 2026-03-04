@@ -1,6 +1,5 @@
+// app/components/BackgroundEffects.tsx v2.0.1
 'use client';
-
-import React from 'react';
 
 export function BackgroundEffects({ theme }: { theme: string }) {
   return (

@@ -1,7 +1,7 @@
-// app/components/AppHeader.tsx v1.7.3
+// app/components/AppHeader.tsx v2.0.1
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 

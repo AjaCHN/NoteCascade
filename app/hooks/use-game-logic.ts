@@ -1,72 +1,62 @@
-// app/hooks/use-game-logic.ts v1.7.2
+// app/hooks/use-game-logic.ts v2.0.1
 import { useState, useEffect, useCallback, useRef } from 'react';
-import * as Tone from 'tone';
 import { Song } from '../lib/songs/types';
 import { useAppActions, usePlayMode, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, getNextSong } from '../lib/store';
-import { ScoreRecord } from '../lib/store/types';
-import { initAudio, startTransport, stopTransport, clearScheduledEvents, ensureAudioContext, setMetronome, scheduleNote, resetAudioEffects } from '../lib/audio';
-
-import { usePracticeLogic } from './use-practice-logic';
+import { initAudio, startTransport, stopTransport, ensureAudioContext, setMetronome } from '../lib/audio';
+import { useScoreLogic } from './use-score-logic';
+import { usePlaybackLogic } from './use-playback-logic';
 
 export function useGameLogic(
   activeNotes: Map<number, number>,
   setActiveNotes: React.Dispatch<React.SetStateAction<Map<number, number>>>,
   songs: Song[]
 ) {
-  const { addScore, incrementPracticeTime, updateStreak } = useAppActions();
+  const { incrementPracticeTime } = useAppActions();
   const playMode = usePlayMode();
   const metronomeEnabled = useMetronomeEnabled();
   const metronomeBpm = useMetronomeBpm();
   const metronomeBeats = useMetronomeBeats();
 
   const [selectedSong, setSelectedSong] = useState<Song>(songs[0] || { id: 'loading', title: 'Loading...', artist: '', difficulty: 0, midiUrl: '' });
+  const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
     if (songs.length > 0 && selectedSong.id === 'loading') {
-      setSelectedSong(songs[0]);
+      const timer = setTimeout(() => setSelectedSong(songs[0]), 0);
+      return () => clearTimeout(timer);
     }
   }, [songs, selectedSong.id]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [showResult, setShowResult] = useState(false);
-  const [lastScore, setLastScore] = useState<ScoreRecord>({
-    songId: '',
-    score: 0,
-    maxScore: 0,
-    accuracy: 0,
-    perfect: 0,
-    good: 0,
-    miss: 0,
-    wrong: 0,
-    maxCombo: 0,
-    date: 0
-  });
-  const latestScoreRef = useRef(lastScore);
 
-  const { handlePracticePause } = usePracticeLogic(playMode, selectedSong, activeNotes);
+  // Forward declarations to handle circular dependencies between score and playback logic
+  const setIsPlayingRef = useRef<(isPlaying: boolean) => void>(() => {});
+  const setCurrentTimeRef = useRef<(time: number) => void>(() => {});
+
+  const { lastScore, setLastScore, handleSongEnd, resetScore } = useScoreLogic(
+    selectedSong,
+    playMode,
+    (isPlaying) => setIsPlayingRef.current(isPlaying),
+    (time) => setCurrentTimeRef.current(time),
+    setShowResult
+  );
+
+  const { isPlaying, setIsPlaying, currentTime, setCurrentTime, togglePlay, resetPlayback } = usePlaybackLogic(
+    selectedSong,
+    playMode,
+    activeNotes,
+    setActiveNotes,
+    handleSongEnd
+  );
+
+  // Update refs
+  useEffect(() => {
+    setIsPlayingRef.current = setIsPlaying;
+    setCurrentTimeRef.current = setCurrentTime;
+  }, [setIsPlaying, setCurrentTime]);
 
   const resetSong = useCallback(() => {
-    setIsPlaying(false);
-    stopTransport();
-    resetAudioEffects();
-    setCurrentTime(0);
-    setLastScore({
-      songId: '',
-      score: 0,
-      maxScore: 0,
-      accuracy: 0,
-      perfect: 0,
-      good: 0,
-      miss: 0,
-      wrong: 0,
-      maxCombo: 0,
-      date: 0
-    });
-  }, []);
-
-  useEffect(() => {
-    latestScoreRef.current = lastScore;
-  }, [lastScore]);
+    resetPlayback();
+    resetScore();
+  }, [resetPlayback, resetScore]);
 
   useEffect(() => {
     resetSong();
@@ -86,83 +76,6 @@ export function useGameLogic(
     syncMetronome();
   }, [metronomeEnabled, metronomeBpm, metronomeBeats, isPlaying]);
 
-  const handleScoreUpdate = useCallback((scoreData: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => {
-    setLastScore(prev => ({
-      ...prev,
-      ...scoreData,
-      score: scoreData.currentScore
-    }));
-  }, []);
-
-  const handleSongEnd = useCallback(() => {
-    if (playMode === 'demo' || playMode === 'free') {
-      setIsPlaying(false);
-      setCurrentTime(0);
-      return;
-    }
-
-    const currentScoreData = latestScoreRef.current;
-    const totalNotes = currentScoreData.perfect + currentScoreData.good + currentScoreData.miss + currentScoreData.wrong;
-    const accuracy = totalNotes > 0 ? (currentScoreData.perfect + currentScoreData.good) / totalNotes : 0;
-    const maxScore = (selectedSong.notes?.length || 0) * 100;
-
-    addScore({
-      songId: selectedSong.id,
-      score: currentScoreData.score,
-      maxScore,
-      accuracy,
-      perfect: currentScoreData.perfect,
-      good: currentScoreData.good,
-      miss: currentScoreData.miss,
-      wrong: currentScoreData.wrong,
-      maxCombo: 0,
-      date: Date.now(),
-    });
-
-    if (accuracy > 0.8) {
-      import('canvas-confetti').then((confetti) => {
-        confetti.default({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-      });
-    }
-    
-    updateStreak();
-    setShowResult(true);
-  }, [updateStreak, addScore, selectedSong.id, selectedSong.notes?.length, playMode]);
-
-  const togglePlay = useCallback(async () => {
-    if (isPlaying) {
-      setIsPlaying(false);
-      stopTransport();
-      resetAudioEffects();
-      clearScheduledEvents();
-      setActiveNotes(new Map());
-    } else {
-      await initAudio();
-      await ensureAudioContext();
-      
-      if (currentTime >= (selectedSong.duration || 0)) setCurrentTime(0);
-      Tone.Transport.seconds = currentTime;
-
-      if (playMode === 'demo') {
-        clearScheduledEvents();
-        selectedSong.notes?.forEach(note => {
-          scheduleNote(
-            note,
-            () => setActiveNotes(prev => new Map(prev).set(note.midi, note.velocity)),
-            () => setActiveNotes(prev => {
-              const next = new Map(prev);
-              next.delete(note.midi);
-              return next;
-            })
-          );
-        });
-      }
-
-      setIsPlaying(true);
-      startTransport();
-    }
-  }, [isPlaying, currentTime, selectedSong, playMode, setActiveNotes]);
-
   const prevActiveNotesSize = useRef(0);
   useEffect(() => {
     if (activeNotes.size > 0 && prevActiveNotesSize.current === 0 && !isPlaying) {
@@ -170,31 +83,6 @@ export function useGameLogic(
     }
     prevActiveNotesSize.current = activeNotes.size;
   }, [activeNotes.size, isPlaying, togglePlay]);
-
-  useEffect(() => {
-    let animationFrame: number;
-    const updateTime = () => {
-      if (isPlaying) {
-        let time = Tone.Transport.seconds;
-        time = handlePracticePause(time);
-        setCurrentTime(time);
-        
-        if (time >= (selectedSong.duration || 0)) {
-           setIsPlaying(false);
-           stopTransport();
-           resetAudioEffects();
-           clearScheduledEvents();
-           handleSongEnd();
-           setActiveNotes(new Map());
-           return;
-        }
-        animationFrame = requestAnimationFrame(updateTime);
-      }
-    };
-    
-    if (isPlaying) updateTime();
-    return () => cancelAnimationFrame(animationFrame);
-  }, [isPlaying, selectedSong, handleSongEnd, setActiveNotes, playMode, activeNotes, handlePracticePause]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -214,7 +102,7 @@ export function useGameLogic(
 
   return {
     selectedSong, setSelectedSong, isPlaying, currentTime, showResult, setShowResult,
-    lastScore, setLastScore: handleScoreUpdate, togglePlay, resetSong, handleNextSong
+    lastScore, setLastScore, togglePlay, resetSong, handleNextSong
   };
 }
 

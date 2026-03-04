@@ -1,4 +1,4 @@
-// app/hooks/use-keyboard-input.ts v1.7.2
+// app/hooks/use-keyboard-input.ts v2.0.1
 import { useEffect } from 'react';
 import { startNote, stopNote, initAudio, setSustainPedal } from '../lib/audio';
 

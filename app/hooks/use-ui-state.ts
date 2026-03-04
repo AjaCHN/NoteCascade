@@ -1,4 +1,4 @@
-// app/hooks/use-ui-state.ts v1.0.0
+// app/hooks/use-ui-state.ts v2.0.1
 'use client';
 
 import { useState, useEffect } from 'react';
