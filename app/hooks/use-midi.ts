@@ -70,6 +70,16 @@ export function useMidi() {
 
       setLastMessage({ command, note, velocity, channel, timestamp });
 
+      // Direct audio trigger to bypass React state/effect latency
+      import('../lib/audio').then(audio => {
+        audio.initAudio(); // Ensure context is started
+        if (command === 0x90 && velocity > 0) {
+          audio.startNote(note, velocity / 127);
+        } else {
+          audio.stopNote(note);
+        }
+      });
+
       if (command === 0x90 && velocity > 0) {
         setActiveNotes(prev => new Map(prev).set(note, velocity / 127));
       } else {

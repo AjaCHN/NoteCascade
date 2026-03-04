@@ -20,19 +20,19 @@ export const initInstruments = async () => {
 
   if (!audioState.synth) {
     audioState.synth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: "fatsawtooth", count: 3, spread: 20 },
-      envelope: { attack: 0.01, decay: 0.3, sustain: 0.4, release: 1.2 }
+      oscillator: { type: "fatsawtooth", count: 4, spread: 25 },
+      envelope: { attack: 0.005, decay: 0.2, sustain: 0.3, release: 1.5 }
     });
     audioState.synth.maxPolyphony = 32;
-    audioState.synth.chain(new Tone.Filter(3000, "lowpass"), audioState.masterVolume!);
+    audioState.synth.chain(new Tone.Filter(2500, "lowpass"), audioState.masterVolume!);
   }
 
   if (!audioState.epiano) {
     audioState.epiano = new Tone.PolySynth(Tone.FMSynth, {
-      harmonicity: 3, modulationIndex: 5, oscillator: { type: "sine" },
-      envelope: { attack: 0.01, decay: 2, sustain: 0.2, release: 1.5 },
+      harmonicity: 3.5, modulationIndex: 10, oscillator: { type: "sine" },
+      envelope: { attack: 0.005, decay: 2, sustain: 0.1, release: 2 },
       modulation: { type: "triangle" },
-      modulationEnvelope: { attack: 0.01, decay: 0.5, sustain: 0, release: 0.5 }
+      modulationEnvelope: { attack: 0.005, decay: 0.5, sustain: 0, release: 0.5 }
     });
     audioState.epiano.maxPolyphony = 32;
     audioState.epiano.chain(new Tone.Chorus(4, 2.5, 0.5).start(), audioState.masterVolume!);
@@ -40,11 +40,33 @@ export const initInstruments = async () => {
 
   if (!audioState.strings) {
     audioState.strings = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: "fatsawtooth", count: 4, spread: 30 },
-      envelope: { attack: 0.4, decay: 0.2, sustain: 0.8, release: 2 }
+      oscillator: { type: "fatsawtooth", count: 6, spread: 35 },
+      envelope: { attack: 0.5, decay: 0.3, sustain: 0.8, release: 2.5 }
     });
     audioState.strings.maxPolyphony = 32;
-    audioState.strings.chain(new Tone.Filter(1500, "lowpass"), audioState.masterVolume!);
+    audioState.strings.chain(new Tone.Chorus(4, 1.5, 0.5).start(), new Tone.Filter(1200, "lowpass"), audioState.masterVolume!);
+  }
+
+  if (!audioState.celesta) {
+    audioState.celesta = new Tone.PolySynth(Tone.FMSynth, {
+      harmonicity: 8,
+      modulationIndex: 20,
+      oscillator: { type: "sine" },
+      envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.5 },
+      modulation: { type: "square" },
+      modulationEnvelope: { attack: 0.002, decay: 0.05, sustain: 0, release: 0.05 }
+    });
+    audioState.celesta.maxPolyphony = 32;
+    audioState.celesta.chain(new Tone.Filter(4000, "lowpass"), audioState.masterVolume!);
+  }
+
+  if (!audioState.pad) {
+    audioState.pad = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: "fatsawtooth", count: 6, spread: 40 },
+      envelope: { attack: 1.5, decay: 0.5, sustain: 0.7, release: 3 }
+    });
+    audioState.pad.maxPolyphony = 32;
+    audioState.pad.chain(new Tone.Chorus(2, 1.5, 0.7).start(), new Tone.Filter(800, "lowpass"), audioState.masterVolume!);
   }
 
   if (!audioState.metronomeSynth) {

@@ -27,7 +27,7 @@ export interface ScoreRecord {
 }
 
 export type Theme = 'dark' | 'light' | 'cyber' | 'classic';
-export type Instrument = 'piano' | 'synth' | 'epiano' | 'strings';
+export type Instrument = 'piano' | 'synth' | 'epiano' | 'strings' | 'celesta' | 'pad';
 export type PlayMode = 'perform' | 'demo' | 'practice' | 'free';
 
 export interface AppState {

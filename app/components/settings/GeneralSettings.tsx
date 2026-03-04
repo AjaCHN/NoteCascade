@@ -75,7 +75,7 @@ export function GeneralSettings({
           <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.instrument}</label>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          {(['piano', 'synth', 'epiano', 'strings'] as Instrument[]).map((inst) => (
+          {(['piano', 'synth', 'epiano', 'strings', 'celesta', 'pad'] as Instrument[]).map((inst) => (
             <button
               key={inst}
               onClick={() => setInstrument(inst)}

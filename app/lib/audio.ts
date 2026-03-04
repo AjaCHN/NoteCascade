@@ -12,16 +12,27 @@ export const setAudioInstrument = (instrument: string) => {
 };
 
 export const initAudio = async () => {
-  await Tone.start();
+  if (Tone.getContext().state !== 'running') {
+    await Tone.start();
+  }
   
+  // Optimize for low latency
+  if (Tone.getContext().latencyHint !== 'interactive') {
+    Tone.getContext().latencyHint = 'interactive';
+  }
+  // Reduce lookahead to minimize delay between trigger and sound
+  if (Tone.getContext().lookAhead !== 0.01) {
+    Tone.getContext().lookAhead = 0.01;
+  }
+
   if (!audioState.masterVolume) {
-    audioState.masterEq = new Tone.EQ3({ low: 4, mid: -1, high: 2 });
-    audioState.masterReverb = new Tone.Freeverb({ roomSize: 0.6, dampening: 2000, wet: 0.2 });
-    audioState.masterCompressor = new Tone.Compressor({ threshold: -30, ratio: 12, attack: 0.003, release: 0.25 });
-    audioState.masterLimiter = new Tone.Limiter(-3);
+    audioState.masterEq = new Tone.EQ3({ low: 2, mid: -1, high: 1.5 });
+    audioState.masterReverb = new Tone.Reverb({ decay: 2.5, preDelay: 0.01, wet: 0.15 });
+    audioState.masterCompressor = new Tone.Compressor({ threshold: -24, ratio: 4, attack: 0.01, release: 0.25 });
+    audioState.masterLimiter = new Tone.Limiter(-1);
     audioState.vibrato = new Tone.Vibrato({ frequency: 5, depth: 0 });
     audioState.expressionGain = new Tone.Gain(1);
-    audioState.masterVolume = new Tone.Volume(-6);
+    audioState.masterVolume = new Tone.Volume(-8);
     
     audioState.masterVolume.chain(
       audioState.vibrato, audioState.expressionGain, audioState.masterEq, 
@@ -58,10 +69,12 @@ export const setSustainPedal = (isDown: boolean) => {
 };
 
 const stopNoteInternal = (noteToPlay: string) => {
-  const { currentInstrument, piano, epiano, strings, synth } = audioState;
+  const { currentInstrument, piano, epiano, strings, celesta, pad, synth } = audioState;
   if (currentInstrument === 'piano' && piano?.loaded) piano.triggerRelease(noteToPlay);
   else if (currentInstrument === 'epiano' && epiano) epiano.triggerRelease(noteToPlay);
   else if (currentInstrument === 'strings' && strings) strings.triggerRelease(noteToPlay);
+  else if (currentInstrument === 'celesta' && celesta) celesta.triggerRelease(noteToPlay);
+  else if (currentInstrument === 'pad' && pad) pad.triggerRelease(noteToPlay);
   else if (synth) synth.triggerRelease(noteToPlay);
 };
 
@@ -70,10 +83,12 @@ export const startNote = (note: string | number, velocity: number = 0.7) => {
   audioState.activeNotes.add(noteToPlay);
   audioState.sustainedNotes.delete(noteToPlay);
   
-  const { currentInstrument, piano, epiano, strings, synth } = audioState;
+  const { currentInstrument, piano, epiano, strings, celesta, pad, synth } = audioState;
   if (currentInstrument === 'piano' && piano?.loaded) piano.triggerAttack(noteToPlay, undefined, velocity);
   else if (currentInstrument === 'epiano' && epiano) epiano.triggerAttack(noteToPlay, undefined, velocity);
   else if (currentInstrument === 'strings' && strings) strings.triggerAttack(noteToPlay, undefined, velocity);
+  else if (currentInstrument === 'celesta' && celesta) celesta.triggerAttack(noteToPlay, undefined, velocity);
+  else if (currentInstrument === 'pad' && pad) pad.triggerAttack(noteToPlay, undefined, velocity);
   else if (synth) synth.triggerAttack(noteToPlay, undefined, velocity);
 };
 
@@ -86,10 +101,12 @@ export const stopNote = (note: string | number) => {
 
 export const playNote = (note: string | number, duration: string | number = '8n', velocity: number = 0.7) => {
   const noteToPlay = typeof note === 'number' ? Tone.Frequency(note, "midi").toNote() : note;
-  const { currentInstrument, piano, epiano, strings, synth } = audioState;
+  const { currentInstrument, piano, epiano, strings, celesta, pad, synth } = audioState;
   if (currentInstrument === 'piano' && piano?.loaded) piano.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
   else if (currentInstrument === 'epiano' && epiano) epiano.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
   else if (currentInstrument === 'strings' && strings) strings.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
+  else if (currentInstrument === 'celesta' && celesta) celesta.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
+  else if (currentInstrument === 'pad' && pad) pad.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
   else if (synth) synth.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
 };
 
@@ -105,10 +122,12 @@ export const scheduleNote = (
   const noteToPlay = Tone.Frequency(note.midi, "midi").toNote();
   Tone.Transport.schedule((time) => {
     if (onStart) Tone.Draw.schedule(onStart, time);
-    const { currentInstrument, piano, epiano, strings, synth } = audioState;
+    const { currentInstrument, piano, epiano, strings, celesta, pad, synth } = audioState;
     if (currentInstrument === 'piano' && piano?.loaded) piano.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
     else if (currentInstrument === 'epiano' && epiano) epiano.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
     else if (currentInstrument === 'strings' && strings) strings.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
+    else if (currentInstrument === 'celesta' && celesta) celesta.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
+    else if (currentInstrument === 'pad' && pad) pad.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
     else if (synth) synth.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
   }, note.time);
 

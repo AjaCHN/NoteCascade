@@ -6,6 +6,8 @@ export const audioState = {
   piano: null as Tone.Sampler | null,
   epiano: null as Tone.PolySynth | null,
   strings: null as Tone.PolySynth | null,
+  celesta: null as Tone.PolySynth | null,
+  pad: null as Tone.PolySynth | null,
   masterVolume: null as Tone.Volume | null,
   masterEq: null as Tone.EQ3 | null,
   masterReverb: null as Tone.Freeverb | null,
