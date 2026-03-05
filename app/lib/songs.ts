@@ -1,7 +1,7 @@
 // app/lib/songs.ts v1.7.2
 import { Midi } from '@tonejs/midi';
 import { generatedSongs } from './songs/index';
-import { Note, UnlockCondition, Song } from './songs/types';
+import type { Note, UnlockCondition, Song } from './songs/types';
 
 export type { Note, UnlockCondition, Song };
 

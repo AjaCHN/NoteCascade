@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import Vex from 'vexflow';
-import { Song } from '../lib/songs';
+import { Factory } from 'vexflow';
+import type { Song } from '../lib/songs';
 import { useTheme } from '../lib/store';
 
 interface SheetMusicViewProps {
@@ -20,10 +20,11 @@ export function SheetMusicView({ song, width, height }: SheetMusicViewProps) {
 
     // Clear previous rendering
     containerRef.current.innerHTML = '';
+    const containerId = 'vexflow-container';
+    containerRef.current.id = containerId;
 
-    const { Factory } = Vex.Flow;
     const vf = new Factory({
-      renderer: { elementId: containerRef.current, width, height: Math.max(height, 500) }
+      renderer: { elementId: containerId, width, height: Math.max(height, 500) }
     });
 
     const score = vf.EasyScore();
@@ -32,7 +33,6 @@ export function SheetMusicView({ song, width, height }: SheetMusicViewProps) {
     // Group notes into measures (simplified logic)
     // Assuming 4/4 time signature for simplicity
     const notes = song.notes;
-    const notesPerMeasure = 4; // approximate
     
     // Convert internal notes to VexFlow notes
     // This is a complex mapping. For now, let's just render a sample or the first few bars.

@@ -1,9 +1,9 @@
-// app/layout.tsx v2.0.1
+// app/layout.tsx v2.0.2
 import type {Metadata, Viewport} from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const version = '2.0.1';
+const version = '2.0.2';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -67,24 +67,9 @@ export const viewport: Viewport = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.addEventListener('error', function(e) {
-                if (e.message === 'ResizeObserver loop completed with undelivered notifications.') {
-                  const resizeObserverErrDiv = document.getElementById('webpack-dev-server-client-overlay-div');
-                  const resizeObserverErr = document.getElementById('webpack-dev-server-client-overlay');
-                  if (resizeObserverErr) resizeObserverErr.setAttribute('style', 'display: none');
-                  if (resizeObserverErrDiv) resizeObserverErrDiv.setAttribute('style', 'display: none');
-                  e.stopImmediatePropagation();
-                }
-              });
-            `,
-          }}
-        />
-      </head>
-      <body suppressHydrationWarning className="antialiased font-sans">{children}</body>
+      <body suppressHydrationWarning className="antialiased font-sans">
+        {children}
+      </body>
     </html>
   );
 }

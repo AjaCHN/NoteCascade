@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.2]
+- Refactor: Optimized imports by using `import type` for type-only imports across the codebase.
+- Fix: Resolved VexFlow 5.0.0 integration issues in `SheetMusicView.tsx`.
+- Fix: Restored missing `GameModals` import in `page.tsx`.
+- Chore: Cleaned up unused variables and imports.
+
 ## [2.0.1]
 - Fixed: Resolved circular dependencies by moving `getNextSong` to utils and inlining `usePracticeLogic`.
 - Fixed: `TypeError: Cannot read properties of undefined (reading 'call')` caused by module initialization order.

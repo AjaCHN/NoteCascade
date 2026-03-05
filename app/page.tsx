@@ -1,4 +1,4 @@
-// app/page.tsx v2.0.1
+// app/page.tsx v2.0.2
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -13,6 +13,7 @@ import { GameCanvas } from './components/GameCanvas';
 import { AppHeader } from './components/AppHeader';
 import { FloatingControls } from './components/FloatingControls';
 import { GameOverlays } from './components/GameOverlays';
+import { GameModals } from './components/GameModals';
 import { BackgroundEffects } from './components/BackgroundEffects';
 import { useGameLogic } from './hooks/use-game-logic';
 import { usePlayMode } from './lib/store';
