@@ -14,6 +14,7 @@ export const zhTW = {
     appDescription: '一款可視化的 MIDI 鍵盤練習應用，提供即時評分和成就系統。',
     versionHistory: '版本歷史',
     copyright: '© 2024 NoteCascade. 開源項目 (GPLv3).',
+    library: '曲庫',
   },
   common: {
     done: '完成',

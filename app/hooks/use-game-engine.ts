@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { Translation } from '../lib/translations';
 import type { Song } from '../lib/songs/types';
 
 export interface Feedback {
@@ -22,7 +23,7 @@ export function useGameEngine(
   activeNotes: Map<number, number>,
   isPlaying: boolean,
   keyboardRange: { start: number; end: number },
-  t: Record<string, string>,
+  t: Translation,
   dimensions: { width: number; height: number },
   keyGeometries: Map<number, { x: number, width: number, isBlack: boolean }>,
   onScoreUpdate: (score: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => void,
@@ -72,21 +73,21 @@ export function useGameEngine(
 
           let type: Feedback['type'] = 'good';
           let points = 50;
-          let text = t.good.toUpperCase();
+          let text = t.common.good.toUpperCase();
 
           if (absTimeDiff < PERFECT_THRESHOLD) {
             type = 'perfect';
             points = 100;
-            text = t.perfect.toUpperCase();
+            text = t.common.perfect.toUpperCase();
           } else if (timeDiff < 0) {
-            text = t.early;
+            text = t.game.early;
           } else {
-            text = t.late;
+            text = t.game.late;
           }
 
           const velocityDiff = velocity - match.velocity;
           if (Math.abs(velocityDiff) > 0.3) {
-            text += velocityDiff > 0 ? `\n${t.tooHard}` : `\n${t.tooSoft}`;
+            text += velocityDiff > 0 ? `\n${t.game.tooHard}` : `\n${t.game.tooSoft}`;
             points = Math.floor(points * 0.8);
           }
 
@@ -103,7 +104,7 @@ export function useGameEngine(
         } else {
           if (midi >= keyboardRange.start && midi <= keyboardRange.end) {
             setScore(prev => ({ ...prev, wrong: prev.wrong + 1, currentScore: Math.max(0, prev.currentScore - 10) }));
-            addFeedback(t.wrong.toUpperCase(), 'wrong', midi);
+            addFeedback(t.common.wrong.toUpperCase(), 'wrong', midi);
           }
         }
       }
@@ -113,7 +114,7 @@ export function useGameEngine(
       if (!processedNotes.current.has(idx) && n.time < currentTime - GOOD_THRESHOLD) {
         processedNotes.current.add(idx);
         setScore(prev => ({ ...prev, miss: prev.miss + 1 }));
-        addFeedback(t.miss.toUpperCase(), 'miss', n.midi);
+        addFeedback(t.common.miss.toUpperCase(), 'miss', n.midi);
       }
     });
 

@@ -6,7 +6,7 @@ import { X, Trophy, Music } from 'lucide-react';
 import { AchievementList } from './AchievementList';
 import { SongSelector } from './SongSelector';
 import { useLocale } from '../lib/store';
-import { translations } from '../lib/translations';
+import { translations, Translation } from '../lib/translations';
 import type { Song } from '../lib/songs';
 
 interface LibraryModalProps {

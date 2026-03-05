@@ -4,9 +4,7 @@
 import { motion } from 'motion/react';
 import { TimingBar } from './TimingBar';
 import type { Song } from '../lib/songs';
-
 import { Translation } from '../lib/translations';
-import type { Song } from '../lib/songs';
 
 interface GameStatsOverlayProps {
   song: Song;

@@ -14,6 +14,7 @@ export const zhCN = {
     appDescription: '一款可视化的 MIDI 键盘练习应用，提供实时评分和成就系统。',
     versionHistory: '版本历史',
     copyright: '© 2024 NoteCascade. 开源项目 (GPLv3).',
+    library: '曲库',
   },
   common: {
     done: '完成',

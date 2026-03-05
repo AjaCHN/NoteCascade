@@ -14,6 +14,7 @@ export const en = {
     appDescription: 'A visual/game-like MIDI keyboard practice app with real-time scoring and achievements.',
     versionHistory: 'Version History',
     copyright: '© 2024 NoteCascade. Open Source (GPLv3).',
+    library: 'Library',
   },
   common: {
     done: 'Done',

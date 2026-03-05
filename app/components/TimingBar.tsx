@@ -3,12 +3,13 @@
 
 import React, { useRef } from 'react';
 import { motion } from 'motion/react';
+import { Translation } from '../lib/translations';
 
 interface TimingBarProps {
   recentHits: { timeDiff: number; timestamp: number; type: string }[];
   perfectThreshold: number;
   goodThreshold: number;
-  t: Record<string, string>;
+  t: Translation;
   theme: string;
 }
 
@@ -42,9 +43,9 @@ export function TimingBar({ recentHits, perfectThreshold, goodThreshold, t, them
         ))}
       </div>
       <div className="flex justify-between text-[10px] font-black uppercase tracking-widest theme-text-secondary mt-2">
-        <span>{t.early.toUpperCase()}</span>
-        <span className="text-emerald-400">{t.perfect.toUpperCase()}</span>
-        <span>{t.late.toUpperCase()}</span>
+        <span>{t.game.early?.toUpperCase() || ''}</span>
+        <span className="text-emerald-400">{t.common.perfect?.toUpperCase() || ''}</span>
+        <span>{t.game.late?.toUpperCase() || ''}</span>
       </div>
     </div>
   );

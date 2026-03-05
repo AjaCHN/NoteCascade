@@ -54,7 +54,7 @@ export function SettingsModal({ onClose, midiProps }: SettingsModalProps) {
     setIsRangeManuallySet
   } = useAppActions();
 
-  const t = translations[locale];
+  const t: Translation = translations[locale];
 
   return (
     <motion.div 

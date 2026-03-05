@@ -23,7 +23,7 @@ const iconMap: Record<string, LucideIcon> = {
 export function AchievementList() {
   const achievements = useAchievements();
   const locale = useLocale();
-  const t = translations[locale];
+  const t: Translation = translations[locale];
 
   return (
     <div className="flex flex-col space-y-6 p-6">
@@ -62,10 +62,10 @@ export function AchievementList() {
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className={`font-black text-sm uppercase tracking-widest truncate ${isUnlocked ? 'text-white' : 'text-slate-500'}`}>
-                    {t.achievements[`${achievement.id}_title`] || achievement.title}
+                    {t.achievements[`${achievement.id}_title` as keyof typeof t.achievements] || achievement.title}
                   </span>
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest truncate mt-0.5">
-                    {t.achievements[`${achievement.id}_desc`] || achievement.description}
+                    {t.achievements[`${achievement.id}_desc` as keyof typeof t.achievements] || achievement.description}
                   </span>
                 </div>
               </div>

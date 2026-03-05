@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { Upload, Music, FileMusic } from 'lucide-react';
 import { useLocale } from '../lib/store';
-import { translations } from '../lib/translations';
+import { translations, Translation } from '../lib/translations';
 import { parseMidiFile, Song } from '../lib/songs';
 
 interface MidiUploadCardProps {
@@ -12,14 +12,14 @@ interface MidiUploadCardProps {
 
 export function MidiUploadCard({ onUpload }: MidiUploadCardProps) {
   const locale = useLocale();
-  const t = translations[locale] || translations.en;
+  const t: Translation = translations[locale];
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleFile = async (file: File) => {
     if (!file.name.toLowerCase().endsWith('.mid') && !file.name.toLowerCase().endsWith('.midi')) {
-      alert(t.midiParseError || 'Invalid file format. Please upload a .mid or .midi file.');
+      alert(t.game.midiParseError || 'Invalid file format. Please upload a .mid or .midi file.');
       return;
     }
 
@@ -29,7 +29,7 @@ export function MidiUploadCard({ onUpload }: MidiUploadCardProps) {
       onUpload(song);
     } catch (error) {
       console.error('Failed to parse MIDI:', error);
-      alert(t.midiParseError || 'Failed to parse MIDI file.');
+      alert(t.game.midiParseError || 'Failed to parse MIDI file.');
     } finally {
       setIsProcessing(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -88,7 +88,7 @@ export function MidiUploadCard({ onUpload }: MidiUploadCardProps) {
       </div>
 
       <h3 className="text-sm font-black uppercase tracking-widest theme-text-primary mb-1">
-        {isProcessing ? 'Processing...' : t.uploadMidi || 'Import MIDI'}
+        {isProcessing ? 'Processing...' : t.common.uploadMidi || 'Import MIDI'}
       </h3>
       
       <p className="text-[10px] font-bold uppercase tracking-wider theme-text-secondary text-center opacity-60 group-hover:opacity-100 transition-opacity">

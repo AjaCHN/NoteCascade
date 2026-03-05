@@ -106,14 +106,14 @@ export function AppHeader({
                   className="w-full px-4 py-2 text-left text-sm theme-text-secondary hover:theme-text-primary hover:bg-white/5 flex items-center gap-2"
                 >
                   <BookOpen className="w-4 h-4" />
-                  {t.guide}
+                  {t.ui.guide}
                 </button>
                 <button
                   onClick={() => { setInfoModalType('changelog'); setShowMenu(false); }}
                   className="w-full px-4 py-2 text-left text-sm theme-text-secondary hover:theme-text-primary hover:bg-white/5 flex items-center gap-2"
                 >
                   <FileText className="w-4 h-4" />
-                  {t.changelog}
+                  {t.ui.changelog}
                 </button>
                 <div className="h-px bg-white/5 my-1" />
                 <button
@@ -121,7 +121,7 @@ export function AppHeader({
                   className="w-full px-4 py-2 text-left text-sm theme-text-secondary hover:theme-text-primary hover:bg-white/5 flex items-center gap-2"
                 >
                   <Info className="w-4 h-4" />
-                  {t.about}
+                  {t.ui.about}
                 </button>
               </motion.div>
             )}
@@ -141,7 +141,7 @@ export function AppHeader({
                   : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'
               }`}
             >
-              {t[mode] || mode}
+              {t.game[mode] || mode}
             </button>
           ))}
         </div>
@@ -151,7 +151,7 @@ export function AppHeader({
         <button 
           onClick={() => setShowLibrary(!showLibrary)}
           className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${showLibrary ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
-          title={t.library || 'Library'}
+          title={t.ui.library || 'Library'}
         >
           <LibraryIcon className="h-5 w-5" />
         </button>
@@ -161,7 +161,7 @@ export function AppHeader({
           <button
             onClick={() => setShowAudioControls(!showAudioControls)}
             className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${showAudioControls ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
-            title={t.audioSettings || 'Audio Settings'}
+            title={t.settings.audioSettings || 'Audio Settings'}
           >
             <Sliders className="h-5 w-5" />
           </button>
@@ -176,7 +176,7 @@ export function AppHeader({
               >
                 {/* Keyboard Type Toggle */}
                 <div className="flex flex-col gap-2">
-                  <span className="text-xs font-bold uppercase tracking-widest theme-text-secondary">{t.keyboardType || 'Keyboard Type'}</span>
+                  <span className="text-xs font-bold uppercase tracking-widest theme-text-secondary">{t.settings.keyboardType || 'Keyboard Type'}</span>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => setKeyboardType('virtual')}
@@ -187,7 +187,7 @@ export function AppHeader({
                       }`}
                     >
                       <Monitor className="w-3.5 h-3.5" />
-                      {t.virtualKeyboard || 'Virtual'}
+                      {t.settings.virtualKeyboard || 'Virtual'}
                     </button>
                     <button
                       onClick={() => setKeyboardType('physical')}
@@ -198,7 +198,7 @@ export function AppHeader({
                       }`}
                     >
                       <KeyboardIcon className="w-3.5 h-3.5" />
-                      {t.physicalKeyboard || 'Physical'}
+                      {t.settings.physicalKeyboard || 'Physical'}
                     </button>
                   </div>
                 </div>
@@ -208,7 +208,7 @@ export function AppHeader({
                 {/* Metronome */}
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-widest theme-text-secondary">{t.metronome || 'Metronome'}</span>
+                    <span className="text-xs font-bold uppercase tracking-widest theme-text-secondary">{t.settings.metronome || 'Metronome'}</span>
                     <button 
                       onClick={() => setMetronomeEnabled(!metronomeEnabled)}
                       className={`p-1.5 rounded-lg transition-all ${metronomeEnabled ? 'bg-indigo-500 text-white' : 'bg-white/5 theme-text-secondary'}`}
@@ -223,7 +223,7 @@ export function AppHeader({
                       onChange={(e) => setMetronomeBpm(parseInt(e.target.value) || 120)}
                       className="w-16 bg-white/5 rounded px-2 py-1 theme-text-primary text-xs font-bold focus:outline-none border theme-border"
                     />
-                    <span className="text-[10px] theme-text-secondary font-bold">{t.bpm || 'BPM'}</span>
+                    <span className="text-[10px] theme-text-secondary font-bold">{t.common.bpm || 'BPM'}</span>
                     <select
                       value={metronomeBeats}
                       onChange={(e) => setMetronomeBeats(parseInt(e.target.value))}
@@ -239,7 +239,7 @@ export function AppHeader({
                 {/* Volume */}
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-widest theme-text-secondary">{t.volume || 'Volume'}</span>
+                    <span className="text-xs font-bold uppercase tracking-widest theme-text-secondary">{t.common.volume || 'Volume'}</span>
                     <span className="text-xs font-bold theme-text-primary">{volume}%</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -264,7 +264,7 @@ export function AppHeader({
         <button 
           onClick={() => setShowSettings(!showSettings)}
           className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
-          title={t.settings || 'Settings'}
+          title={t.settings.title || 'Settings'}
         >
           <Settings className="h-5 w-5" />
         </button>
@@ -298,14 +298,14 @@ export function AppHeader({
 
           {/* Tooltip on hover */}
           <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-black/80 backdrop-blur-md border theme-border rounded-lg text-[10px] font-bold uppercase tracking-widest theme-text-primary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-            {isConnecting ? (t.connecting || 'Connecting...') : selectedInputId ? (t.connected || 'Connected') : t.noDevice}
+            {isConnecting ? (t.game.connecting || 'Connecting...') : selectedInputId ? (t.game.connected || 'Connected') : t.game.noDevice}
           </div>
         </button>
 
         <button 
           onClick={toggleFullScreen}
           className="hidden md:flex rounded-full p-2.5 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
-          title={t.toggleFullScreen || 'Toggle Full Screen'}
+          title={t.settings.toggleFullScreen || 'Toggle Full Screen'}
         >
           {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
         </button>

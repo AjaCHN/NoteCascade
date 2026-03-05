@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { Translation } from '../lib/translations';
 import type { Song } from '../lib/songs/types';
 import { HIT_LINE_Y } from './use-game-engine';
 import type { Feedback } from './use-game-engine';
@@ -24,7 +25,7 @@ export function useGameRenderer(
   keyboardRange: { start: number; end: number },
   keyGeometries: Map<number, { x: number, width: number, isBlack: boolean }>,
   theme: string,
-  t: Record<string, string>,
+  t: Translation,
   showNoteNames: boolean,
   recentHits: { timeDiff: number; timestamp: number; type: Feedback['type'] }[],
   hitEffects: React.MutableRefObject<{ x: number; y: number; type: Feedback['type']; timestamp: number }[]>,
