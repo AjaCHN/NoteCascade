@@ -53,7 +53,7 @@ export function SongCard({
         <div className="flex items-center gap-2 w-full">
           <div className="flex-1 min-w-0 overflow-x-auto custom-scrollbar-mini pb-1">
             <span className={`font-black text-xl tracking-tight leading-none whitespace-nowrap ${unlocked ? 'theme-text-primary' : 'theme-text-secondary'}`}>
-              {t[`song_${song.id}`] || song.title}
+              {t.songs[song.id as keyof typeof t.songs] || song.title}
             </span>
           </div>
           {!unlocked && <Lock className="w-3.5 h-3.5 theme-text-secondary shrink-0" />}
@@ -77,9 +77,9 @@ export function SongCard({
             <span className={`text-[9px] uppercase tracking-[0.2em] font-black px-2 py-0.5 rounded-md border shrink-0 ${
               unlocked ? 'bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 border-indigo-500/20' : 'bg-slate-200 dark:bg-slate-900 text-slate-500 dark:text-slate-700 border-slate-300 dark:border-slate-800'
             }`}>
-              {song.style ? (t[`style_${song.style.toLowerCase()}`] || song.style) : ''}
+              {song.style ? (t.settings[`style_${song.style.toLowerCase()}` as keyof typeof t.settings] || song.style) : ''}
             </span>
-            <span className="text-xs theme-text-secondary font-bold uppercase tracking-widest opacity-80 truncate">{t[`artist_${song.artist.toLowerCase()}`] || song.artist}</span>
+            <span className="text-xs theme-text-secondary font-bold uppercase tracking-widest opacity-80 truncate">{t.artists[song.artist.toLowerCase() as keyof typeof t.artists] || song.artist}</span>
           </div>
         </div>
         

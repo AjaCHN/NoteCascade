@@ -1,22 +1,22 @@
-# Project Overview
+# 项目概述
 
-## Background
-NoteCascade is a modern, web-based MIDI piano practice application designed to help users master their keys through an engaging, waterfall-style rhythm game interface.
+## 背景
+NoteCascade 是一个现代化的基于 Web 的 MIDI 钢琴练习应用，旨在通过引人入胜的瀑布流节奏游戏界面帮助用户掌握琴键。
 
-## Goals
-- Provide an accessible, web-based platform for MIDI keyboard practice.
-- Offer real-time feedback and scoring for musical performance.
-- Support a wide range of languages and themes.
-- Foster a community of learners through achievements and progress tracking.
+## 目标
+- 提供一个无障碍、基于 Web 的 MIDI 键盘练习平台。
+- 为音乐演奏提供实时反馈和评分。
+- 支持多种语言和主题。
+- 通过成就系统和进度跟踪促进学习社区的形成。
 
-## Tech Stack
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS v4
-- **State Management**: Zustand
-- **Audio/MIDI**: Tone.js & Web MIDI API
-- **Animations**: Motion
-- **Icons**: Lucide React
+## 技术栈
+- **框架**: Next.js 15 (App Router)
+- **语言**: TypeScript
+- **样式**: Tailwind CSS v4
+- **状态管理**: Zustand
+- **音频/MIDI**: Tone.js & Web MIDI API
+- **动画**: Motion
+- **图标**: Lucide React
 
-## Architecture
-NoteCascade follows a component-based architecture, leveraging Next.js App Router for routing and server-side rendering where appropriate, while keeping the core gameplay logic client-side for performance.
+## 架构设计
+NoteCascade 采用组件化架构，利用 Next.js App Router 进行路由和服务器端渲染（在适当的情况下），同时将核心游戏逻辑保留在客户端以确保高性能。

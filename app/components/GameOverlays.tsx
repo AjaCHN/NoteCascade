@@ -1,6 +1,7 @@
 // app/components/GameOverlays.tsx v2.0.1
 'use client';
 
+import { Translation } from '../lib/translations';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface GameOverlaysProps {
@@ -8,7 +9,7 @@ interface GameOverlaysProps {
   playMode: string;
   hasPressedKey: boolean;
   isPlaying: boolean;
-  t: Record<string, string>;
+  t: Translation;
 }
 
 export function GameOverlays({
@@ -47,7 +48,7 @@ export function GameOverlays({
           >
             <div className="bg-black/60 backdrop-blur-md px-8 py-4 rounded-3xl border theme-border shadow-2xl">
               <span className="text-xl font-bold text-white tracking-widest uppercase">
-                {t.pressKeyToStart || 'Press any key to start practice'}
+                {t.game.pressKeyToStart || 'Press any key to start practice'}
               </span>
             </div>
           </motion.div>
@@ -61,7 +62,7 @@ export function GameOverlays({
           >
             <div className="bg-black/60 backdrop-blur-md px-8 py-4 rounded-3xl border theme-border shadow-2xl">
               <span className="text-xl font-bold text-white tracking-widest uppercase">
-                {t.feelFreeToPlay || 'Feel free to play'}
+                {t.game.feelFreeToPlay || 'Feel free to play'}
               </span>
             </div>
           </motion.div>

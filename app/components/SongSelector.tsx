@@ -20,7 +20,7 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
   const locale = useLocale();
   const scores = useScores();
   const achievements = useAchievements();
-  const t = translations[locale] || translations.en;
+  const t = translations[locale];
   
   const [filter, setFilter] = useState<string>('all');
   const [difficultyFilter, setDifficultyFilter] = useState<number | 'all'>('all');
@@ -41,7 +41,7 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
       onPlayPractice(song);
     } catch (error) {
       console.error('Failed to parse MIDI:', error);
-      alert(t.midiParseError);
+      alert(t.game.midiParseError);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -66,11 +66,11 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
     if (condition.description) return condition.description;
     if (condition.type === 'achievement') {
       const achievement = achievements.find(a => a.id === condition.value);
-      const achievementTitle = achievement ? (t[`ach_${achievement.id}_title`] || achievement.title) : condition.value;
-      return `${t.unlockCondition}: ${achievementTitle}`;
+      const achievementTitle = achievement ? (t.achievements[`${achievement.id}_title`] || achievement.title) : condition.value;
+      return `${t.common.unlockCondition}: ${achievementTitle}`;
     }
     if (condition.type === 'score') {
-      return `${t.unlockCondition}: ${condition.value} ${t.currentScore}`;
+      return `${t.common.unlockCondition}: ${condition.value} ${t.common.currentScore}`;
     }
     return '';
   };
@@ -95,7 +95,7 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <h2 className="text-xl font-black theme-text-primary flex items-center gap-3 text-glow">
             <Music className="w-6 h-6 text-indigo-500 dark:text-indigo-400" />
-            {t.library}
+            {t.ui.library}
           </h2>
           
           <div className="flex items-center gap-2 self-end md:self-auto">
@@ -104,7 +104,7 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
               className="p-2 rounded-xl theme-bg-secondary theme-border theme-text-secondary hover:theme-text-primary hover:theme-border-primary transition-all shadow-sm"
-              title={t.uploadMidi}
+              title={t.common.uploadMidi}
             >
               <Upload className={`w-4 h-4 ${isUploading ? 'animate-bounce' : ''}`} />
             </button>
@@ -143,7 +143,7 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
                           filter === style ? 'bg-indigo-500 border-indigo-400 text-white shadow-md' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-indigo-500/50'
                         }`}
                       >
-                        {style === 'all' ? t.all : (t[`style_${style.toLowerCase()}`] || style)}
+                        {style === 'all' ? t.common.all : (t.settings[`style_${style.toLowerCase()}`] || style)}
                       </button>
                     ))}
                   </div>
@@ -151,7 +151,7 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
 
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.level}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.common.level}</span>
                     {difficultyFilter !== 'all' && <button onClick={() => setDifficultyFilter('all')} className="text-[10px] text-rose-500 font-bold hover:underline">Clear</button>}
                   </div>
                   <div className="flex gap-1.5">
@@ -190,12 +190,12 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
         )) : (
           <div className="flex flex-col items-center justify-center py-20 px-6 text-center border border-dashed theme-border rounded-[2rem] theme-bg-secondary">
             <Music className="w-12 h-12 theme-text-secondary mb-4 opacity-50" />
-            <p className="theme-text-secondary text-sm font-bold uppercase tracking-[0.2em]">{t.noSongs}</p>
+            <p className="theme-text-secondary text-sm font-bold uppercase tracking-[0.2em]">{t.game.noSongs}</p>
             <button 
               onClick={() => { setFilter('all'); setDifficultyFilter('all'); }}
               className="mt-6 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 underline underline-offset-8 decoration-indigo-500/30"
             >
-              {t.clearFilters}
+              {t.game.clearFilters}
             </button>
           </div>
         )}

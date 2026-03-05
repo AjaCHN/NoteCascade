@@ -3,11 +3,12 @@
 
 import React from 'react';
 import { Cpu, Zap, Check, AlertCircle, Sliders, RefreshCw } from 'lucide-react';
+import { Translation } from '../../lib/translations';
 import type { MidiDevice, MidiMessage } from '../../hooks/use-midi';
 import type { VelocityCurve } from '../../lib/midi-utils';
 
 interface MidiSettingsProps {
-  t: Record<string, string>;
+  t: Translation;
   midiProps: {
     isSupported: boolean;
     inputs: MidiDevice[];
@@ -37,7 +38,7 @@ export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Cpu className="h-4 w-4 text-indigo-400" />
-            <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.midiInput}</label>
+            <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.settings.midiInput}</label>
           </div>
           <button 
             onClick={() => connectMidi()}
@@ -45,14 +46,14 @@ export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-colors text-xs font-bold ${isConnecting ? 'opacity-50 cursor-wait' : ''}`}
           >
             <RefreshCw className={`h-3 w-3 ${isConnecting ? 'animate-spin' : ''}`} />
-            <span>{isConnecting ? 'Connecting...' : t.refresh || 'Connect / Refresh'}</span>
+            <span>{isConnecting ? t.game.connecting : t.common.refresh}</span>
           </button>
         </div>
         {!isSupported ? (
           <div className="flex flex-col gap-3 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400">
             <div className="flex items-center gap-3">
               <AlertCircle className="h-5 w-5 shrink-0" />
-              <p className="text-xs font-bold leading-tight">{t.midiNotSupported || 'MIDI is not supported or access was denied.'}</p>
+              <p className="text-xs font-bold leading-tight">{t.game.midiNotSupported}</p>
             </div>
             {typeof navigator !== 'undefined' && !navigator.requestMIDIAccess && (
               <p className="text-[10px] opacity-80">
@@ -69,7 +70,7 @@ export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
           <div className="space-y-3">
             {inputs.length === 0 ? (
               <div className="p-4 rounded-2xl theme-bg-secondary border theme-border text-center">
-                <p className="text-xs font-bold theme-text-secondary">{t.noMidiDevices}</p>
+                <p className="text-xs font-bold theme-text-secondary">{t.game.noMidiDevices}</p>
               </div>
             ) : (
               <>
@@ -83,7 +84,7 @@ export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
                 >
                   <div className="flex items-center gap-3">
                     <div className={`h-2 w-2 rounded-full ${selectedInputId === 'all' || !selectedInputId ? 'bg-indigo-400 animate-pulse' : 'bg-slate-600'}`} />
-                    <span className="text-xs font-bold truncate max-w-[200px]">{t.allDevices || 'All Devices'}</span>
+                    <span className="text-xs font-bold truncate max-w-[200px]">{t.game.allDevices}</span>
                   </div>
                   {(selectedInputId === 'all' || !selectedInputId) && <Check className="h-4 w-4 text-indigo-400" />}
                 </button>
@@ -108,7 +109,7 @@ export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
             )}
             <div className="flex items-center gap-2 px-2">
               <Zap className="h-3 w-3 text-amber-400" />
-              <span className="text-[10px] theme-text-secondary font-bold italic">{t.midiAutoConnect}</span>
+              <span className="text-[10px] theme-text-secondary font-bold italic">{t.settings.midiAutoConnect}</span>
             </div>
             {midiProps.lastMessage && (
               <div className="mt-4 p-3 rounded-xl bg-slate-500/10 border border-slate-500/20">
@@ -124,11 +125,11 @@ export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
       <section>
         <div className="flex items-center gap-2 mb-4">
           <Sliders className="h-4 w-4 text-indigo-400" />
-          <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.midiConfig || 'MIDI Configuration'}</label>
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.settings.midiConfig}</label>
         </div>
         <div className="space-y-4 p-4 rounded-2xl theme-bg-secondary border theme-border">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold theme-text-primary">{t.channel || 'Channel'}</span>
+            <span className="text-xs font-bold theme-text-primary">{t.common.channel}</span>
             <select 
               value={midiChannel}
               onChange={(e) => setMidiChannel(parseInt(e.target.value))}
@@ -141,7 +142,7 @@ export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
             </select>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold theme-text-primary">{t.velocityCurve || 'Velocity Curve'}</span>
+            <span className="text-xs font-bold theme-text-primary">{t.common.velocityCurve}</span>
             <select 
               value={velocityCurve}
               onChange={(e) => setVelocityCurve(e.target.value as 'linear' | 'log' | 'exp' | 'fixed')}
@@ -154,7 +155,7 @@ export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
             </select>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold theme-text-primary">{t.transpose || 'Transpose'}</span>
+            <span className="text-xs font-bold theme-text-primary">{t.common.transpose}</span>
             <div className="flex items-center gap-3">
               <button onClick={() => setTranspose(transpose - 1)} className="theme-text-secondary hover:theme-text-primary px-2">-</button>
               <span className="text-xs font-bold theme-text-primary w-6 text-center">{transpose}</span>

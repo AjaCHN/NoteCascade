@@ -1,11 +1,14 @@
-# User Guide
+# 用户操作指南
 
-## Getting Started
-1. Connect your MIDI keyboard via USB.
-2. Select a song from the library.
-3. Play the notes as they fall to the hit line.
-4. Get points for accuracy and timing!
+## 快速入门
+1. 通过 USB 连接您的 MIDI 键盘。
+2. 从歌曲库中选择一首歌曲。
+3. 当音符落到打击线时按下对应的琴键。
+4. 根据准确度和时机获得积分！
 
-## Roles & Permissions
-- **User**: Can play songs, track progress, and earn achievements.
-- **Developer**: Can contribute to the codebase and manage the library.
+## 角色权限说明
+- **用户**: 可以演奏歌曲、跟踪练习进度、解锁成就。
+- **开发者**: 可以修改代码、管理歌曲库和进行系统配置。
+
+## 操作流程图
+[用户] -> [连接 MIDI] -> [选择歌曲] -> [开始演奏] -> [查看评分]

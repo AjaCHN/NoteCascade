@@ -19,7 +19,7 @@ interface LibraryModalProps {
 
 export function LibraryModal({ show, onClose, onPlayPractice, onPlayDemo, selectedSongId }: LibraryModalProps) {
   const locale = useLocale();
-  const t = translations[locale] || translations.en;
+  const t: Translation = translations[locale];
   const [activeTab, setActiveTab] = useState<'songs' | 'achievements'>('songs');
 
   return (
@@ -45,7 +45,7 @@ export function LibraryModal({ show, onClose, onPlayPractice, onPlayDemo, select
                     }`}
                   >
                     <Music className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-widest">{t.library || 'Songs'}</span>
+                    <span className="text-xs font-bold uppercase tracking-widest">{t.ui.library || 'Songs'}</span>
                   </button>
                   <button
                     onClick={() => setActiveTab('achievements')}
@@ -56,7 +56,7 @@ export function LibraryModal({ show, onClose, onPlayPractice, onPlayDemo, select
                     }`}
                   >
                     <Trophy className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-widest">{t.achievements}</span>
+                    <span className="text-xs font-bold uppercase tracking-widest">{t.achievements.title}</span>
                   </button>
                 </div>
               </div>

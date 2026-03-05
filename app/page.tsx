@@ -88,7 +88,7 @@ export default function MidiPlayApp() {
   const isBlackKey = (midi: number) => [1, 3, 6, 8, 10].includes(midi % 12);
   const whiteKeyCount = Array.from({ length: keyboardRange.end - keyboardRange.start + 1 }, (_, i) => keyboardRange.start + i)
       .filter(midi => !isBlackKey(midi)).length;
-  const minCanvasWidth = windowWidth < 768 
+  const minCanvasWidth = mounted && windowWidth < 768 
     ? Math.max(windowWidth, whiteKeyCount * 32) 
     : '100%';
 
@@ -99,7 +99,7 @@ export default function MidiPlayApp() {
   };
 
   if (!mounted) {
-    return <div className="flex h-dvh w-full items-center justify-center bg-slate-950 text-slate-500">{t.loading}</div>;
+    return <div className="flex h-dvh w-full items-center justify-center bg-slate-950 text-slate-500">{t.ui.loading}</div>;
   }
 
   return (

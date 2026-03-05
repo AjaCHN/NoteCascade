@@ -1,6 +1,7 @@
 // app/components/FloatingControls.tsx v2.0.1
 'use client';
 
+import { Translation } from '../lib/translations';
 import { motion } from 'motion/react';
 import { RotateCcw, RefreshCw, Play, Pause, SkipForward } from 'lucide-react';
 import type { Song } from '../lib/songs/types';
@@ -13,7 +14,7 @@ interface FloatingControlsProps {
   resetSong: () => void;
   togglePlay: () => void;
   handleNextSong: () => void;
-  t: Record<string, string>;
+  t: Translation;
 }
 
 export function FloatingControls({
@@ -32,10 +33,10 @@ export function FloatingControls({
     <div className="absolute top-4 right-4 flex flex-col gap-3 z-40">
       <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md p-2 rounded-2xl border theme-border shadow-lg">
         <div className="flex items-center gap-1">
-          <button onClick={resetSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.reset}>
+          <button onClick={resetSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.common.reset}>
             <RotateCcw className="w-4 h-4" />
           </button>
-          <button onClick={() => { resetSong(); togglePlay(); }} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.retry}>
+          <button onClick={() => { resetSong(); togglePlay(); }} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.common.retry}>
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
@@ -44,7 +45,7 @@ export function FloatingControls({
           {isPlaying ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current ml-1" />}
         </button>
         <div className="w-px h-6 bg-white/10 mx-1"></div>
-        <button onClick={handleNextSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.nextSong}>
+        <button onClick={handleNextSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.common.nextSong}>
           <SkipForward className="w-4 h-4" />
         </button>
       </div>

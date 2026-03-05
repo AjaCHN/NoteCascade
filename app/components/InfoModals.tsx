@@ -38,7 +38,7 @@ export function InfoModals({ isOpen, onClose, type }: InfoModalProps) {
             </div>
             
             <p className="text-center theme-text-secondary leading-relaxed">
-              {t.appDescription}
+              {t.ui.appDescription}
             </p>
 
             <div className="flex justify-center gap-4">
@@ -55,7 +55,7 @@ export function InfoModals({ isOpen, onClose, type }: InfoModalProps) {
 
             <div className="pt-6 border-t theme-border text-center">
               <p className="text-xs theme-text-secondary opacity-60">
-                {t.copyright}
+                {t.ui.copyright}
               </p>
             </div>
           </div>
@@ -66,7 +66,7 @@ export function InfoModals({ isOpen, onClose, type }: InfoModalProps) {
           <div className="space-y-6">
             <div className="flex items-center gap-3 mb-2">
               <FileText className="w-6 h-6 text-indigo-400" />
-              <h2 className="text-xl font-bold theme-text-primary">{t.versionHistory}</h2>
+              <h2 className="text-xl font-bold theme-text-primary">{t.ui.versionHistory}</h2>
             </div>
             
             <div className="space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
@@ -134,7 +134,7 @@ export function InfoModals({ isOpen, onClose, type }: InfoModalProps) {
           <div className="space-y-6">
             <div className="flex items-center gap-3 mb-2">
               <BookOpen className="w-6 h-6 text-emerald-400" />
-              <h2 className="text-xl font-bold theme-text-primary">{t.guideTitle}</h2>
+              <h2 className="text-xl font-bold theme-text-primary">{t.game.guideTitle}</h2>
             </div>
 
             <div className="grid gap-4">
@@ -142,7 +142,7 @@ export function InfoModals({ isOpen, onClose, type }: InfoModalProps) {
                 <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0 text-indigo-400 font-bold">1</div>
                 <div>
                   <h3 className="font-bold theme-text-primary mb-1">Connect</h3>
-                  <p className="text-sm theme-text-secondary">{t.guideConnect}</p>
+                  <p className="text-sm theme-text-secondary">{t.game.guideConnect}</p>
                 </div>
               </div>
 
@@ -150,7 +150,7 @@ export function InfoModals({ isOpen, onClose, type }: InfoModalProps) {
                 <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0 text-indigo-400 font-bold">2</div>
                 <div>
                   <h3 className="font-bold theme-text-primary mb-1">Select</h3>
-                  <p className="text-sm theme-text-secondary">{t.guideSelect}</p>
+                  <p className="text-sm theme-text-secondary">{t.game.guideSelect}</p>
                 </div>
               </div>
 
@@ -158,7 +158,7 @@ export function InfoModals({ isOpen, onClose, type }: InfoModalProps) {
                 <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0 text-indigo-400 font-bold">3</div>
                 <div>
                   <h3 className="font-bold theme-text-primary mb-1">Play</h3>
-                  <p className="text-sm theme-text-secondary">{t.guidePlay}</p>
+                  <p className="text-sm theme-text-secondary">{t.game.guidePlay}</p>
                 </div>
               </div>
             </div>
@@ -188,7 +188,7 @@ export function InfoModals({ isOpen, onClose, type }: InfoModalProps) {
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b theme-border bg-white/5">
               <span className="text-xs font-bold uppercase tracking-widest theme-text-secondary">
-                {type === 'about' ? t.about : type === 'changelog' ? t.changelog : t.guide}
+                {type === 'about' ? t.ui.about : type === 'changelog' ? t.ui.changelog : t.ui.guide}
               </span>
               <button 
                 onClick={onClose}

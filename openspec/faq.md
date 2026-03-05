@@ -1,13 +1,15 @@
-# FAQ & Troubleshooting
+# 常见问题解答 (FAQ) 与故障排除
 
-## FAQ
-- **Q: Can I use my own MIDI keyboard?**
-  - A: Yes, any MIDI-compatible keyboard connected via USB should work.
-- **Q: How can I change the theme?**
-  - A: Go to Settings and select your preferred theme.
+## 常见问题 (FAQ)
+- **Q: 可以使用自己的 MIDI 键盘吗？**
+  - A: 可以，任何通过 USB 连接且受浏览器支持的 MIDI 兼容键盘均可使用。
+- **Q: 如何切换主题？**
+  - A: 进入设置菜单并选择您偏好的主题。
 
-## Troubleshooting
-- **MIDI not detected?**
-  - Ensure your keyboard is connected via USB and supported by your browser.
-- **Build failing?**
-  - Try deleting `node_modules` and `.next` and reinstalling dependencies.
+## 故障排除
+- **MIDI 未检测到？**
+  - 确保键盘已通过 USB 连接，并且浏览器具有 MIDI 访问权限。
+- **构建失败？**
+  - 尝试删除 `node_modules` 和 `.next` 目录，然后重新运行 `npm install`。
+- **无法正常演奏？**
+  - 检查 MIDI 延迟设置，并确保您的键盘已正确配置。

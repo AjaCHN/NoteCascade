@@ -1,9 +1,13 @@
-# Functional Modules
+# 功能模块说明
 
-## Core Modules
-- **MIDI Input**: Handles MIDI device connection and input processing using the Web MIDI API.
-- **Waterfall Gameplay**: Visualizes falling notes and provides real-time scoring.
-- **Achievement System**: Tracks user progress and unlocks achievements.
-- **Theming**: Manages theme selection (Dark, Light, Cyber, Classic).
-- **Library**: Manages the library of built-in songs and user uploads.
-- **Settings**: Configures audio, MIDI, and UI settings.
+## 核心功能模块
+- **MIDI 输入**: 处理 MIDI 设备连接和 Web MIDI API 的实时输入处理。
+- **瀑布流游戏**: 可视化下落音符并提供实时评分和准确度反馈。
+- **成就系统**: 跟踪用户进度、统计数据并解锁成就。
+- **主题切换**: 管理多种主题（深色、浅色、赛博朋克、经典）。
+- **歌曲库**: 管理内置歌曲库和用户上传的 MIDI 文件。
+- **设置**: 配置音频、MIDI 延迟和 UI 设置。
+
+## 关键逻辑
+- 游戏循环：使用 `requestAnimationFrame` 进行连续的物理逻辑更新。
+- 状态同步：使用 Zustand 进行全局状态管理，确保 UI 与 MIDI 输入同步。

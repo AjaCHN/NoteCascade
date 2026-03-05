@@ -78,10 +78,10 @@ export function AppHeader({
         </div>
         <div className="hidden lg:block">
           <h1 id="app-title" className="text-lg md:text-xl font-bold tracking-tight theme-text-primary text-glow">
-            {t.title} 
+            {t.ui.title} 
             <span className="text-[10px] font-mono text-indigo-400 ml-1 opacity-70">v{version}</span>
           </h1>
-          <p className="text-[10px] uppercase tracking-[0.2em] theme-text-secondary font-bold opacity-80">{t.subtitle}</p>
+          <p className="text-[10px] uppercase tracking-[0.2em] theme-text-secondary font-bold opacity-80">{t.ui.subtitle}</p>
         </div>
 
         {/* Menu Button */}
