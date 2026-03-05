@@ -24,11 +24,16 @@ export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps)
   const [countdown, setCountdown] = useState(10);
 
   useEffect(() => {
+    if (countdown === 0) {
+      onClose();
+    }
+  }, [countdown, onClose]);
+
+  useEffect(() => {
     const timer = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
           clearInterval(timer);
-          onClose();
           return 0;
         }
         return prev - 1;
@@ -36,7 +41,7 @@ export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps)
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [onClose]);
+  }, []);
 
   const totalNotes = score.perfect + score.good + score.miss + score.wrong;
   const accuracy = totalNotes > 0 
