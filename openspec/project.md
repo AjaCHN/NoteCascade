@@ -1,31 +1,22 @@
-# 项目规范：NoteCascade v1.7.2
+# Project Overview
 
-## 概览
-NoteCascade 是一款视觉化 MIDI 键盘练习应用，旨在通过类游戏的界面帮助用户掌握钢琴技能。它具有瀑布流式的音符显示、实时评分和成就系统。
+## Background
+NoteCascade is a modern, web-based MIDI piano practice application designed to help users master their keys through an engaging, waterfall-style rhythm game interface.
 
-## 核心功能
-- **实时 MIDI 输入**：通过 Web MIDI API 连接物理 MIDI 键盘。
-- **视觉反馈**：与所选歌曲同步的下落音符，支持完整下落动画。在自由演奏模式下，音符会根据按键时间向上发射。
-- **评分系统**：Perfect（完美）、Good（良好）、Miss（错过）和 Wrong（错误）击键检测。
-- **曲库**：内置不同难度等级的歌曲，支持 MIDI 文件上传，响应式布局。
-- **成就系统**：练习里程碑的可解锁奖励。
-- **音频反馈**：为演奏的音符提供高质量的合成器声音。
-- **练习模式**：音符在未正确按下时停止下落，辅助练习。
-- **自由演奏**：无评分、无反馈的自由弹奏模式，隐藏浮动控件，专注于自由创作。
-- **多语言支持**：支持 11 种语言。
-- **动态键盘范围**：根据连接的 MIDI 设备或当前歌曲自动调整键盘显示范围，确保黑白键的正确渲染。
+## Goals
+- Provide an accessible, web-based platform for MIDI keyboard practice.
+- Offer real-time feedback and scoring for musical performance.
+- Support a wide range of languages and themes.
+- Foster a community of learners through achievements and progress tracking.
 
-## 技术栈
-- **框架**：Next.js 15+ (App Router)
-- **语言**：TypeScript
-- **样式**：Tailwind CSS
-- **动画**：Framer Motion (motion/react)
-- **音频**：Tone.js
-- **状态管理**：Zustand
-- **图标**：Lucide React
+## Tech Stack
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4
+- **State Management**: Zustand
+- **Audio/MIDI**: Tone.js & Web MIDI API
+- **Animations**: Motion
+- **Icons**: Lucide React
 
-## UI/UX 特性
-- **顶部工具栏**：集成节拍器、音量控制、成就入口和全屏切换。
-- **悬浮控制面板**：游戏内的播放控制和进度条（在自由演奏模式下自动隐藏）。
-- **设备状态指示**：通过颜色和图标直观显示 MIDI 连接状态。
-- **响应式设计**：适配不同屏幕尺寸，曲库列表自动调整列数，移动端自动缩减键盘范围至 25 键。
+## Architecture
+NoteCascade follows a component-based architecture, leveraging Next.js App Router for routing and server-side rendering where appropriate, while keeping the core gameplay logic client-side for performance.

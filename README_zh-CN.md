@@ -66,6 +66,15 @@
 -   **动画**：[Motion](https://motion.dev/)
 -   **图标**：[Lucide React](https://lucide.dev/)
 
+## 📚 文档
+
+- [项目概述](./openspec/project.md)
+- [安装与部署](./openspec/deployment.md)
+- [功能模块说明](./openspec/modules.md)
+- [API 接口文档](./openspec/api.md)
+- [用户操作指南](./openspec/user-guide.md)
+- [常见问题与故障排除](./openspec/faq.md)
+
 ## 🤝 贡献
 
 欢迎贡献！请随时提交 Pull Request。

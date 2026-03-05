@@ -66,6 +66,15 @@
 -   **Animations**: [Motion](https://motion.dev/)
 -   **Icons**: [Lucide React](https://lucide.dev/)
 
+## 📚 Documentation
+
+- [Project Overview](./openspec/project.md)
+- [Installation & Deployment](./openspec/deployment.md)
+- [Functional Modules](./openspec/modules.md)
+- [API Documentation](./openspec/api.md)
+- [User Guide](./openspec/user-guide.md)
+- [FAQ & Troubleshooting](./openspec/faq.md)
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
