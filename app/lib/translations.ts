@@ -1,4 +1,4 @@
-// app/lib/translations.ts v2.0.3
+// app/lib/translations.ts v2.0.4
 import { en } from '../locales/en';
 import { zhCN } from '../locales/zh-CN';
 import { zhTW } from '../locales/zh-TW';
