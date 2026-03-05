@@ -1,4 +1,4 @@
-// app/components/InfoModals.tsx v2.0.1
+// app/components/InfoModals.tsx v2.0.3
 'use client';
 
 import { motion, AnimatePresence } from 'motion/react';
@@ -70,15 +70,36 @@ export function InfoModals({ isOpen, onClose, type }: InfoModalProps) {
             </div>
             
             <div className="space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
-              {/* v2.0.1 */}
+              {/* v2.0.3 */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-xs font-mono font-bold">v2.0.1</span>
+                  <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-xs font-mono font-bold">v2.0.3</span>
                   <span className="text-xs theme-text-secondary">Current</span>
                 </div>
                 <ul className="list-disc list-inside space-y-1 text-sm theme-text-secondary ml-1">
+                  <li>Moved `app/lib/locales` to `app/locales` for better project structure.</li>
+                </ul>
+              </div>
+
+              {/* v2.0.2 */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded bg-white/10 theme-text-secondary text-xs font-mono font-bold">v2.0.2</span>
+                </div>
+                <ul className="list-disc list-inside space-y-1 text-sm theme-text-secondary ml-1">
+                  <li>Optimized imports by using `import type` for type-only imports across the codebase.</li>
+                  <li>Resolved VexFlow 5.0.0 integration issues in `SheetMusicView.tsx`.</li>
+                  <li>Restored missing `GameModals` import in `page.tsx`.</li>
+                </ul>
+              </div>
+
+              {/* v2.0.1 */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded bg-white/10 theme-text-secondary text-xs font-mono font-bold">v2.0.1</span>
+                </div>
+                <ul className="list-disc list-inside space-y-1 text-sm theme-text-secondary ml-1">
                   <li>Removed redundant React imports across the codebase.</li>
-                  <li>Bumped version to v2.0.1.</li>
                 </ul>
               </div>
 

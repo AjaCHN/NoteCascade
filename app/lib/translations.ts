@@ -1,15 +1,15 @@
-// app/lib/translations.ts v2.0.1
-import { en } from './locales/en';
-import { zhCN } from './locales/zh-CN';
-import { zhTW } from './locales/zh-TW';
-import { es } from './locales/es';
-import { ar } from './locales/ar';
-import { fr } from './locales/fr';
-import { ptBR } from './locales/pt-BR';
-import { de } from './locales/de';
-import { ja } from './locales/ja';
-import { ko } from './locales/ko';
-import { ru } from './locales/ru';
+// app/lib/translations.ts v2.0.3
+import { en } from '../locales/en';
+import { zhCN } from '../locales/zh-CN';
+import { zhTW } from '../locales/zh-TW';
+import { es } from '../locales/es';
+import { ar } from '../locales/ar';
+import { fr } from '../locales/fr';
+import { ptBR } from '../locales/pt-BR';
+import { de } from '../locales/de';
+import { ja } from '../locales/ja';
+import { ko } from '../locales/ko';
+import { ru } from '../locales/ru';
 
 export type Locale = 'en' | 'zh-CN' | 'zh-TW' | 'es' | 'ar' | 'fr' | 'pt-BR' | 'de' | 'ja' | 'ko' | 'ru';
 

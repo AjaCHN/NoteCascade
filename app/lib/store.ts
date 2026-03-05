@@ -29,6 +29,7 @@ export const useAppStore = create<AppState>()(
       metronomeEnabled: false,
       metronomeBpm: 120,
       metronomeBeats: 4,
+      keyboardType: 'virtual',
       actions: {
         unlockAchievement: (id) =>
           set((state) => {
@@ -85,6 +86,7 @@ export const useAppStore = create<AppState>()(
         setMetronomeEnabled: (metronomeEnabled) => set({ metronomeEnabled }),
         setMetronomeBpm: (metronomeBpm) => set({ metronomeBpm }),
         setMetronomeBeats: (metronomeBeats) => set({ metronomeBeats }),
+        setKeyboardType: (keyboardType) => set({ keyboardType }),
         resetProgress: () =>
           set({
             achievements: INITIAL_ACHIEVEMENTS, scores: [], totalPracticeTime: 0, dailyStreak: 0,
@@ -92,6 +94,7 @@ export const useAppStore = create<AppState>()(
             theme: 'dark', instrument: 'piano', playMode: 'perform',
             keyboardRange: { start: 48, end: 84 }, showNoteNames: true, showKeymap: true,
             isRangeManuallySet: false, metronomeEnabled: false, metronomeBpm: 120, metronomeBeats: 4,
+            keyboardType: 'virtual',
           }),
       },
     }),
@@ -107,6 +110,7 @@ export const useAppStore = create<AppState>()(
         keyboardRange: state.keyboardRange, isRangeManuallySet: state.isRangeManuallySet,
         showNoteNames: state.showNoteNames, showKeymap: state.showKeymap,
         metronomeEnabled: state.metronomeEnabled, metronomeBpm: state.metronomeBpm, metronomeBeats: state.metronomeBeats,
+        keyboardType: state.keyboardType,
       }),
       merge: (persistedState, currentState) => {
         const persisted = persistedState as AppState;
@@ -136,5 +140,6 @@ export const useIsRangeManuallySet = () => useAppStore((state) => state.isRangeM
 export const useMetronomeEnabled = () => useAppStore((state) => state.metronomeEnabled);
 export const useMetronomeBpm = () => useAppStore((state) => state.metronomeBpm);
 export const useMetronomeBeats = () => useAppStore((state) => state.metronomeBeats);
+export const useKeyboardType = () => useAppStore((state) => state.keyboardType);
 export const useAppActions = () => useAppStore((state) => state.actions);
 

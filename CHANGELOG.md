@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.0.3]
+- Refactor: Moved `app/lib/locales` to `app/locales` for better project structure.
+
 ## [2.0.2]
 - Refactor: Optimized imports by using `import type` for type-only imports across the codebase.
 - Fix: Resolved VexFlow 5.0.0 integration issues in `SheetMusicView.tsx`.

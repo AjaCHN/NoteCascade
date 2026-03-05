@@ -50,6 +50,7 @@ export interface AppState {
   metronomeEnabled: boolean;
   metronomeBpm: number;
   metronomeBeats: number;
+  keyboardType: 'virtual' | 'physical';
   actions: {
     unlockAchievement: (id: string) => void;
     addScore: (score: ScoreRecord) => void;
@@ -66,6 +67,7 @@ export interface AppState {
     setMetronomeEnabled: (enabled: boolean) => void;
     setMetronomeBpm: (bpm: number) => void;
     setMetronomeBeats: (beats: number) => void;
+    setKeyboardType: (type: 'virtual' | 'physical') => void;
     resetProgress: () => void;
     checkAchievements: () => void;
     updateStreak: () => void;

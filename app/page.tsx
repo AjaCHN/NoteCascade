@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useMidi } from './hooks/use-midi';
 import { useKeyboardInput } from './hooks/use-keyboard-input';
 import { setVolume } from './lib/audio';
-import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, useShowNoteNames, useShowKeymap, useIsRangeManuallySet, useAppStore } from './lib/store';
+import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, useShowNoteNames, useShowKeymap, useIsRangeManuallySet, useAppStore, useKeyboardType } from './lib/store';
 import { builtInSongs } from './lib/songs';
 import { translations } from './lib/translations';
 import { Keyboard } from './components/Keyboard';
@@ -32,6 +32,7 @@ export default function MidiPlayApp() {
   } = useMidi();
   const { setKeyboardRange, setPlayMode, setSongs } = useAppActions();
   const songs = useAppStore(state => state.songs);
+  const keyboardType = useKeyboardType();
   const [viewMode, setViewMode] = useState<'waterfall' | 'sheet'>('waterfall');
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
@@ -181,22 +182,24 @@ export default function MidiPlayApp() {
               />
             </div>
 
-            <div id="keyboard-wrapper" className="shrink-0 relative z-20 h-24 md:h-32 border-t theme-border">
-              <Keyboard 
-                activeNotes={activeNotes} 
-                startNote={keyboardRange.start} 
-                endNote={keyboardRange.end} 
-                showNoteNames={showNoteNames}
-                showKeymap={showKeymap}
-                keyMap={{
-                  'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59,
-                  'q': 60, '2': 61, 'w': 62, '3': 63, 'e': 64, 'r': 65, '5': 66, 't': 67, '6': 68, 'y': 69, '7': 70, 'u': 71,
-                  'i': 72, '9': 73, 'o': 74, '0': 75, 'p': 76
-                }}
-                onNoteOn={(midi) => setActiveNotes(prev => new Map(prev).set(midi, 0.7))}
-                onNoteOff={(midi) => setActiveNotes(prev => { const next = new Map(prev); next.delete(midi); return next; })}
-              />
-            </div>
+            {keyboardType === 'virtual' && (
+              <div id="keyboard-wrapper" className="shrink-0 relative z-20 h-24 md:h-32 border-t theme-border">
+                <Keyboard 
+                  activeNotes={activeNotes} 
+                  startNote={keyboardRange.start} 
+                  endNote={keyboardRange.end} 
+                  showNoteNames={showNoteNames}
+                  showKeymap={showKeymap}
+                  keyMap={{
+                    'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59,
+                    'q': 60, '2': 61, 'w': 62, '3': 63, 'e': 64, 'r': 65, '5': 66, 't': 67, '6': 68, 'y': 69, '7': 70, 'u': 71,
+                    'i': 72, '9': 73, 'o': 74, '0': 75, 'p': 76
+                  }}
+                  onNoteOn={(midi) => setActiveNotes(prev => new Map(prev).set(midi, 0.7))}
+                  onNoteOff={(midi) => setActiveNotes(prev => { const next = new Map(prev); next.delete(midi); return next; })}
+                />
+              </div>
+            )}
           </div>
         </section>
       </main>

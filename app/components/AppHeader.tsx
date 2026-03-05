@@ -6,12 +6,12 @@ import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
   Volume2, VolumeX, Clock, Library as LibraryIcon, Sliders,
-  Menu, Info, FileText, BookOpen
+  Menu, Info, FileText, BookOpen, Keyboard as KeyboardIcon, Monitor
 } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { 
   useLocale, useAppActions, usePlayMode,
-  useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats
+  useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, useKeyboardType
 } from '../lib/store';
 import pkg from '../../package.json';
 import { motion, AnimatePresence } from 'motion/react';
@@ -54,8 +54,9 @@ export function AppHeader({
   const metronomeEnabled = useMetronomeEnabled();
   const metronomeBpm = useMetronomeBpm();
   const metronomeBeats = useMetronomeBeats();
+  const keyboardType = useKeyboardType();
   const playMode = usePlayMode();
-  const { setMetronomeEnabled, setMetronomeBpm, setMetronomeBeats, setPlayMode } = useAppActions();
+  const { setMetronomeEnabled, setMetronomeBpm, setMetronomeBeats, setPlayMode, setKeyboardType } = useAppActions();
   const t = translations[locale] || translations.en;
   const [showAudioControls, setShowAudioControls] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -173,6 +174,37 @@ export function AppHeader({
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
                 className="absolute top-full right-0 mt-2 p-4 rounded-2xl theme-bg-secondary border theme-border shadow-2xl w-64 z-50 flex flex-col gap-4"
               >
+                {/* Keyboard Type Toggle */}
+                <div className="flex flex-col gap-2">
+                  <span className="text-xs font-bold uppercase tracking-widest theme-text-secondary">{t.keyboardType || 'Keyboard Type'}</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setKeyboardType('virtual')}
+                      className={`flex items-center justify-center gap-2 py-2 rounded-xl border text-[10px] font-bold transition-all ${
+                        keyboardType === 'virtual'
+                          ? 'border-indigo-500 bg-indigo-500/10 theme-text-primary shadow-lg shadow-indigo-500/10'
+                          : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-text-primary'
+                      }`}
+                    >
+                      <Monitor className="w-3.5 h-3.5" />
+                      {t.virtualKeyboard || 'Virtual'}
+                    </button>
+                    <button
+                      onClick={() => setKeyboardType('physical')}
+                      className={`flex items-center justify-center gap-2 py-2 rounded-xl border text-[10px] font-bold transition-all ${
+                        keyboardType === 'physical'
+                          ? 'border-indigo-500 bg-indigo-500/10 theme-text-primary shadow-lg shadow-indigo-500/10'
+                          : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-text-primary'
+                      }`}
+                    >
+                      <KeyboardIcon className="w-3.5 h-3.5" />
+                      {t.physicalKeyboard || 'Physical'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="h-px bg-white/10 w-full" />
+
                 {/* Metronome */}
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">

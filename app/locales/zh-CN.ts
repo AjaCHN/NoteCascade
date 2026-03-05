@@ -1,4 +1,4 @@
-// app/lib/locales/zh-CN.ts v1.7.2
+// app/locales/zh-CN.ts v2.0.3
 export const zhCN = {
     title: '音符瀑布',
     subtitle: '掌控你的琴键',
@@ -181,6 +181,9 @@ export const zhCN = {
     volume: '音量',
     bpm: 'BPM',
     beats: '拍数',
+    keyboardType: '键盘类型',
+    virtualKeyboard: '虚拟键盘',
+    physicalKeyboard: '实体键盘',
     noMidiDevices: '未找到 MIDI 设备',
     menu: '菜单',
     about: '关于',

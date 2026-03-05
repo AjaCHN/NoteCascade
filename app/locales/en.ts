@@ -1,4 +1,4 @@
-// app/lib/locales/en.ts v1.7.2
+// app/locales/en.ts v2.0.3
 export const en = {
     title: 'NoteCascade',
     subtitle: 'Master your keys',
@@ -144,6 +144,9 @@ export const en = {
     volume: 'Volume',
     bpm: 'BPM',
     beats: 'Beats',
+    keyboardType: 'Keyboard Type',
+    virtualKeyboard: 'Virtual Keyboard',
+    physicalKeyboard: 'Physical Keyboard',
     noMidiDevices: 'No MIDI devices found',
     menu: 'Menu',
     about: 'About',
