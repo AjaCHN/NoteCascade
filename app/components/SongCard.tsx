@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Star, Trophy, Lock, Play, Keyboard as KeyboardIcon } from 'lucide-react';
+import { Translation } from '../lib/translations';
 import type { Song } from '../lib/songs';
 
 interface SongCardProps {
@@ -14,7 +15,7 @@ interface SongCardProps {
   unlockDescription: string;
   onPlayPractice: (song: Song) => void;
   onPlayDemo: (song: Song) => void;
-  t: Record<string, string>;
+  t: Translation;
 }
 
 export function SongCard({ 
@@ -53,7 +54,7 @@ export function SongCard({
         <div className="flex items-center gap-2 w-full">
           <div className="flex-1 min-w-0 overflow-x-auto custom-scrollbar-mini pb-1">
             <span className={`font-black text-xl tracking-tight leading-none whitespace-nowrap ${unlocked ? 'theme-text-primary' : 'theme-text-secondary'}`}>
-              {t.songs[song.id as keyof typeof t.songs] || song.title}
+              {t.songs[song.id] || song.title}
             </span>
           </div>
           {!unlocked && <Lock className="w-3.5 h-3.5 theme-text-secondary shrink-0" />}
@@ -77,9 +78,9 @@ export function SongCard({
             <span className={`text-[9px] uppercase tracking-[0.2em] font-black px-2 py-0.5 rounded-md border shrink-0 ${
               unlocked ? 'bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 border-indigo-500/20' : 'bg-slate-200 dark:bg-slate-900 text-slate-500 dark:text-slate-700 border-slate-300 dark:border-slate-800'
             }`}>
-              {song.style ? (t.settings[`style_${song.style.toLowerCase()}` as keyof typeof t.settings] || song.style) : ''}
+              {song.style ? (t.settings[`style_${song.style.toLowerCase()}`] || song.style) : ''}
             </span>
-            <span className="text-xs theme-text-secondary font-bold uppercase tracking-widest opacity-80 truncate">{t.artists[song.artist.toLowerCase() as keyof typeof t.artists] || song.artist}</span>
+            <span className="text-xs theme-text-secondary font-bold uppercase tracking-widest opacity-80 truncate">{t.artists[song.artist.toLowerCase()] || song.artist}</span>
           </div>
         </div>
         
@@ -111,14 +112,14 @@ export function SongCard({
               className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-bold uppercase tracking-widest transition-colors"
             >
               <KeyboardIcon className="w-4 h-4" />
-              {t.practice || 'Practice'}
+              {t.game.practice || 'Practice'}
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onPlayDemo(song); }}
               className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold uppercase tracking-widest transition-colors"
             >
               <Play className="w-4 h-4" />
-              {t.demo || 'Demo'}
+              {t.game.demo || 'Demo'}
             </button>
           </motion.div>
         )}

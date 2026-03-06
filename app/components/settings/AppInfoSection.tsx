@@ -4,9 +4,7 @@
 import React from 'react';
 import { Info, Github, User, Heart, ExternalLink } from 'lucide-react';
 import pkg from '../../../package.json';
-
 import { Translation } from '../../lib/translations';
-import pkg from '../../../package.json';
 
 interface AppInfoSectionProps {
   t: Translation;

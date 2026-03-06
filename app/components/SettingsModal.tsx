@@ -8,8 +8,7 @@ import {
   useLocale, useTheme, useInstrument, useAppActions, 
   useKeyboardRange, useShowNoteNames, useShowKeymap
 } from '../lib/store';
-import { Translation } from '../lib/translations';
-import { translations } from '../lib/translations';
+import { Translation, translations } from '../lib/translations';
 
 // Sub-components
 import { GeneralSettings } from './settings/GeneralSettings';

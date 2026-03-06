@@ -1,9 +1,10 @@
-// app/layout.tsx v2.0.3
+// app/layout.tsx v2.0.4
 import type {Metadata, Viewport} from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+import { AuthProvider } from './lib/auth-context';
 
-const version = '2.0.3';
+const version = '2.0.4';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -68,7 +69,9 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body suppressHydrationWarning className="antialiased font-sans">
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

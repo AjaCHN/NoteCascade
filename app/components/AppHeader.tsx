@@ -16,6 +16,7 @@ import {
 import pkg from '../../package.json';
 import { motion, AnimatePresence } from 'motion/react';
 import { InfoModals } from './InfoModals';
+import { ProfileButton } from './ProfileButton';
 
 const { version } = pkg;
 
@@ -268,6 +269,8 @@ export function AppHeader({
         >
           <Settings className="h-5 w-5" />
         </button>
+        
+        <ProfileButton />
 
         <button 
           onClick={() => connectMidi && connectMidi()}

@@ -4,9 +4,7 @@
 import React from 'react';
 import { Keyboard as KeyboardIcon } from 'lucide-react';
 import { motion } from 'motion/react';
-
 import { Translation } from '../../lib/translations';
-import { motion } from 'motion/react';
 
 interface KeyboardSettingsProps {
   keyboardRange: { start: number; end: number };
