@@ -13,12 +13,11 @@ import {
   useLocale, useAppActions, usePlayMode,
   useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, useKeyboardType
 } from '../lib/store';
-import pkg from '../../package.json';
 import { motion, AnimatePresence } from 'motion/react';
 import { InfoModals } from './InfoModals';
 import { ProfileButton } from './ProfileButton';
 
-const { version } = pkg;
+const version = '2.0.4';
 
 interface AppHeaderProps {
   theme: string;

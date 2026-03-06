@@ -20,6 +20,8 @@
 -   **🎨 Theming**: Choose from multiple themes (Dark, Light, Cyber, Classic) to suit your style.
 -   **📱 Responsive Design**: Works on desktop and mobile devices (touch support included).
 -   **🎵 Built-in Songs**: Practice with a library of built-in songs across various styles.
+-   **🔐 Authentication**: Secure user accounts with Firebase for progress tracking.
+-   **⚙️ Practice Mode**: Adjustable speed and looping for focused learning.
 
 ## 🚀 Getting Started
 
