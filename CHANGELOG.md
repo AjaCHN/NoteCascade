@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.1.5]
+- Fix: Added polyfill for `CanvasRenderingContext2D.roundRect` to prevent runtime errors in older environments.
+- Refactor: Updated renderer to use the `roundRect` helper consistently.
+
+## [2.1.4]
+- Fix: Resolved circular dependency in store logic causing runtime errors.
+- Refactor: Consolidated achievement logic into store.ts.
+
+## [2.1.2]
+- UI: Removed "Perform" mode from the top menu.
+- UI: Renamed "Free Play" mode to "Perform" (演奏) to simplify the user experience.
+- Store: Set "Perform" (formerly Free Play) as the default mode.
+
 ## [2.0.3]
 - Refactor: Moved `app/lib/locales` to `app/locales` for better project structure.
 

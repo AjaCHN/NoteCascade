@@ -1,4 +1,4 @@
-// app/locales/zh-TW.ts v2.1.0
+// app/locales/zh-TW.ts v2.1.2
 export const zhTW = {
   ui: {
     title: '音符瀑布',
@@ -131,8 +131,7 @@ export const zhTW = {
     play: '播放',
     practice: '練習',
     demo: '演示',
-    freePlay: '自由演奏',
-    perform: '演奏',
+    free: '演奏',
     pressKeyToStart: '按下任意鍵開始練習',
     restart: '重新開始',
     feelFreeToPlay: '隨時暢玩',

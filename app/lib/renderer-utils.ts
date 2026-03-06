@@ -1,4 +1,4 @@
-// app/lib/renderer-utils.ts v2.0.1
+// app/lib/renderer-utils.ts v2.1.5
 
 export const FALL_SPEED = 200;
 
@@ -37,6 +37,20 @@ const COLORS = {
     miss: '251, 191, 36'
   }
 };
+
+export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  if (ctx.roundRect) {
+    ctx.roundRect(x, y, w, h, r);
+  } else {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+  }
+}
 
 export function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number, hitLineY: number, theme: string) {
   ctx.strokeStyle = theme === 'light' ? COLORS.light.grid : COLORS.dark.grid;
@@ -98,7 +112,7 @@ export function drawTimingBar(
 
   ctx.fillStyle = colors.barBg;
   ctx.beginPath();
-  ctx.roundRect(barX, barY, barWidth, barHeight, 6);
+  roundRect(ctx, barX, barY, barWidth, barHeight, 6);
   ctx.fill();
   
   ctx.strokeStyle = colors.barStroke;
@@ -123,7 +137,7 @@ export function drawTimingBar(
     ctx.fillStyle = `rgba(${rgb}, ${opacity})`;
 
     ctx.beginPath();
-    ctx.roundRect(hitX - 3, barY - 2, 6, barHeight + 4, 3);
+    roundRect(ctx, hitX - 3, barY - 2, 6, barHeight + 4, 3);
     ctx.fill();
   });
 

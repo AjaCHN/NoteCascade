@@ -1,4 +1,4 @@
-// app/page.tsx v2.0.3
+// app/page.tsx v2.1.5
 'use client';
 
 import dynamic from 'next/dynamic';

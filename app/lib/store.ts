@@ -1,11 +1,71 @@
-// app/lib/store.ts v2.0.1
+// app/lib/store.ts v2.1.3
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { INITIAL_ACHIEVEMENTS } from './achievements-data';
 import type { AppState, Achievement, ScoreRecord, Theme, Instrument, PlayMode } from './store/types';
-import { checkAchievementsLogic } from './store/achievement-logic';
+import type { Song } from './songs/types';
 
 export type { Achievement, ScoreRecord, Theme, Instrument, PlayMode };
+
+function checkAchievementsLogic(state: AppState, songs: Song[]): Achievement[] {
+  const { scores, totalPracticeTime, dailyStreak, totalNotesHit, achievements } = state;
+  const lastScore = scores[0];
+
+  return achievements.map(ach => {
+    if (ach.unlockedAt) return ach;
+
+    let unlocked = false;
+    let progress = ach.progress || 0;
+
+    switch (ach.id) {
+      case 'first_song':
+        if (scores.length > 0) unlocked = true;
+        break;
+      case 'perfect_10':
+        if (lastScore && lastScore.perfect >= 10) unlocked = true;
+        break;
+      case 'practice_1h':
+        progress = totalPracticeTime;
+        if (totalPracticeTime >= 3600) unlocked = true;
+        break;
+      case 'score_90':
+        if (lastScore && lastScore.accuracy >= 0.9) unlocked = true;
+        break;
+      case 'play_3_styles':
+        const styles = new Set(scores.map(s => {
+          const song = songs.find(song => song.id === s.songId);
+          return song?.style;
+        }).filter(Boolean));
+        progress = styles.size;
+        if (styles.size >= 3) unlocked = true;
+        break;
+      case 'streak_3':
+        progress = dailyStreak;
+        if (dailyStreak >= 3) unlocked = true;
+        break;
+      case 'notes_1000':
+        progress = totalNotesHit;
+        if (totalNotesHit >= 1000) unlocked = true;
+        break;
+      case 'full_combo':
+        if (lastScore && lastScore.miss === 0 && lastScore.wrong === 0) unlocked = true;
+        break;
+      case 'early_bird':
+        const hour = new Date().getHours();
+        if (hour < 8 && lastScore) unlocked = true;
+        break;
+      case 'night_owl':
+        const hourOwl = new Date().getHours();
+        if (hourOwl >= 22 && lastScore) unlocked = true;
+        break;
+    }
+
+    if (unlocked) {
+      return { ...ach, unlockedAt: Date.now(), progress: ach.maxProgress || progress };
+    }
+    return { ...ach, progress };
+  });
+}
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -21,7 +81,7 @@ export const useAppStore = create<AppState>()(
       locale: 'en',
       theme: 'dark',
       instrument: 'piano',
-      playMode: 'perform',
+      playMode: 'free',
       keyboardRange: { start: 48, end: 84 },
       showNoteNames: true,
       showKeymap: true,
@@ -91,7 +151,7 @@ export const useAppStore = create<AppState>()(
           set({
             achievements: INITIAL_ACHIEVEMENTS, scores: [], totalPracticeTime: 0, dailyStreak: 0,
             lastPracticeDate: null, totalNotesHit: 0, songsCompleted: 0, locale: 'en',
-            theme: 'dark', instrument: 'piano', playMode: 'perform',
+            theme: 'dark', instrument: 'piano', playMode: 'free',
             keyboardRange: { start: 48, end: 84 }, showNoteNames: true, showKeymap: true,
             isRangeManuallySet: false, metronomeEnabled: false, metronomeBpm: 120, metronomeBeats: 4,
             keyboardType: 'virtual',

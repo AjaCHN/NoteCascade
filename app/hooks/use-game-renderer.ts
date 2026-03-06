@@ -1,4 +1,4 @@
-// app/hooks/use-game-renderer.ts v2.0.1
+// app/hooks/use-game-renderer.ts v2.1.5
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -7,7 +7,7 @@ import type { Song } from '../lib/songs/types';
 import { HIT_LINE_Y } from './use-game-engine';
 import type { Feedback } from './use-game-engine';
 import type { PlayMode } from '../lib/store';
-import { drawGrid, drawHitLine, drawKeyMarkers, FALL_SPEED } from '../lib/renderer-utils';
+import { drawGrid, drawHitLine, drawKeyMarkers, FALL_SPEED, roundRect } from '../lib/renderer-utils';
 
 interface FreePlayNote {
   midi: number;
@@ -126,7 +126,7 @@ export function useGameRenderer(
             const opacity = note.endTime ? Math.max(0, 0.8 * (1 - (now - note.endTime) / 2000)) : 0.8;
             ctx.fillStyle = `hsla(${hue}, 80%, 50%, ${opacity})`;
             ctx.beginPath();
-            ctx.roundRect(geo.x + 2, noteTopY, geo.width - 4, noteHeight, 6);
+            roundRect(ctx, geo.x + 2, noteTopY, geo.width - 4, noteHeight, 6);
             ctx.fill();
             ctx.fillStyle = `rgba(255, 255, 255, ${opacity * 0.2})`;
             ctx.fillRect(geo.x + 4, noteTopY + 2, geo.width - 8, Math.min(noteHeight - 4, 3));
@@ -153,7 +153,7 @@ export function useGameRenderer(
             const hue = (note.midi * 137.5) % 360;
             ctx.fillStyle = `hsla(${hue}, 80%, 50%, 0.9)`;
             ctx.beginPath();
-            ctx.roundRect(geo.x + 2, noteY - noteHeight, geo.width - 4, noteHeight, 6);
+            roundRect(ctx, geo.x + 2, noteY - noteHeight, geo.width - 4, noteHeight, 6);
             ctx.fill();
             ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
             ctx.fillRect(geo.x + 4, noteY - noteHeight + 2, geo.width - 8, 3);

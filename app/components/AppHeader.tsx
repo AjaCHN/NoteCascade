@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { InfoModals } from './InfoModals';
 import { ProfileButton } from './ProfileButton';
 
-const version = '2.0.4';
+const version = '2.1.2';
 
 interface AppHeaderProps {
   theme: string;
@@ -131,7 +131,7 @@ export function AppHeader({
 
       <div className="flex-1 flex justify-center overflow-hidden px-2">
         <div className="flex items-center gap-1 p-1 rounded-full theme-bg-secondary border theme-border overflow-x-auto custom-scrollbar-mini max-w-full">
-          {(['perform', 'demo', 'practice', 'free'] as const).map((mode) => (
+          {(['demo', 'practice', 'free'] as const).map((mode) => (
             <button
               key={mode}
               onClick={() => setPlayMode(mode)}

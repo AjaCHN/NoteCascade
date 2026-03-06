@@ -1,4 +1,4 @@
-// app/locales/en.ts v2.1.0
+// app/locales/en.ts v2.1.2
 export const en = {
   ui: {
     title: 'NoteCascade',
@@ -131,8 +131,7 @@ export const en = {
     play: 'Play',
     practice: 'Practice',
     demo: 'Demo',
-    freePlay: 'Free Play',
-    perform: 'Perform',
+    free: 'Perform',
     pressKeyToStart: 'Press any key to start practice',
     restart: 'Restart',
     feelFreeToPlay: 'Feel free to play',

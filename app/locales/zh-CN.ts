@@ -1,4 +1,4 @@
-// app/locales/zh-CN.ts v2.1.0
+// app/locales/zh-CN.ts v2.1.2
 export const zhCN = {
   ui: {
     title: '音符瀑布',
@@ -99,8 +99,7 @@ export const zhCN = {
     play: '播放',
     practice: '练习',
     demo: '演示',
-    freePlay: '自由演奏',
-    perform: '演奏',
+    free: '演奏',
     pressKeyToStart: '按下任意键开始练习',
     restart: '重新开始',
     feelFreeToPlay: '随时畅玩',

@@ -1,4 +1,4 @@
-// app/components/AppRoot.tsx v2.0.2
+// app/components/AppRoot.tsx v2.1.2
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
