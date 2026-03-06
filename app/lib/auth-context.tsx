@@ -1,4 +1,4 @@
-// app/lib/auth-context.tsx v1.0.1
+// app/lib/auth-context.tsx v1.0.2
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
@@ -19,7 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const { auth } = getFirebase();
     if (!auth) {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 0);
       return;
     }
     const unsubscribe = onAuthStateChanged(auth, (user) => {

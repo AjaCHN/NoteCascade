@@ -1,9 +1,9 @@
-// app/components/AuthModal.tsx v1.0.1
+// app/components/AuthModal.tsx v1.0.2
 'use client';
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Mail, Lock, User } from 'lucide-react';
+import { X, Mail, Lock } from 'lucide-react';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { getFirebase } from '../lib/firebase';
 
@@ -33,8 +33,8 @@ export function AuthModal({ show, onClose }: AuthModalProps) {
         await createUserWithEmailAndPassword(auth, email, password);
       }
       onClose();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
     }
   };
 
