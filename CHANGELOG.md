@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.1.6]
+- Config: Added `measurementId` to Firebase configuration and initialized Analytics.
+
 ## [2.1.5]
 - Fix: Added polyfill for `CanvasRenderingContext2D.roundRect` to prevent runtime errors in older environments.
 - Refactor: Updated renderer to use the `roundRect` helper consistently.
