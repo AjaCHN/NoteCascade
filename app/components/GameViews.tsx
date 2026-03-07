@@ -3,7 +3,6 @@ import { GameCanvas } from './GameCanvas';
 import { SheetMusicView } from './SheetMusicView';
 import { NumberedNotationView } from './NumberedNotationView';
 import type { Song } from '../lib/songs/types';
-import type { ScoreRecord } from '../lib/store/types';
 
 interface GameViewsProps {
   viewMode: 'waterfall' | 'sheet' | 'numbered';

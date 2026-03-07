@@ -1,4 +1,4 @@
-// app/components/AppHeader.tsx v2.3.0
+// app/components/AppHeader.tsx v2.3.1
 'use client';
 
 import { useState } from 'react';
@@ -17,7 +17,7 @@ import { ProfileButton } from './ProfileButton';
 import { AudioControls } from './header/AudioControls';
 import { MenuDropdown } from './header/MenuDropdown';
 
-const version = '2.3.0';
+const version = '2.3.1';
 
 interface AppHeaderProps {
   theme: string;
@@ -106,7 +106,8 @@ export function AppHeader({
         </div>
       </div>
 
-      <div className="flex-1 flex justify-center overflow-hidden px-2">
+      <div className="flex-1 flex justify-center items-center gap-4 overflow-hidden px-2">
+        {/* Play Mode Toggle */}
         <div className="flex items-center gap-1 p-1 rounded-full theme-bg-secondary border theme-border overflow-x-auto custom-scrollbar-mini max-w-full">
           {(['demo', 'practice', 'free'] as const).map((mode) => (
             <button
@@ -121,6 +122,43 @@ export function AppHeader({
               {t.game[mode] || mode}
             </button>
           ))}
+        </div>
+
+        {/* View Mode Toggle */}
+        <div className="hidden sm:flex items-center gap-1 p-1 rounded-full theme-bg-secondary border theme-border shrink-0">
+          <button
+            onClick={() => setViewMode('waterfall')}
+            className={`p-1.5 rounded-full transition-all ${
+              viewMode === 'waterfall' 
+                ? 'bg-indigo-500 text-white shadow-md' 
+                : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'
+            }`}
+            title="Waterfall View"
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setViewMode('sheet')}
+            className={`p-1.5 rounded-full transition-all ${
+              viewMode === 'sheet' 
+                ? 'bg-indigo-500 text-white shadow-md' 
+                : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'
+            }`}
+            title="Sheet Music"
+          >
+            <Music className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setViewMode('numbered')}
+            className={`p-1.5 rounded-full transition-all ${
+              viewMode === 'numbered' 
+                ? 'bg-indigo-500 text-white shadow-md' 
+                : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'
+            }`}
+            title="Numbered Notation"
+          >
+            <Hash className="w-4 h-4" />
+          </button>
         </div>
       </div>
 

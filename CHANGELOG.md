@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.3.1]
+- UI: Moved view mode toggle button to the top toolbar (AppHeader) for better accessibility.
+
 ## [2.3.0]
 - Refactor: Extracted large components (`AppHeader`, `AppRoot`, `InfoModals`, `SongSelector`) into smaller, focused sub-components (`MenuDropdown`, `AudioControls`, `GameViews`, `ChangelogContent`, `SongFilters`).
 - Refactor: Split `use-game-logic.ts` and `use-midi.ts` hooks into smaller, more manageable hooks (`useGameScore`, `useMidiMessage`).
