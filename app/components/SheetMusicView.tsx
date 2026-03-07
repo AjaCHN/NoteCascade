@@ -1,8 +1,9 @@
+// app/components/SheetMusicView.tsx v2.0.0
 'use client';
 
 import React, { useEffect, useRef } from 'react';
 import { Factory } from 'vexflow';
-import type { Song } from '../lib/songs';
+import type { Song } from '../lib/songs/types';
 import { useTheme } from '../lib/store';
 
 interface SheetMusicViewProps {
@@ -21,47 +22,67 @@ export function SheetMusicView({ song, width, height }: SheetMusicViewProps) {
     // Clear previous rendering
     containerRef.current.innerHTML = '';
     const containerId = 'vexflow-container';
-    containerRef.current.id = containerId;
+    // Create a wrapper for scrolling
+    const wrapper = document.createElement('div');
+    wrapper.id = containerId;
+    containerRef.current.appendChild(wrapper);
 
+    // Calculate dimensions
+    // Estimate width based on number of measures.
+    // Assuming 4/4 time, approx 4 beats per measure.
+    // This is a very rough estimation.
+    const notesCount = song.notes.length;
+    const estimatedMeasures = Math.ceil(notesCount / 4); 
+    const staveWidth = 250;
+    const totalWidth = Math.max(width, estimatedMeasures * staveWidth);
+    
     const vf = new Factory({
-      renderer: { elementId: containerId, width, height: Math.max(height, 500) }
+      renderer: { elementId: containerId, width: totalWidth, height: Math.max(height, 400) }
     });
 
     const score = vf.EasyScore();
     const system = vf.System();
 
-    // Group notes into measures (simplified logic)
-    // Assuming 4/4 time signature for simplicity
-    const notes = song.notes;
+    // Simplified rendering: Just dump notes into a single long stave for now
+    // Real implementation requires complex measure splitting logic
     
-    // Convert internal notes to VexFlow notes
-    // This is a complex mapping. For now, let's just render a sample or the first few bars.
-    // Real implementation requires robust quantization and measure splitting.
+    // Group notes into chunks of 4 (roughly a measure)
+    const chunkSize = 4;
+    const notes = song.notes.sort((a, b) => a.time - b.time);
     
-    // Simplified: Just render the first few notes to prove integration
-    const vfNotes = notes.slice(0, 16).map(n => {
-      const noteName = getNoteName(n.midi);
-      // Default to quarter notes for visualization
-      return `${noteName}/q`;
-    }).join(', ');
+    // Render measures
+    for (let i = 0; i < notes.length; i += chunkSize) {
+      const chunk = notes.slice(i, i + chunkSize);
+      const vfNotes = chunk.map(n => {
+        const noteName = getNoteName(n.midi);
+        return `${noteName}/q`; // Force quarter notes for simplicity
+      }).join(', ');
 
-    if (vfNotes) {
+      if (vfNotes) {
         try {
-            system.addStave({
+            const stave = system.addStave({
                 voices: [
                     score.voice(score.notes(vfNotes, { stem: 'up' }))
                 ]
-            }).addClef('treble').addTimeSignature('4/4');
+            });
             
-            vf.draw();
+            if (i === 0) {
+                stave.addClef('treble').addTimeSignature('4/4');
+            }
         } catch (e) {
             console.error("VexFlow rendering error:", e);
-            containerRef.current.innerHTML = '<div class="p-4 text-center opacity-50">Sheet music rendering is experimental.</div>';
         }
+      }
+    }
+    
+    try {
+        vf.draw();
+    } catch (e) {
+        console.warn("VexFlow draw error", e);
     }
 
     // Style adjustments for theme
-    const svg = containerRef.current.querySelector('svg');
+    const svg = wrapper.querySelector('svg');
     if (svg) {
       svg.style.width = '100%';
       svg.style.height = '100%';
@@ -75,8 +96,11 @@ export function SheetMusicView({ song, width, height }: SheetMusicViewProps) {
   return (
     <div 
       ref={containerRef} 
-      className="w-full h-full overflow-y-auto bg-white dark:bg-slate-900 transition-colors duration-300"
-    />
+      className="w-full h-full overflow-auto bg-white dark:bg-slate-900 transition-colors duration-300 flex items-center justify-center"
+    >
+      {/* VexFlow content will be injected here */}
+      {!song.notes && <div className="text-slate-500">No notes to display</div>}
+    </div>
   );
 }
 

@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { InfoModals } from './InfoModals';
 import { ProfileButton } from './ProfileButton';
 
-const version = '2.1.2';
+const version = '2.2.2';
 
 interface AppHeaderProps {
   theme: string;

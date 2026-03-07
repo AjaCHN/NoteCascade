@@ -1,4 +1,4 @@
-// app/components/AppRoot.tsx v2.1.2
+// app/components/AppRoot.tsx v2.1.3
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -22,7 +22,8 @@ import { useKeyboardRangeLogic } from '../hooks/use-keyboard-range-logic';
 import { useUIState } from '../hooks/use-ui-state';
 import { useCountdownAndPrompts } from '../hooks/use-countdown-and-prompts';
 import { SheetMusicView } from './SheetMusicView';
-import { FileText, Music } from 'lucide-react';
+import { NumberedNotationView } from './NumberedNotationView'; // Import new component
+import { FileText, Music, Hash } from 'lucide-react'; // Added Hash icon for numbered notation
 
 export default function AppRoot() {
   const { 
@@ -33,7 +34,10 @@ export default function AppRoot() {
   const { setKeyboardRange, setPlayMode, setSongs } = useAppActions();
   const songs = useAppStore(state => state.songs);
   const keyboardType = useKeyboardType();
-  const [viewMode, setViewMode] = useState<'waterfall' | 'sheet'>('waterfall');
+  
+  // Updated viewMode state type
+  const [viewMode, setViewMode] = useState<'waterfall' | 'sheet' | 'numbered'>('waterfall');
+  
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
@@ -127,13 +131,16 @@ export default function AppRoot() {
           setVolumeState(val);
           setVolume(val);
         }}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
       />
 
       <main id="main-content" className="flex flex-1 overflow-hidden relative z-10">
         <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden bg-transparent overflow-x-auto custom-scrollbar">
           <div className="flex-1 flex flex-col min-h-0 relative" style={{ minWidth: typeof minCanvasWidth === 'number' ? `${minCanvasWidth}px` : minCanvasWidth }}>
             <div id="game-canvas-container" ref={canvasContainerRef} className="flex-1 relative min-h-0">
-              {viewMode === 'waterfall' ? (
+              
+              {viewMode === 'waterfall' && (
                 <GameCanvas
                   song={selectedSong}
                   currentTime={currentTime}
@@ -144,7 +151,9 @@ export default function AppRoot() {
                   showNoteNames={showNoteNames}
                   theme={theme}
                 />
-              ) : (
+              )}
+              
+              {viewMode === 'sheet' && (
                 <SheetMusicView 
                   song={selectedSong} 
                   width={containerSize.width} 
@@ -152,15 +161,14 @@ export default function AppRoot() {
                 />
               )}
 
-              <div className="absolute top-4 right-4 z-30 flex gap-2">
-                <button
-                  onClick={() => setViewMode(viewMode === 'waterfall' ? 'sheet' : 'waterfall')}
-                  className="p-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all"
-                  title="Toggle View"
-                >
-                  {viewMode === 'waterfall' ? <FileText className="w-5 h-5" /> : <Music className="w-5 h-5" />}
-                </button>
-              </div>
+              {viewMode === 'numbered' && (
+                <NumberedNotationView 
+                  song={selectedSong} 
+                  currentTime={currentTime}
+                  height={containerSize.height}
+                  isPlaying={isPlaying}
+                />
+              )}
 
               <GameOverlays 
                 countdown={countdown}

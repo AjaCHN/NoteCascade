@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.2.2]
+- Fix: Resolved build errors by migrating `next.config.ts` to `next.config.mjs` and cleaning build artifacts.
+
+## [2.2.1]
+- UI: Moved view mode toggle button to the top toolbar (AppHeader) for better accessibility.
+
+## [2.2.0]
+- Feat: Added view mode switching (Waterfall / Sheet Music / Numbered Notation).
+- Feat: Implemented basic Numbered Notation (Jianpu) view with auto-scrolling.
+- Refactor: Improved Sheet Music view rendering to support more notes.
+
 ## [2.1.6]
 - Config: Added `measurementId` to Firebase configuration and initialized Analytics.
 
