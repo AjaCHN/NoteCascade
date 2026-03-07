@@ -66,7 +66,7 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
     if (condition.description) return condition.description;
     if (condition.type === 'achievement') {
       const achievement = achievements.find(a => a.id === condition.value);
-      const achievementTitle = achievement ? (t.achievements[`${achievement.id}_title`] || achievement.title) : condition.value;
+      const achievementTitle = achievement ? (t.achievements[`${achievement.id}_title` as keyof typeof t.achievements] || achievement.title) : condition.value;
       return `${t.common.unlockCondition}: ${achievementTitle}`;
     }
     if (condition.type === 'score') {

@@ -1,39 +1,50 @@
-// app/lib/songs.ts v1.7.2
+// app/lib/songs.ts v2.4.2
+import { Song } from './songs/types';
 import { Midi } from '@tonejs/midi';
-import { generatedSongs } from './songs/index';
-import type { Note, UnlockCondition, Song } from './songs/types';
 
-export type { Note, UnlockCondition, Song };
+export type { Song };
 
-export const builtInSongs: Song[] = generatedSongs;
+export const songs: Song[] = [
+  { 
+    id: '1', 
+    title: 'C Major Scale', 
+    artist: 'Traditional', 
+    difficulty: 1,
+    midiUrl: '/midi/c-major-scale.mid'
+  },
+  { 
+    id: '2', 
+    title: 'Twinkle Twinkle', 
+    artist: 'Traditional', 
+    difficulty: 1,
+    midiUrl: '/midi/twinkle-twinkle.mid'
+  },
+];
+
+export const builtInSongs = songs;
 
 export async function parseMidiFile(file: File): Promise<Song> {
   const arrayBuffer = await file.arrayBuffer();
   const midi = new Midi(arrayBuffer);
   
-  const notes: Note[] = [];
-  midi.tracks.forEach(track => {
-    track.notes.forEach(note => {
-      notes.push({
-        midi: note.midi,
-        time: note.time,
-        duration: note.duration,
-        velocity: note.velocity,
-      });
-    });
-  });
+  // Extract notes from the first track that has notes
+  const track = midi.tracks.find(t => t.notes.length > 0);
+  if (!track) throw new Error('No notes found in MIDI file');
 
-  // Sort notes by time
-  notes.sort((a, b) => a.time - b.time);
+  const notes = track.notes.map(n => ({
+    midi: n.midi,
+    time: n.time,
+    duration: n.duration,
+    velocity: n.velocity
+  }));
 
   return {
-    id: file.name.replace(/\.[^/.]+$/, ""),
-    title: midi.name || file.name,
+    id: `custom-${Date.now()}`,
+    title: file.name.replace(/\.mid$/i, ''),
     artist: 'Unknown',
-    difficulty: 3,
-    midiUrl: '',
-    style: 'Custom',
-    duration: midi.duration,
-    notes: notes,
+    difficulty: 1, // Default difficulty
+    midiUrl: URL.createObjectURL(file),
+    notes,
+    duration: midi.duration
   };
 }

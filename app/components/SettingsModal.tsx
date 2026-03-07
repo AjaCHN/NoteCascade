@@ -100,7 +100,7 @@ export function SettingsModal({ onClose, midiProps }: SettingsModalProps) {
           <div className="space-y-8">
             <KeyboardSettings 
               keyboardRange={keyboardRange}
-              setKeyboardRange={setKeyboardRange}
+              setKeyboardRange={(start, end) => setKeyboardRange({ start, end })}
               showNoteNames={showNoteNames}
               setShowNoteNames={setShowNoteNames}
               showKeymap={showKeymap}

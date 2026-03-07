@@ -8,6 +8,10 @@ const AppRoot = dynamic(() => import('./components/AppRoot'), {
   loading: () => <div className="flex h-dvh w-full items-center justify-center bg-slate-950 text-slate-500">Loading...</div>
 });
 
-export default function MidiPlayApp() {
-  return <AppRoot />;
+export default function Home() {
+  return (
+    <main className="h-dvh w-full overflow-hidden">
+      <AppRoot />
+    </main>
+  );
 }

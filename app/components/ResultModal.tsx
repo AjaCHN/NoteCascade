@@ -1,4 +1,4 @@
-// app/components/ResultModal.tsx v2.0.2
+// app/components/ResultModal.tsx v2.4.0
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -21,7 +21,7 @@ interface ResultModalProps {
 export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps) {
   const locale = useLocale();
   const t: Translation = translations[locale];
-  const [countdown, setCountdown] = useState(10);
+  const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
     if (countdown === 0) {
@@ -65,7 +65,7 @@ export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps)
           <motion.div 
             initial={{ width: '100%' }}
             animate={{ width: '0%' }}
-            transition={{ duration: 10, ease: 'linear' }}
+            transition={{ duration: 5, ease: 'linear' }}
             className="h-full bg-indigo-500"
           />
         </div>

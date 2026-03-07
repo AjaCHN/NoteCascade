@@ -1,48 +1,10 @@
-// app/components/GameModals.tsx v2.0.1
+// app/components/GameModals.tsx v2.3.3
 'use client';
 
-import { AnimatePresence } from 'motion/react';
-import { ResultModal } from './ResultModal';
 import { SettingsModal } from './SettingsModal';
 import { LibraryModal } from './LibraryModal';
-import type { Song } from '../lib/songs/types';
-import type { ScoreRecord, PlayMode } from '../lib/store/types';
-import type { MidiDevice, MidiMessage } from '../hooks/use-midi';
-import type { VelocityCurve } from '../lib/midi-utils';
-
-interface GameModalsProps {
-  showResult: boolean;
-  setShowResult: (show: boolean) => void;
-  showSettings: boolean;
-  setShowSettings: (show: boolean) => void;
-  showLibrary: boolean;
-  setShowLibrary: (show: boolean) => void;
-  lastScore: ScoreRecord;
-  selectedSong: Song;
-  resetSong: () => void;
-  togglePlay: () => void;
-  setSelectedSong: (song: Song) => void;
-  setPlayMode: (mode: PlayMode) => void;
-  setHasPressedKey: (hasPressed: boolean) => void;
-  setCountdown: (countdown: number) => void;
-  midiProps: {
-    activeNotes: Map<number, number>;
-    setActiveNotes: React.Dispatch<React.SetStateAction<Map<number, number>>>;
-    lastMessage: MidiMessage | null;
-    isSupported: boolean;
-    inputs: MidiDevice[];
-    selectedInputId: string | null;
-    setSelectedInputId: (id: string | null) => void;
-    midiChannel: number | 'all';
-    setMidiChannel: (channel: number | 'all') => void;
-    velocityCurve: VelocityCurve;
-    setVelocityCurve: (curve: VelocityCurve) => void;
-    transpose: number;
-    setTranspose: (transpose: number) => void;
-    connectMidi: (isMounted?: () => boolean) => Promise<boolean>;
-    isConnecting: boolean;
-  };
-}
+import { ResultModal } from './ResultModal';
+import { AuthModal } from './AuthModal';
 
 export function GameModals({
   showResult,
@@ -60,49 +22,50 @@ export function GameModals({
   setHasPressedKey,
   setCountdown,
   midiProps
-}: GameModalsProps) {
+}: any) {
   return (
-    <AnimatePresence>
-      {showResult && (
+    <>
+      {showSettings && (
+        <SettingsModal 
+          show={showSettings} 
+          onClose={() => setShowSettings(false)} 
+          midiProps={midiProps} 
+        />
+      )}
+      {showLibrary && (
+        <LibraryModal 
+          show={showLibrary} 
+          onClose={() => setShowLibrary(false)} 
+          selectedSongId={selectedSong?.id || ''}
+          onPlayPractice={(song) => {
+            setSelectedSong(song);
+            setPlayMode('practice');
+            setHasPressedKey(false);
+            setCountdown(null);
+            setShowLibrary(false);
+          }}
+          onPlayDemo={(song) => {
+            setSelectedSong(song);
+            setPlayMode('demo');
+            setHasPressedKey(false);
+            setCountdown(null);
+            setShowLibrary(false);
+          }}
+        />
+      )}
+      {showResult && lastScore && selectedSong && (
         <ResultModal 
-          key="result-modal"
-          show={showResult}
-          onClose={() => { setShowResult(false); resetSong(); }}
-          onRetry={() => { setShowResult(false); resetSong(); togglePlay(); }}
+          show={showResult} 
+          onClose={() => setShowResult(false)} 
+          onRetry={() => {
+            setShowResult(false);
+            resetSong();
+            togglePlay();
+          }}
           score={lastScore}
           song={selectedSong}
         />
       )}
-
-      {showSettings && (
-        <SettingsModal 
-          key="settings-modal"
-          show={showSettings}
-          onClose={() => setShowSettings(false)}
-          midiProps={midiProps}
-        />
-      )}
-
-      {showLibrary && (
-        <LibraryModal
-          key="library-modal"
-          show={showLibrary}
-          onClose={() => setShowLibrary(false)}
-          onPlayPractice={(song) => {
-            setSelectedSong(song);
-            resetSong();
-            setPlayMode('practice');
-            setHasPressedKey(false);
-          }}
-          onPlayDemo={(song) => {
-            setSelectedSong(song);
-            resetSong();
-            setPlayMode('demo');
-            setCountdown(5);
-          }}
-          selectedSongId={selectedSong.id}
-        />
-      )}
-    </AnimatePresence>
+    </>
   );
 }

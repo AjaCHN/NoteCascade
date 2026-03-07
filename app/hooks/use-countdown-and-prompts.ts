@@ -1,44 +1,11 @@
-// app/hooks/use-countdown-and-prompts.ts v2.0.1
+// app/hooks/use-countdown-and-prompts.ts v2.3.2
 'use client';
+import { useState } from 'react';
 
-import { useState, useEffect } from 'react';
-
-export function useCountdownAndPrompts(
-  isPlaying: boolean,
-  togglePlay: () => void,
-  activeNotesSize: number,
-  playMode: string
-) {
+export function useCountdownAndPrompts(isPlaying: boolean, togglePlay: any, activeNotesSize: number, playMode: string) {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [hasPressedKey, setHasPressedKey] = useState(false);
+  const [prompt, setPrompt] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (countdown === null) return;
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    } else {
-      const timer = setTimeout(() => {
-        setCountdown(null);
-        if (!isPlaying) togglePlay();
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [countdown, isPlaying, togglePlay]);
-
-  useEffect(() => {
-    if (activeNotesSize > 0 && !hasPressedKey) {
-      const timer = setTimeout(() => setHasPressedKey(true), 0);
-      return () => clearTimeout(timer);
-    }
-  }, [activeNotesSize, hasPressedKey]);
-
-  useEffect(() => {
-    if (playMode === 'free') {
-      const timer = setTimeout(() => setHasPressedKey(false), 0);
-      return () => clearTimeout(timer);
-    }
-  }, [playMode]);
-
-  return { countdown, setCountdown, hasPressedKey, setHasPressedKey };
+  return { countdown, setCountdown, hasPressedKey, setHasPressedKey, prompt };
 }

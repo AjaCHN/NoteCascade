@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
   Library as LibraryIcon, Sliders,
-  Menu, LayoutGrid, Music, Hash
+  Menu, LayoutGrid, Music, Hash, BookOpen
 } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { useLocale, useAppActions, usePlayMode,
@@ -33,8 +33,8 @@ interface AppHeaderProps {
   setVolume: (val: number) => void;
   setShowLibrary: (show: boolean) => void;
   showLibrary: boolean;
-  viewMode: 'waterfall' | 'sheet' | 'numbered';
-  setViewMode: (mode: 'waterfall' | 'sheet' | 'numbered') => void;
+  viewMode: 'waterfall' | 'sheet' | 'numbered' | 'theory';
+  setViewMode: (mode: 'waterfall' | 'sheet' | 'numbered' | 'theory') => void;
 }
 
 export function AppHeader({ 
@@ -158,6 +158,17 @@ export function AppHeader({
             title="Numbered Notation"
           >
             <Hash className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setViewMode('theory')}
+            className={`p-1.5 rounded-full transition-all ${
+              viewMode === 'theory' 
+                ? 'bg-indigo-500 text-white shadow-md' 
+                : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'
+            }`}
+            title="Music Theory"
+          >
+            <BookOpen className="w-4 h-4" />
           </button>
         </div>
       </div>

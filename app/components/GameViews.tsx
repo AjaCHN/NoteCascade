@@ -1,20 +1,23 @@
-// app/components/GameViews.tsx v2.0.0
+// app/components/GameViews.tsx v2.4.2
 import { GameCanvas } from './GameCanvas';
 import { SheetMusicView } from './SheetMusicView';
 import { NumberedNotationView } from './NumberedNotationView';
+import { MusicTheoryModule } from './MusicTheoryModule';
 import type { Song } from '../lib/songs/types';
+import type { PlayMode } from '../lib/store';
 
 interface GameViewsProps {
-  viewMode: 'waterfall' | 'sheet' | 'numbered';
-  selectedSong: Song;
+  viewMode: 'waterfall' | 'sheet' | 'numbered' | 'theory';
+  selectedSong: Song | null;
   currentTime: number;
   activeNotes: Map<number, number>;
   isPlaying: boolean;
-  setLastScore: (scoreData: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => void;
+  onScoreUpdate: (score: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => void;
   keyboardRange: { start: number; end: number };
   showNoteNames: boolean;
   theme: string;
   containerSize: { width: number; height: number };
+  playMode: PlayMode;
 }
 
 export function GameViews({
@@ -23,43 +26,51 @@ export function GameViews({
   currentTime,
   activeNotes,
   isPlaying,
-  setLastScore,
+  onScoreUpdate,
   keyboardRange,
   showNoteNames,
   theme,
-  containerSize
+  containerSize,
+  playMode
 }: GameViewsProps) {
+  if (!selectedSong && viewMode !== 'theory') {
+    return <div className="flex-1 relative min-h-0 flex items-center justify-center text-white/50">Select a song to start playing</div>;
+  }
+
   return (
-    <>
-      {viewMode === 'waterfall' && (
-        <GameCanvas
+    <div className="flex-1 relative min-h-0">
+      {viewMode === 'theory' && (
+        <MusicTheoryModule activeNotes={activeNotes} />
+      )}
+      {viewMode === 'waterfall' && selectedSong && (
+        <GameCanvas 
           song={selectedSong}
           currentTime={currentTime}
           activeNotes={activeNotes}
           isPlaying={isPlaying}
-          onScoreUpdate={setLastScore}
+          onScoreUpdate={onScoreUpdate}
           keyboardRange={keyboardRange}
           showNoteNames={showNoteNames}
           theme={theme}
+          dimensions={containerSize}
+          playMode={playMode}
         />
       )}
-      
-      {viewMode === 'sheet' && (
+      {viewMode === 'sheet' && selectedSong && (
         <SheetMusicView 
-          song={selectedSong} 
-          width={containerSize.width} 
-          height={containerSize.height} 
+          song={selectedSong}
+          width={containerSize.width}
+          height={containerSize.height}
         />
       )}
-
-      {viewMode === 'numbered' && (
+      {viewMode === 'numbered' && selectedSong && (
         <NumberedNotationView 
-          song={selectedSong} 
+          song={selectedSong}
           currentTime={currentTime}
           height={containerSize.height}
           isPlaying={isPlaying}
         />
       )}
-    </>
+    </div>
   );
 }

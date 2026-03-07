@@ -1,4 +1,4 @@
-// app/components/AppRoot.tsx v2.1.4
+// app/components/AppRoot.tsx v2.4.0
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -21,6 +21,7 @@ import { useKeyboardRangeLogic } from '../hooks/use-keyboard-range-logic';
 import { useUIState } from '../hooks/use-ui-state';
 import { useCountdownAndPrompts } from '../hooks/use-countdown-and-prompts';
 import { GameViews } from './GameViews';
+import { useWakeLock } from '../hooks/useWakeLock';
 
 export default function AppRoot() {
   const { 
@@ -33,7 +34,7 @@ export default function AppRoot() {
   const keyboardType = useKeyboardType();
   
   // Updated viewMode state type
-  const [viewMode, setViewMode] = useState<'waterfall' | 'sheet' | 'numbered'>('waterfall');
+  const [viewMode, setViewMode] = useState<'waterfall' | 'sheet' | 'numbered' | 'theory'>('waterfall');
   
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
@@ -70,6 +71,7 @@ export default function AppRoot() {
 
   const [volume, setVolumeState] = useState(80);
   const { mounted, windowWidth } = useAppInitialization(volume, instrument);
+  useWakeLock(mounted);
   const { 
     showSettings, setShowSettings, 
     showLibrary, setShowLibrary, 
@@ -143,11 +145,12 @@ export default function AppRoot() {
                 currentTime={currentTime}
                 activeNotes={activeNotes}
                 isPlaying={isPlaying}
-                setLastScore={setLastScore}
+                onScoreUpdate={setLastScore}
                 keyboardRange={keyboardRange}
                 showNoteNames={showNoteNames}
                 theme={theme}
                 containerSize={containerSize}
+                playMode={playMode}
               />
 
               <GameOverlays 
@@ -173,7 +176,7 @@ export default function AppRoot() {
             <div 
               id="keyboard-wrapper" 
               className={`shrink-0 relative z-20 h-24 md:h-32 border-t theme-border ${
-                keyboardType === 'physical' ? 'pointer-events-none opacity-80' : ''
+                keyboardType !== 'virtual' ? 'pointer-events-none opacity-80' : ''
               }`}
             >
               <Keyboard 

@@ -62,7 +62,7 @@ export function GeneralSettings({
                   : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-border-primary'
               }`}
             >
-              <span className="text-xs font-bold capitalize">{t.settings[`theme_${tName}`] || tName}</span>
+              <span className="text-xs font-bold capitalize">{t.settings[`theme_${tName}` as keyof typeof t.settings] || tName}</span>
               {theme === tName && <Check className="h-4 w-4 text-indigo-400" />}
             </button>
           ))}
@@ -85,7 +85,7 @@ export function GeneralSettings({
                   : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-border-primary'
               }`}
             >
-              <span className="text-xs font-bold capitalize">{t.settings[`inst_${inst}`] || inst}</span>
+              <span className="text-xs font-bold capitalize">{t.settings[`inst_${inst}` as keyof typeof t.settings] || inst}</span>
               {instrument === inst && <Check className="h-4 w-4 text-indigo-400" />}
             </button>
           ))}
