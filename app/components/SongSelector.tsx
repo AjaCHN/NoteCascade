@@ -1,14 +1,14 @@
-// app/components/SongSelector.tsx v1.7.2
+// app/components/SongSelector.tsx v1.7.3
 'use client';
 
 import React, { useState, useRef } from 'react';
 import { builtInSongs, parseMidiFile } from '../lib/songs';
 import type { Song } from '../lib/songs';
 import { Music, Filter, Upload } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { useLocale, useScores, useAchievements } from '../lib/store';
 import { translations } from '../lib/translations';
 import { SongCard } from './SongCard';
+import { SongFilters } from './library/SongFilters';
 
 interface SongSelectorProps {
   onPlayPractice: (song: Song) => void;
@@ -29,7 +29,7 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const styles = ['all', ...Array.from(new Set(builtInSongs.map(s => s.style?.toLowerCase()).filter((s): s is string => !!s && s !== 'all')))];
-  const difficulties = ['all', 1, 2, 3, 4, 5];
+  const difficulties: (number | 'all')[] = ['all', 1, 2, 3, 4, 5];
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -125,53 +125,16 @@ export function SongSelector({ onPlayPractice, onPlayDemo, selectedSongId }: Son
           </div>
         </div>
 
-        <AnimatePresence>
-          {showFilters && (
-            <motion.div key="filters-panel" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden w-full">
-              <div className="p-4 rounded-2xl theme-bg-secondary theme-border border space-y-4">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">Style</span>
-                    {filter !== 'all' && <button onClick={() => setFilter('all')} className="text-[10px] text-rose-500 font-bold hover:underline">Clear</button>}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {styles.map(style => (
-                      <button
-                        key={style}
-                        onClick={() => setFilter(style)}
-                        className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all border ${
-                          filter === style ? 'bg-indigo-500 border-indigo-400 text-white shadow-md' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-indigo-500/50'
-                        }`}
-                      >
-                        {style === 'all' ? t.common.all : (t.settings[`style_${style.toLowerCase()}`] || style)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.common.level}</span>
-                    {difficultyFilter !== 'all' && <button onClick={() => setDifficultyFilter('all')} className="text-[10px] text-rose-500 font-bold hover:underline">Clear</button>}
-                  </div>
-                  <div className="flex gap-1.5">
-                    {difficulties.map(diff => (
-                      <button
-                        key={diff}
-                        onClick={() => setDifficultyFilter(diff as number | 'all')}
-                        className={`w-8 h-8 flex items-center justify-center rounded-xl text-[10px] font-bold transition-all border ${
-                          difficultyFilter === diff ? 'bg-amber-500 border-amber-400 text-white shadow-md' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-amber-500/50'
-                        }`}
-                      >
-                        {diff === 'all' ? '∞' : diff}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <SongFilters 
+          showFilters={showFilters}
+          filter={filter}
+          setFilter={setFilter}
+          difficultyFilter={difficultyFilter}
+          setDifficultyFilter={setDifficultyFilter}
+          styles={styles}
+          difficulties={difficulties}
+          t={t}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4 md:p-6 pt-2">

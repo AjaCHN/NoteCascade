@@ -1,4 +1,4 @@
-// app/components/AppRoot.tsx v2.1.3
+// app/components/AppRoot.tsx v2.1.4
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -9,7 +9,6 @@ import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, us
 import { builtInSongs } from '../lib/songs';
 import { translations } from '../lib/translations';
 import { Keyboard } from './Keyboard';
-import { GameCanvas } from './GameCanvas';
 import { AppHeader } from './AppHeader';
 import { FloatingControls } from './FloatingControls';
 import { GameOverlays } from './GameOverlays';
@@ -21,9 +20,7 @@ import { useAppInitialization } from '../hooks/use-app-initialization';
 import { useKeyboardRangeLogic } from '../hooks/use-keyboard-range-logic';
 import { useUIState } from '../hooks/use-ui-state';
 import { useCountdownAndPrompts } from '../hooks/use-countdown-and-prompts';
-import { SheetMusicView } from './SheetMusicView';
-import { NumberedNotationView } from './NumberedNotationView'; // Import new component
-import { FileText, Music, Hash } from 'lucide-react'; // Added Hash icon for numbered notation
+import { GameViews } from './GameViews';
 
 export default function AppRoot() {
   const { 
@@ -140,35 +137,18 @@ export default function AppRoot() {
           <div className="flex-1 flex flex-col min-h-0 relative" style={{ minWidth: typeof minCanvasWidth === 'number' ? `${minCanvasWidth}px` : minCanvasWidth }}>
             <div id="game-canvas-container" ref={canvasContainerRef} className="flex-1 relative min-h-0">
               
-              {viewMode === 'waterfall' && (
-                <GameCanvas
-                  song={selectedSong}
-                  currentTime={currentTime}
-                  activeNotes={activeNotes}
-                  isPlaying={isPlaying}
-                  onScoreUpdate={setLastScore}
-                  keyboardRange={keyboardRange}
-                  showNoteNames={showNoteNames}
-                  theme={theme}
-                />
-              )}
-              
-              {viewMode === 'sheet' && (
-                <SheetMusicView 
-                  song={selectedSong} 
-                  width={containerSize.width} 
-                  height={containerSize.height} 
-                />
-              )}
-
-              {viewMode === 'numbered' && (
-                <NumberedNotationView 
-                  song={selectedSong} 
-                  currentTime={currentTime}
-                  height={containerSize.height}
-                  isPlaying={isPlaying}
-                />
-              )}
+              <GameViews 
+                viewMode={viewMode}
+                selectedSong={selectedSong}
+                currentTime={currentTime}
+                activeNotes={activeNotes}
+                isPlaying={isPlaying}
+                setLastScore={setLastScore}
+                keyboardRange={keyboardRange}
+                showNoteNames={showNoteNames}
+                theme={theme}
+                containerSize={containerSize}
+              />
 
               <GameOverlays 
                 countdown={countdown}

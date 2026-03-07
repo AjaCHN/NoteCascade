@@ -1,23 +1,23 @@
-// app/components/AppHeader.tsx v2.0.1
+// app/components/AppHeader.tsx v2.3.0
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
-  Volume2, VolumeX, Clock, Library as LibraryIcon, Sliders,
-  Menu, Info, FileText, BookOpen, Keyboard as KeyboardIcon, Monitor
+  Library as LibraryIcon, Sliders,
+  Menu, LayoutGrid, Music, Hash
 } from 'lucide-react';
 import { translations } from '../lib/translations';
-import { 
-  useLocale, useAppActions, usePlayMode,
+import { useLocale, useAppActions, usePlayMode,
   useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, useKeyboardType
 } from '../lib/store';
-import { motion, AnimatePresence } from 'motion/react';
 import { InfoModals } from './InfoModals';
 import { ProfileButton } from './ProfileButton';
+import { AudioControls } from './header/AudioControls';
+import { MenuDropdown } from './header/MenuDropdown';
 
-const version = '2.2.2';
+const version = '2.3.0';
 
 interface AppHeaderProps {
   theme: string;
@@ -33,6 +33,8 @@ interface AppHeaderProps {
   setVolume: (val: number) => void;
   setShowLibrary: (show: boolean) => void;
   showLibrary: boolean;
+  viewMode: 'waterfall' | 'sheet' | 'numbered';
+  setViewMode: (mode: 'waterfall' | 'sheet' | 'numbered') => void;
 }
 
 export function AppHeader({ 
@@ -48,7 +50,9 @@ export function AppHeader({
   volume,
   setVolume,
   setShowLibrary,
-  showLibrary
+  showLibrary,
+  viewMode,
+  setViewMode
 }: AppHeaderProps) {
   const locale = useLocale();
   const metronomeEnabled = useMetronomeEnabled();
@@ -93,39 +97,12 @@ export function AppHeader({
             <Menu className="w-5 h-5" />
           </button>
 
-          <AnimatePresence>
-            {showMenu && (
-              <motion.div
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute top-full left-0 mt-2 w-48 py-1 rounded-xl theme-bg-secondary border theme-border shadow-xl z-50 overflow-hidden"
-              >
-                <button
-                  onClick={() => { setInfoModalType('guide'); setShowMenu(false); }}
-                  className="w-full px-4 py-2 text-left text-sm theme-text-secondary hover:theme-text-primary hover:bg-white/5 flex items-center gap-2"
-                >
-                  <BookOpen className="w-4 h-4" />
-                  {t.ui.guide}
-                </button>
-                <button
-                  onClick={() => { setInfoModalType('changelog'); setShowMenu(false); }}
-                  className="w-full px-4 py-2 text-left text-sm theme-text-secondary hover:theme-text-primary hover:bg-white/5 flex items-center gap-2"
-                >
-                  <FileText className="w-4 h-4" />
-                  {t.ui.changelog}
-                </button>
-                <div className="h-px bg-white/5 my-1" />
-                <button
-                  onClick={() => { setInfoModalType('about'); setShowMenu(false); }}
-                  className="w-full px-4 py-2 text-left text-sm theme-text-secondary hover:theme-text-primary hover:bg-white/5 flex items-center gap-2"
-                >
-                  <Info className="w-4 h-4" />
-                  {t.ui.about}
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <MenuDropdown 
+            show={showMenu} 
+            t={t} 
+            setShowMenu={setShowMenu} 
+            setInfoModalType={setInfoModalType} 
+          />
         </div>
       </div>
 
@@ -166,99 +143,20 @@ export function AppHeader({
             <Sliders className="h-5 w-5" />
           </button>
 
-          <AnimatePresence>
-            {showAudioControls && (
-              <motion.div
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute top-full right-0 mt-2 p-4 rounded-2xl theme-bg-secondary border theme-border shadow-2xl w-64 z-50 flex flex-col gap-4"
-              >
-                {/* Keyboard Type Toggle */}
-                <div className="flex flex-col gap-2">
-                  <span className="text-xs font-bold uppercase tracking-widest theme-text-secondary">{t.settings.keyboardType || 'Keyboard Type'}</span>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => setKeyboardType('virtual')}
-                      className={`flex items-center justify-center gap-2 py-2 rounded-xl border text-[10px] font-bold transition-all ${
-                        keyboardType === 'virtual'
-                          ? 'border-indigo-500 bg-indigo-500/10 theme-text-primary shadow-lg shadow-indigo-500/10'
-                          : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-text-primary'
-                      }`}
-                    >
-                      <Monitor className="w-3.5 h-3.5" />
-                      {t.settings.virtualKeyboard || 'Virtual'}
-                    </button>
-                    <button
-                      onClick={() => setKeyboardType('physical')}
-                      className={`flex items-center justify-center gap-2 py-2 rounded-xl border text-[10px] font-bold transition-all ${
-                        keyboardType === 'physical'
-                          ? 'border-indigo-500 bg-indigo-500/10 theme-text-primary shadow-lg shadow-indigo-500/10'
-                          : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-text-primary'
-                      }`}
-                    >
-                      <KeyboardIcon className="w-3.5 h-3.5" />
-                      {t.settings.physicalKeyboard || 'Physical'}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="h-px bg-white/10 w-full" />
-
-                {/* Metronome */}
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-widest theme-text-secondary">{t.settings.metronome || 'Metronome'}</span>
-                    <button 
-                      onClick={() => setMetronomeEnabled(!metronomeEnabled)}
-                      className={`p-1.5 rounded-lg transition-all ${metronomeEnabled ? 'bg-indigo-500 text-white' : 'bg-white/5 theme-text-secondary'}`}
-                    >
-                      <Clock className="h-3 w-3" />
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input 
-                      type="number" 
-                      value={metronomeBpm}
-                      onChange={(e) => setMetronomeBpm(parseInt(e.target.value) || 120)}
-                      className="w-16 bg-white/5 rounded px-2 py-1 theme-text-primary text-xs font-bold focus:outline-none border theme-border"
-                    />
-                    <span className="text-[10px] theme-text-secondary font-bold">{t.common.bpm || 'BPM'}</span>
-                    <select
-                      value={metronomeBeats}
-                      onChange={(e) => setMetronomeBeats(parseInt(e.target.value))}
-                      className="ml-auto bg-white/5 rounded px-2 py-1 text-[10px] font-bold theme-text-secondary focus:outline-none border theme-border"
-                    >
-                      {[2, 3, 4, 6].map(b => <option key={b} value={b}>{b}/4</option>)}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="h-px bg-white/10 w-full" />
-
-                {/* Volume */}
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-widest theme-text-secondary">{t.common.volume || 'Volume'}</span>
-                    <span className="text-xs font-bold theme-text-primary">{volume}%</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="theme-text-secondary">
-                      {volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                    </div>
-                    <input 
-                      type="range" 
-                      min="0" 
-                      max="100" 
-                      value={volume}
-                      onChange={(e) => setVolume(parseInt(e.target.value))}
-                      className="flex-1 h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-indigo-500"
-                    />
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <AudioControls 
+                  show={showAudioControls}
+                  t={t}
+                  keyboardType={keyboardType}
+                  setKeyboardType={setKeyboardType}
+                  metronomeEnabled={metronomeEnabled}
+                  setMetronomeEnabled={setMetronomeEnabled}
+                  metronomeBpm={metronomeBpm}
+                  setMetronomeBpm={setMetronomeBpm}
+                  metronomeBeats={metronomeBeats}
+                  setMetronomeBeats={setMetronomeBeats}
+                  volume={volume}
+                  setVolume={setVolume}
+                />
         </div>
 
         <button 

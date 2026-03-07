@@ -1,4 +1,4 @@
-// app/hooks/use-game-logic.ts v2.0.1
+// app/hooks/use-game-logic.ts v2.0.2
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -7,7 +7,7 @@ import type { Song } from '../lib/songs/types';
 import { useAppActions, usePlayMode, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats } from '../lib/store';
 import { getNextSong } from '../lib/songs/utils';
 import { initAudio, startTransport, stopTransport, ensureAudioContext, setMetronome, clearScheduledEvents, scheduleNote, resetAudioEffects } from '../lib/audio';
-import type { ScoreRecord } from '../lib/store/types';
+import { useGameScore } from './use-game-score';
 
 export function useGameLogic(
   activeNotes: Map<number, number>,
@@ -55,20 +55,7 @@ export function useGameLogic(
     return time;
   }, [playMode, selectedSong, activeNotes]);
 
-  const [lastScore, setLastScore] = useState<ScoreRecord>({
-    songId: '',
-    score: 0,
-    maxScore: 0,
-    accuracy: 0,
-    perfect: 0,
-    good: 0,
-    miss: 0,
-    wrong: 0,
-    maxCombo: 0,
-    date: 0
-  });
-
-  const latestScoreRef = useRef(lastScore);
+  const { lastScore, latestScoreRef, handleScoreUpdate, resetScore } = useGameScore();
 
   useEffect(() => {
     if (songs.length > 0 && selectedSong.id === 'loading') {
@@ -76,33 +63,6 @@ export function useGameLogic(
       return () => clearTimeout(timer);
     }
   }, [songs, selectedSong.id]);
-
-  useEffect(() => {
-    latestScoreRef.current = lastScore;
-  }, [lastScore]);
-
-  const handleScoreUpdate = useCallback((scoreData: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => {
-    setLastScore(prev => ({
-      ...prev,
-      ...scoreData,
-      score: scoreData.currentScore
-    }));
-  }, []);
-
-  const resetScore = useCallback(() => {
-    setLastScore({
-      songId: '',
-      score: 0,
-      maxScore: 0,
-      accuracy: 0,
-      perfect: 0,
-      good: 0,
-      miss: 0,
-      wrong: 0,
-      maxCombo: 0,
-      date: 0
-    });
-  }, []);
 
   const handleSongEnd = useCallback(() => {
     if (playMode === 'demo' || playMode === 'free') {
@@ -137,7 +97,7 @@ export function useGameLogic(
     
     updateStreak();
     setShowResult(true);
-  }, [playMode, selectedSong, addScore, updateStreak]);
+  }, [playMode, selectedSong, addScore, updateStreak, latestScoreRef]);
 
   const resetPlayback = useCallback(() => {
     setIsPlaying(false);

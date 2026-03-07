@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.3.0]
+- Refactor: Extracted large components (`AppHeader`, `AppRoot`, `InfoModals`, `SongSelector`) into smaller, focused sub-components (`MenuDropdown`, `AudioControls`, `GameViews`, `ChangelogContent`, `SongFilters`).
+- Refactor: Split `use-game-logic.ts` and `use-midi.ts` hooks into smaller, more manageable hooks (`useGameScore`, `useMidiMessage`).
+- Fix: Resolved TypeScript and ESLint errors introduced during refactoring.
+
 ## [2.2.2]
 - Fix: Resolved build errors by migrating `next.config.ts` to `next.config.mjs` and cleaning build artifacts.
 
