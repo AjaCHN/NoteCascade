@@ -15,6 +15,7 @@ export function MusicTheoryModule({ activeNotes }: MusicTheoryModuleProps) {
   const [quizMode, setQuizMode] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
+  const scoreRef = React.useRef(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -27,6 +28,7 @@ export function MusicTheoryModule({ activeNotes }: MusicTheoryModuleProps) {
     setQuizMode(false);
     setCurrentQuestionIndex(0);
     setScore(0);
+    scoreRef.current = 0;
     setQuizCompleted(false);
     setSelectedAnswer(null);
     setShowFeedback(false);
@@ -45,6 +47,7 @@ export function MusicTheoryModule({ activeNotes }: MusicTheoryModuleProps) {
     const isCorrect = index === currentLesson.quiz[currentQuestionIndex].correctAnswer;
     if (isCorrect) {
       setScore(s => s + 1);
+      scoreRef.current += 1;
     }
 
     setTimeout(() => {
@@ -54,7 +57,7 @@ export function MusicTheoryModule({ activeNotes }: MusicTheoryModuleProps) {
         setShowFeedback(false);
       } else {
         setQuizCompleted(true);
-        if (score + (isCorrect ? 1 : 0) === currentLesson.quiz.length) {
+        if (scoreRef.current === currentLesson.quiz.length) {
           setCompletedLessons(prev => new Set(prev).add(currentLesson.id));
         }
       }
