@@ -29,7 +29,7 @@ export function useWakeLock(enabled: boolean) {
           wakeLockRef.current = await navigator.wakeLock.request('screen');
           console.log('Wake Lock is active');
         } catch (err: unknown) {
-          if (err instanceof Error) {
+          if (err instanceof Error && err.name !== 'NotAllowedError') {
             console.error(`${err.name}, ${err.message}`);
           }
         }

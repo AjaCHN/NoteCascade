@@ -1,4 +1,4 @@
-// app/components/AppHeader.tsx v2.3.1
+// app/components/AppHeader.tsx v2.3.2
 'use client';
 
 import { useState } from 'react';
@@ -17,7 +17,7 @@ import { ProfileButton } from './ProfileButton';
 import { AudioControls } from './header/AudioControls';
 import { MenuDropdown } from './header/MenuDropdown';
 
-const version = '2.3.1';
+const version = '2.3.2';
 
 interface AppHeaderProps {
   theme: string;
@@ -29,8 +29,6 @@ interface AppHeaderProps {
   isConnecting?: boolean;
   isFullScreen: boolean;
   toggleFullScreen: () => void;
-  volume: number;
-  setVolume: (val: number) => void;
   setShowLibrary: (show: boolean) => void;
   showLibrary: boolean;
   viewMode: 'waterfall' | 'sheet' | 'numbered' | 'theory';
@@ -47,8 +45,6 @@ export function AppHeader({
   isConnecting,
   isFullScreen,
   toggleFullScreen,
-  volume,
-  setVolume,
   setShowLibrary,
   showLibrary,
   viewMode,
@@ -203,8 +199,6 @@ export function AppHeader({
                   setMetronomeBpm={setMetronomeBpm}
                   metronomeBeats={metronomeBeats}
                   setMetronomeBeats={setMetronomeBeats}
-                  volume={volume}
-                  setVolume={setVolume}
                 />
         </div>
 

@@ -21,7 +21,9 @@ export function GameModals({
   setPlayMode,
   setHasPressedKey,
   setCountdown,
-  midiProps
+  midiProps,
+  volume,
+  setVolume
 }: any) {
   return (
     <>
@@ -29,7 +31,9 @@ export function GameModals({
         <SettingsModal 
           show={showSettings} 
           onClose={() => setShowSettings(false)} 
-          midiProps={midiProps} 
+          midiProps={midiProps}
+          volume={volume}
+          setVolume={setVolume}
         />
       )}
       {showLibrary && (

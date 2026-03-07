@@ -125,11 +125,6 @@ export default function AppRoot() {
         isConnecting={isConnecting}
         isFullScreen={isFullScreen}
         toggleFullScreen={toggleFullScreen}
-        volume={volume}
-        setVolume={(val) => {
-          setVolumeState(val);
-          setVolume(val);
-        }}
         viewMode={viewMode}
         setViewMode={setViewMode}
       />
@@ -222,6 +217,11 @@ export default function AppRoot() {
         setHasPressedKey={setHasPressedKey}
         setCountdown={setCountdown}
         midiProps={midiProps}
+        volume={volume}
+        setVolume={(val: number) => {
+          setVolumeState(val);
+          setVolume(val);
+        }}
       />
     </div>
   );
