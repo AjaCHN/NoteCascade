@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   transpilePackages: ['motion', 'canvas-confetti'],
   eslint: {
     ignoreDuringBuilds: true,

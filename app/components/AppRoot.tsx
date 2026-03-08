@@ -1,15 +1,12 @@
-// app/components/AppRoot.tsx v2.5.0
+// app/components/AppRoot.tsx v2.5.1
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { useMidi } from '../hooks/use-midi';
 import { useKeyboardInput } from '../hooks/use-keyboard-input';
-import { setVolume } from '../lib/audio';
 import { useAppActions, useLocale, useTheme, useKeyboardRange, useShowNoteNames, useShowKeymap, useIsRangeManuallySet, useAppStore, useKeyboardType } from '../lib/store';
 import { builtInSongs } from '../lib/songs';
 import { translations } from '../lib/translations';
-import { AppHeader } from './AppHeader';
-import { BackgroundEffects } from './BackgroundEffects';
 import { useGameLogic } from '../hooks/use-game-logic';
 import { usePlayMode } from '../lib/store';
 import { useAppInitialization } from '../hooks/use-app-initialization';
@@ -17,9 +14,7 @@ import { useKeyboardRangeLogic } from '../hooks/use-keyboard-range-logic';
 import { useUIState } from '../hooks/use-ui-state';
 import { useCountdownAndPrompts } from '../hooks/use-countdown-and-prompts';
 import { useWakeLock } from '../hooks/useWakeLock';
-import { GameContainer } from './GameContainer';
-import { KeyboardContainer } from './KeyboardContainer';
-import { GameModals } from './GameModals';
+import { AppContent } from './AppContent';
 
 export default function AppRoot() {
   const { 
@@ -95,82 +90,51 @@ export default function AppRoot() {
   }
 
   return (
-    <div 
-      id="notecascade-app" 
-      data-theme={theme}
-      className="flex h-dvh w-full flex-col theme-bg-primary theme-text-primary font-sans selection:bg-indigo-500/30 overflow-hidden relative transition-colors duration-500"
-    >
-      <BackgroundEffects theme={theme} />
-
-      <AppHeader 
-        theme={theme}
-        selectedInputId={selectedInputId}
-        inputs={inputs}
-        setShowSettings={setShowSettings}
-        showSettings={showSettings}
-        setShowLibrary={setShowLibrary}
-        showLibrary={showLibrary}
-        connectMidi={connectMidi}
-        isConnecting={isConnecting}
-        isFullScreen={isFullScreen}
-        toggleFullScreen={toggleFullScreen}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-      />
-
-      <main id="main-content" className="flex flex-1 overflow-hidden relative z-10">
-        <GameContainer
-          canvasContainerRef={canvasContainerRef}
-          viewMode={viewMode}
-          selectedSong={selectedSong}
-          currentTime={currentTime}
-          activeNotes={activeNotes}
-          isPlaying={isPlaying}
-          setLastScore={setLastScore}
-          keyboardRange={keyboardRange}
-          showNoteNames={showNoteNames}
-          theme={theme}
-          containerSize={containerSize}
-          playMode={playMode}
-          countdown={countdown}
-          hasPressedKey={hasPressedKey}
-          t={t}
-          resetSong={resetSong}
-          togglePlay={togglePlay}
-          handleNextSong={handleNextSong}
-        />
-        <KeyboardContainer
-          activeNotes={activeNotes}
-          keyboardRange={keyboardRange}
-          showNoteNames={showNoteNames}
-          showKeymap={showKeymap}
-          keyboardType={keyboardType}
-          setActiveNotes={setActiveNotes}
-        />
-      </main>
-
-      <GameModals
-        showResult={showResult}
-        setShowResult={setShowResult}
-        showSettings={showSettings}
-        setShowSettings={setShowSettings}
-        showLibrary={showLibrary}
-        setShowLibrary={setShowLibrary}
-        lastScore={lastScore}
-        selectedSong={selectedSong}
-        resetSong={resetSong}
-        togglePlay={togglePlay}
-        setSelectedSong={setSelectedSong}
-        setPlayMode={setPlayMode}
-        setHasPressedKey={setHasPressedKey}
-        setCountdown={setCountdown}
-        midiProps={midiProps}
-        volume={volume}
-        setVolume={(val: number) => {
-          setVolumeState(val);
-          setVolume(val);
-        }}
-      />
-    </div>
+    <AppContent
+      theme={theme}
+      viewMode={viewMode}
+      setViewMode={setViewMode}
+      selectedInputId={selectedInputId}
+      inputs={inputs}
+      setShowSettings={setShowSettings}
+      showSettings={showSettings}
+      setShowLibrary={setShowLibrary}
+      showLibrary={showLibrary}
+      connectMidi={connectMidi}
+      isConnecting={isConnecting}
+      isFullScreen={isFullScreen}
+      toggleFullScreen={toggleFullScreen}
+      canvasContainerRef={canvasContainerRef}
+      selectedSong={selectedSong}
+      currentTime={currentTime}
+      activeNotes={activeNotes}
+      isPlaying={isPlaying}
+      setLastScore={setLastScore}
+      keyboardRange={keyboardRange}
+      showNoteNames={showNoteNames}
+      containerSize={containerSize}
+      playMode={playMode}
+      countdown={countdown}
+      hasPressedKey={hasPressedKey}
+      t={t}
+      resetSong={resetSong}
+      togglePlay={togglePlay}
+      handleNextSong={handleNextSong}
+      showKeymap={showKeymap}
+      keyboardType={keyboardType}
+      setActiveNotes={setActiveNotes}
+      showResult={showResult}
+      setShowResult={setShowResult}
+      lastScore={lastScore}
+      setSelectedSong={setSelectedSong}
+      setPlayMode={setPlayMode}
+      setHasPressedKey={setHasPressedKey}
+      setCountdown={setCountdown}
+      midiProps={midiProps}
+      volume={volume}
+      setVolume={(val: number) => {
+        setVolumeState(val);
+      }}
+    />
   );
 }
