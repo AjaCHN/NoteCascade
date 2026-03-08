@@ -142,6 +142,8 @@ export function AppContent({
         toggleFullScreen={toggleFullScreen}
         viewMode={viewMode}
         setViewMode={setViewMode}
+        midiChannel={midiProps.midiChannel}
+        setMidiChannel={midiProps.setMidiChannel}
       />
 
       <main id="main-content" className="flex flex-1 overflow-hidden relative z-10">

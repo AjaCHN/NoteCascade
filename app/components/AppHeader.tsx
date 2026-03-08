@@ -30,6 +30,8 @@ interface AppHeaderProps {
   showLibrary: boolean;
   viewMode: 'waterfall' | 'sheet' | 'numbered' | 'theory';
   setViewMode: (mode: 'waterfall' | 'sheet' | 'numbered' | 'theory') => void;
+  midiChannel?: number | 'all';
+  setMidiChannel?: (channel: number | 'all') => void;
 }
 
 export function AppHeader({ 
@@ -45,7 +47,9 @@ export function AppHeader({
   setShowLibrary,
   showLibrary,
   viewMode,
-  setViewMode
+  setViewMode,
+  midiChannel,
+  setMidiChannel
 }: AppHeaderProps) {
   const locale = useLocale();
   const playMode = usePlayMode();
@@ -179,6 +183,22 @@ export function AppHeader({
         </button>
         
         <ProfileButton />
+
+        {setMidiChannel && (
+          <select
+            value={midiChannel}
+            onChange={(e) => setMidiChannel(e.target.value === 'all' ? 'all' : parseInt(e.target.value, 10))}
+            className="hidden md:block bg-black/20 border theme-border rounded-lg px-2 py-1.5 text-xs theme-text-primary outline-none focus:ring-1 focus:ring-indigo-500"
+            title="MIDI Channel"
+          >
+            <option value="all">All CH</option>
+            {Array.from({ length: 16 }, (_, i) => (
+              <option key={i + 1} value={i + 1}>
+                CH {i + 1}
+              </option>
+            ))}
+          </select>
+        )}
 
         <button 
           onClick={() => connectMidi && connectMidi()}
