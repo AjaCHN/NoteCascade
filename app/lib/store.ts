@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { Locale } from "./translations";
 import { Achievement } from "./store/types";
 import { INITIAL_ACHIEVEMENTS } from "./achievements-data";
+import { Song } from "./songs/types";
 
 export interface Score {
   songId: string;
@@ -52,8 +53,8 @@ interface AppState {
   setShowKeymap: (show: boolean) => void;
   isRangeManuallySet: boolean;
   setIsRangeManuallySet: (set: boolean) => void;
-  songs: any[];
-  setSongs: (songs: any[]) => void;
+  songs: Song[];
+  setSongs: (songs: Song[]) => void;
   scores: Score[];
   setScores: (scores: Score[]) => void;
   

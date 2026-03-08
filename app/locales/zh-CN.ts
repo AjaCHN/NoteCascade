@@ -162,4 +162,18 @@ export const zhCN = {
   artists: {
     'traditional': '传统',
   },
+  theory: {
+    title: "乐理知识",
+    sidebarTitle: "课程列表",
+    interactivePractice: "互动练习",
+    playNotesOnKeyboard: "在 MIDI 键盘上弹奏音符",
+    startQuiz: "开始测验",
+    quizTitle: "测验",
+    questionOf: "第 {current} 题，共 {total} 题",
+    quizCompleted: "测验完成！",
+    youScored: "你的得分是 {score} / {total}",
+    reviewLesson: "复习课程",
+    nextLesson: "下一课",
+    lessonCompleted: "课程完成！",
+  },
 };

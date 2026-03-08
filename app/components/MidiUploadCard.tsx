@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react';
 import { Upload, Music, FileMusic } from 'lucide-react';
 import { useLocale } from '../lib/store';
 import { translations, Translation } from '../lib/translations';
-import { parseMidiFile, Song } from '../lib/songs';
+import { parseMidiFile, type Song } from '../lib/songs';
 
 interface MidiUploadCardProps {
   onUpload: (song: Song) => void;

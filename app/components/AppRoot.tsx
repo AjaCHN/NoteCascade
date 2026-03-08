@@ -1,11 +1,11 @@
-// app/components/AppRoot.tsx v2.4.0
+// app/components/AppRoot.tsx v2.4.2
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { useMidi } from '../hooks/use-midi';
 import { useKeyboardInput } from '../hooks/use-keyboard-input';
 import { setVolume } from '../lib/audio';
-import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, useShowNoteNames, useShowKeymap, useIsRangeManuallySet, useAppStore, useKeyboardType } from '../lib/store';
+import { useAppActions, useLocale, useTheme, useKeyboardRange, useShowNoteNames, useShowKeymap, useIsRangeManuallySet, useAppStore, useKeyboardType } from '../lib/store';
 import { builtInSongs } from '../lib/songs';
 import { translations } from '../lib/translations';
 import { Keyboard } from './Keyboard';
@@ -56,7 +56,6 @@ export default function AppRoot() {
 
   const locale = useLocale();
   const theme = useTheme();
-  const instrument = useInstrument();
   const playMode = usePlayMode();
   const keyboardRange = useKeyboardRange();
   const showNoteNames = useShowNoteNames();
@@ -70,7 +69,7 @@ export default function AppRoot() {
   } = useGameLogic(activeNotes, setActiveNotes, songs);
 
   const [volume, setVolumeState] = useState(80);
-  const { mounted, windowWidth } = useAppInitialization(volume, instrument);
+  const { mounted, windowWidth } = useAppInitialization();
   useWakeLock(mounted);
   const { 
     showSettings, setShowSettings, 

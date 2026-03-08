@@ -1,16 +1,21 @@
-// app/components/MusicTheoryModule.tsx v1.0.0
+// app/components/MusicTheoryModule.tsx v2.4.2
 'use client';
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, CheckCircle, Circle, Play, Award, ArrowRight } from 'lucide-react';
-import { theoryLessons } from '../lib/theory-lessons';
+import { getTheoryLessons } from '../lib/theory-lessons';
+import { useLocale } from '../lib/store';
+import { translations, Translation } from '../lib/translations';
 
 interface MusicTheoryModuleProps {
   activeNotes: Map<number, number>;
 }
 
 export function MusicTheoryModule({ activeNotes }: MusicTheoryModuleProps) {
+  const locale = useLocale();
+  const t = (translations[locale] || translations.en) as Translation;
+  const theoryLessons = getTheoryLessons(locale);
   const [selectedLessonId, setSelectedLessonId] = useState<string>(theoryLessons[0].id);
   const [quizMode, setQuizMode] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -70,7 +75,7 @@ export function MusicTheoryModule({ activeNotes }: MusicTheoryModuleProps) {
       <div className="w-64 border-r border-slate-800 bg-slate-900/50 flex flex-col shrink-0">
         <div className="p-4 border-b border-slate-800 flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-indigo-400" />
-          <h2 className="font-bold text-slate-100">Music Theory</h2>
+          <h2 className="font-bold text-slate-100">{t.theory.title}</h2>
         </div>
         <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
           {theoryLessons.map(lesson => (
@@ -121,10 +126,10 @@ export function MusicTheoryModule({ activeNotes }: MusicTheoryModuleProps) {
                   {/* Interactive Element Placeholder */}
                   {currentLesson.interactiveElement && (
                     <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 my-8">
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-indigo-400 mb-4">Interactive Practice</h3>
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-indigo-400 mb-4">{t.theory.interactivePractice}</h3>
                       <p className="text-slate-300 mb-4">{currentLesson.interactiveElement.instruction}</p>
                       <div className="h-32 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-center">
-                        <span className="text-slate-500">Play notes on your MIDI keyboard</span>
+                        <span className="text-slate-500">{t.theory.playNotesOnKeyboard}</span>
                         {/* Here we could render active notes specifically for the lesson */}
                         {activeNotes.size > 0 && (
                           <div className="absolute mt-16 flex gap-2">
@@ -145,7 +150,7 @@ export function MusicTheoryModule({ activeNotes }: MusicTheoryModuleProps) {
                       className="flex items-center gap-2 px-6 py-3 bg-indigo-500 hover:bg-indigo-400 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/20"
                     >
                       <Play className="w-5 h-5 fill-current" />
-                      Start Quiz
+                      {t.theory.startQuiz}
                     </button>
                   </div>
                 </motion.div>
@@ -158,9 +163,9 @@ export function MusicTheoryModule({ activeNotes }: MusicTheoryModuleProps) {
                   className="max-w-2xl mx-auto pt-10"
                 >
                   <div className="mb-8 flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-slate-300">Quiz: {currentLesson.title}</h2>
+                    <h2 className="text-xl font-bold text-slate-300">{t.theory.quizTitle}: {currentLesson.title}</h2>
                     <div className="text-sm font-medium text-slate-500">
-                      Question {currentQuestionIndex + 1} of {currentLesson.quiz.length}
+                      {t.theory.questionOf.replace('{current}', (currentQuestionIndex + 1).toString()).replace('{total}', currentLesson.quiz.length.toString())}
                     </div>
                   </div>
 
@@ -212,9 +217,9 @@ export function MusicTheoryModule({ activeNotes }: MusicTheoryModuleProps) {
                   <div className="w-24 h-24 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6">
                     <Award className="w-12 h-12 text-indigo-400" />
                   </div>
-                  <h2 className="text-4xl font-black text-white mb-2">Quiz Completed!</h2>
+                  <h2 className="text-4xl font-black text-white mb-2">{t.theory.quizCompleted}</h2>
                   <p className="text-xl text-slate-400 mb-8">
-                    You scored <span className="text-indigo-400 font-bold">{score}</span> out of {currentLesson.quiz.length}
+                    {t.theory.youScored.replace('{score}', score.toString()).replace('{total}', currentLesson.quiz.length.toString())}
                   </p>
                   
                   <div className="flex gap-4">
@@ -222,7 +227,7 @@ export function MusicTheoryModule({ activeNotes }: MusicTheoryModuleProps) {
                       onClick={() => setQuizMode(false)}
                       className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-all"
                     >
-                      Review Lesson
+                      {t.theory.reviewLesson}
                     </button>
                     {score === currentLesson.quiz.length && currentLesson.id !== theoryLessons[theoryLessons.length - 1].id && (
                       <button
@@ -234,7 +239,7 @@ export function MusicTheoryModule({ activeNotes }: MusicTheoryModuleProps) {
                         }}
                         className="flex items-center gap-2 px-6 py-3 bg-indigo-500 hover:bg-indigo-400 text-white rounded-xl font-bold transition-all"
                       >
-                        Next Lesson
+                        {t.theory.nextLesson}
                         <ArrowRight className="w-5 h-5" />
                       </button>
                     )}

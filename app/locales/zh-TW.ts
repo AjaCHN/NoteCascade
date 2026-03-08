@@ -155,4 +155,18 @@ export const zhTW = {
     guidePlay: '當音符落到判定線時按下對應的琴鍵。',
     guideScore: '根據準確度和時機獲得分數！',
   },
+  theory: {
+    title: "樂理知識",
+    sidebarTitle: "課程列表",
+    interactivePractice: "互動練習",
+    playNotesOnKeyboard: "在 MIDI 鍵盤上彈奏音符",
+    startQuiz: "開始測驗",
+    quizTitle: "測驗",
+    questionOf: "第 {current} 題，共 {total} 題",
+    quizCompleted: "測驗完成！",
+    youScored: "你的得分是 {score} / {total}",
+    reviewLesson: "複習課程",
+    nextLesson: "下一課",
+    lessonCompleted: "課程完成！",
+  },
 };

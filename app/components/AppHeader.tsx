@@ -1,23 +1,20 @@
-// app/components/AppHeader.tsx v2.3.2
+// app/components/AppHeader.tsx v2.4.2
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
-  Library as LibraryIcon, Sliders,
+  Library as LibraryIcon,
   Menu, LayoutGrid, Music, Hash, BookOpen
 } from 'lucide-react';
 import { translations } from '../lib/translations';
-import { useLocale, useAppActions, usePlayMode,
-  useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, useKeyboardType
-} from '../lib/store';
+import { useLocale, useAppActions, usePlayMode } from '../lib/store';
 import { InfoModals } from './InfoModals';
 import { ProfileButton } from './ProfileButton';
-import { AudioControls } from './header/AudioControls';
 import { MenuDropdown } from './header/MenuDropdown';
 
-const version = '2.3.2';
+const version = '2.4.2';
 
 interface AppHeaderProps {
   theme: string;
@@ -51,14 +48,9 @@ export function AppHeader({
   setViewMode
 }: AppHeaderProps) {
   const locale = useLocale();
-  const metronomeEnabled = useMetronomeEnabled();
-  const metronomeBpm = useMetronomeBpm();
-  const metronomeBeats = useMetronomeBeats();
-  const keyboardType = useKeyboardType();
   const playMode = usePlayMode();
-  const { setMetronomeEnabled, setMetronomeBpm, setMetronomeBeats, setPlayMode, setKeyboardType } = useAppActions();
+  const { setPlayMode } = useAppActions();
   const t = translations[locale] || translations.en;
-  const [showAudioControls, setShowAudioControls] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [infoModalType, setInfoModalType] = useState<'about' | 'changelog' | 'guide' | null>(null);
 
@@ -177,30 +169,6 @@ export function AppHeader({
         >
           <LibraryIcon className="h-5 w-5" />
         </button>
-
-        {/* Audio Controls Button */}
-        <div className="relative">
-          <button
-            onClick={() => setShowAudioControls(!showAudioControls)}
-            className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${showAudioControls ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
-            title={t.settings.audioSettings || 'Audio Settings'}
-          >
-            <Sliders className="h-5 w-5" />
-          </button>
-
-                <AudioControls 
-                  show={showAudioControls}
-                  t={t}
-                  keyboardType={keyboardType}
-                  setKeyboardType={setKeyboardType}
-                  metronomeEnabled={metronomeEnabled}
-                  setMetronomeEnabled={setMetronomeEnabled}
-                  metronomeBpm={metronomeBpm}
-                  setMetronomeBpm={setMetronomeBpm}
-                  metronomeBeats={metronomeBeats}
-                  setMetronomeBeats={setMetronomeBeats}
-                />
-        </div>
 
         <button 
           onClick={() => setShowSettings(!showSettings)}

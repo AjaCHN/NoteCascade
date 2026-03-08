@@ -1,4 +1,6 @@
-// app/components/GameViews.tsx v2.4.2
+// app/components/GameViews.tsx v2.4.3
+'use client';
+
 import { GameCanvas } from './GameCanvas';
 import { SheetMusicView } from './SheetMusicView';
 import { NumberedNotationView } from './NumberedNotationView';

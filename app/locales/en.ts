@@ -162,4 +162,18 @@ export const en = {
   artists: {
     'traditional': 'Traditional',
   },
+  theory: {
+    title: "Music Theory",
+    sidebarTitle: "Lessons",
+    interactivePractice: "Interactive Practice",
+    playNotesOnKeyboard: "Play notes on your MIDI keyboard",
+    startQuiz: "Start Quiz",
+    quizTitle: "Quiz",
+    questionOf: "Question {current} of {total}",
+    quizCompleted: "Quiz Completed!",
+    youScored: "You scored {score} out of {total}",
+    reviewLesson: "Review Lesson",
+    nextLesson: "Next Lesson",
+    lessonCompleted: "Lesson Completed!",
+  },
 };

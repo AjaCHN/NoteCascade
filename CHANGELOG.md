@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.2]
+- L10n: Translated Music Theory page strings and lessons into Chinese (Simplified and Traditional).
+- L10n: Added Traditional Chinese (zh-TW) support to the translation system.
+
+## [2.4.1]
+- UI: Removed audio settings button from top toolbar (redundant with settings modal).
+
 ## [2.4.0]
 - UI: Optimized result card auto-exit countdown to 5 seconds.
 - Audio: Optimized instruments for low-end computers (reduced polyphony and simplified oscillators).

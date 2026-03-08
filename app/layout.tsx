@@ -1,10 +1,10 @@
-// app/layout.tsx v2.4.0
+// app/layout.tsx v2.4.2
 import type {Metadata, Viewport} from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from './lib/auth-context';
 
-const version = '2.4.0';
+const version = '2.4.2';
 
 const inter = Inter({
   subsets: ['latin'],

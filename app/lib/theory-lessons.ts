@@ -1,4 +1,4 @@
-// app/lib/theory-lessons.ts v1.0.0
+// app/lib/theory-lessons.ts v2.4.2
 
 export interface QuizQuestion {
   question: string;
@@ -20,7 +20,7 @@ export interface TheoryLesson {
   quiz: QuizQuestion[];
 }
 
-export const theoryLessons: TheoryLesson[] = [
+const enLessons: TheoryLesson[] = [
   {
     id: 'intro-notes',
     title: '1. The Musical Alphabet',
@@ -192,3 +192,357 @@ export const theoryLessons: TheoryLesson[] = [
     ]
   }
 ];
+
+const zhCNLessons: TheoryLesson[] = [
+  {
+    id: 'intro-notes',
+    title: '1. 音乐字母表',
+    content: [
+      '音乐只使用七个字母：A, B, C, D, E, F 和 G。这些是自然音符，由钢琴上的白键表示。',
+      'G 之后，字母表从 A 重新开始。一个音符与下一个同名音符之间的距离称为八度。',
+      '黑键代表升号 (#) 和降号 (b) 音符。升号将音符升高半步，而降号将音符降低半步。',
+      '例如，C 右侧紧邻的黑键是 C# (升 C)。它也位于 D 的左侧，因此也可以称为 Db (降 D)。'
+    ],
+    interactiveElement: {
+      type: 'play-note',
+      instruction: '尝试在键盘上找到并弹奏中央 C (MIDI 音符 60)。',
+      targetMidi: [60]
+    },
+    quiz: [
+      {
+        question: '音乐字母表中有多少个字母？',
+        options: ['5', '7', '12', '26'],
+        correctAnswer: 1
+      },
+      {
+        question: '一个 C 到下一个 C 之间的距离称为什么？',
+        options: ['音程', '和弦', '八度', '音阶'],
+        correctAnswer: 2
+      },
+      {
+        question: '升号 (#) 对音符有什么作用？',
+        options: ['降低半步', '升高半步', '使声音变大', '使声音变长'],
+        correctAnswer: 1
+      }
+    ]
+  },
+  {
+    id: 'major-scale',
+    title: '2. 大调音阶',
+    content: [
+      '音阶是按升序或降序排列的一系列音符。西方音乐中最常见的音阶是大调音阶。',
+      '大调音阶是使用全音 (W) 和半音 (H) 的特定模式构建的。半音是从一个键到下一个键（白键或黑键）的距离。全音是两个半音。',
+      '大调音阶的模式是：全 - 全 - 半 - 全 - 全 - 全 - 半。',
+      '如果我们从 C 开始并遵循这个模式，我们只弹奏白键：C, D, E, F, G, A, B, C。这就是 C 大调音阶。'
+    ],
+    interactiveElement: {
+      type: 'play-note',
+      instruction: '从中央 C 开始弹奏 C 大调音阶 (C4, D4, E4, F4, G4, A4, B4, C5)。',
+      targetMidi: [60, 62, 64, 65, 67, 69, 71, 72]
+    },
+    quiz: [
+      {
+        question: '大调音阶的全音 (W) 和半音 (H) 模式是什么？',
+        options: [
+          '全 - 半 - 全 - 半 - 全 - 半 - 全',
+          '全 - 全 - 半 - 全 - 全 - 全 - 半',
+          '半 - 全 - 全 - 半 - 全 - 全 - 全',
+          '全 - 全 - 全 - 半 - 全 - 全 - 半'
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: '钢琴上哪个大调音阶只使用白键？',
+        options: ['G 大调', 'F 大调', 'C 大调', 'D 大调'],
+        correctAnswer: 2
+      },
+      {
+        question: '多少个半音组成一个全音？',
+        options: ['1', '2', '3', '4'],
+        correctAnswer: 1
+      }
+    ]
+  },
+  {
+    id: 'basic-chords',
+    title: '3. 基础和弦 (三和弦)',
+    content: [
+      '和弦是三个或更多同时弹奏的音符。最基本的和弦类型是三和弦，由三个音符组成。',
+      '三和弦是通过叠加三度音程构建的。在 C 大调音阶中，如果我们从 C 开始，跳过 D，弹奏 E，跳过 F，弹奏 G，我们就得到了 C 大调三和弦 (C - E - G)。',
+      '三和弦的三个音符分别称为根音（起始音）、三音和五音。',
+      '大和弦听起来“快乐”或“明亮”，而小和弦听起来“忧伤”或“阴暗”。小和弦是通过将大和弦的三音降低半步而创建的。'
+    ],
+    interactiveElement: {
+      type: 'play-chord',
+      instruction: '弹奏 C 大调三和弦 (C, E, G)。',
+      targetMidi: [60, 64, 67]
+    },
+    quiz: [
+      {
+        question: '只有三个音符的和弦称为什么？',
+        options: ['三和弦', '音阶', '八度', '音程'],
+        correctAnswer: 0
+      },
+      {
+        question: 'C 大调三和弦中的音符是什么？',
+        options: ['C - D - E', 'C - F - G', 'C - E - G', 'C - Eb - G'],
+        correctAnswer: 2
+      },
+      {
+        question: '如何将大和弦变为小和弦？',
+        options: [
+          '将根音升高半步',
+          '将三音降低半步',
+          '将五音升高半步',
+          '降低一个八度弹奏'
+        ],
+        correctAnswer: 1
+      }
+    ]
+  },
+  {
+    id: 'intervals',
+    title: '4. 理解音程',
+    content: [
+      '音程是两个音符之间的音高距离。它们是旋律和和弦的基石。',
+      '音程根据其数字（音阶度数距离）和性质（大、小、完全、增、减）命名。',
+      '例如，从 C 到下一个 D 的距离是“二度”。从 C 到 E 是“三度”。从 C 到 G 是“五度”。',
+      '完全五度（如 C 到 G）是音乐中最稳定和最常见的音程之一，跨越 7 个半音。'
+    ],
+    quiz: [
+      {
+        question: '什么是音程？',
+        options: [
+          '音乐的速度',
+          '两个音符之间的音高距离',
+          '一种和弦类型',
+          '音符的响度'
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: '从 C 到 G 的音程称为什么？',
+        options: ['二度', '三度', '四度', '五度'],
+        correctAnswer: 3
+      },
+      {
+        question: '完全五度中有多少个半音？',
+        options: ['4', '5', '7', '12'],
+        correctAnswer: 2
+      }
+    ]
+  },
+  {
+    id: 'rhythm-basics',
+    title: '5. 节奏与拍号',
+    content: [
+      '节奏是声音在时间上的安排。它决定了音符何时弹奏以及持续多久。',
+      '节拍是音乐稳定的脉搏。音符是相对于这个节拍来衡量的。',
+      '全音符持续 4 拍。二分音符持续 2 拍。四分音符持续 1 拍。',
+      '拍号告诉我们节拍是如何组织的。最常见的是 4/4 拍，意味着每小节有 4 拍，四分音符为一拍。'
+    ],
+    quiz: [
+      {
+        question: '在 4/4 拍中，四分音符通常占多少拍？',
+        options: ['1', '2', '3', '4'],
+        correctAnswer: 0
+      },
+      {
+        question: '4/4 拍号中的上层数字代表什么？',
+        options: [
+          '每秒弹奏 4 个音符',
+          '每小节有 4 拍',
+          '四分音符为一拍',
+          '音乐弹奏 4 次'
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: '如果全音符是 4 拍，多少个二分音符等于一个全音符？',
+        options: ['1', '2', '3', '4'],
+        correctAnswer: 1
+      }
+    ]
+  }
+];
+
+const zhTWLessons: TheoryLesson[] = [
+  {
+    id: 'intro-notes',
+    title: '1. 音樂字母表',
+    content: [
+      '音樂只使用七個字母：A, B, C, D, E, F 和 G。這些是自然音符，由鋼琴上的白鍵表示。',
+      'G 之後，字母表從 A 重新開始。一個音符與下一個同名音符之間的距離稱為八度。',
+      '黑鍵代表升號 (#) 和降號 (b) 音符。升號將音符升高半步，而降號將音符降低半步。',
+      '例如，C 右側緊鄰的黑鍵是 C# (升 C)。它也位於 D 的左側，因此也可以稱為 Db (降 D)。'
+    ],
+    interactiveElement: {
+      type: 'play-note',
+      instruction: '嘗試在鍵盤上找到並彈奏中央 C (MIDI 音符 60)。',
+      targetMidi: [60]
+    },
+    quiz: [
+      {
+        question: '音樂字母表中有多少個字母？',
+        options: ['5', '7', '12', '26'],
+        correctAnswer: 1
+      },
+      {
+        question: '一個 C 到下一個 C 之間的距離稱為什麼？',
+        options: ['音程', '和弦', '八度', '音階'],
+        correctAnswer: 2
+      },
+      {
+        question: '升號 (#) 對音符有什麼作用？',
+        options: ['降低半步', '升高半步', '使聲音變大', '使聲音變長'],
+        correctAnswer: 1
+      }
+    ]
+  },
+  {
+    id: 'major-scale',
+    title: '2. 大調音階',
+    content: [
+      '音階是按升序或降序排列的一系列音符。西方音樂中最常見的音階是大調音階。',
+      '大調音階是使用全音 (W) 和半音 (H) 的特定模式構建的。半音是從一個鍵到下一個鍵（白鍵或黑鍵）的距離。全音是兩個半音。',
+      '大調音階的模式是：全 - 全 - 半 - 全 - 全 - 全 - 半。',
+      '如果我們從 C 開始並遵循這個模式，我們只彈奏白鍵：C, D, E, F, G, A, B, C。這就是 C 大調音階。'
+    ],
+    interactiveElement: {
+      type: 'play-note',
+      instruction: '從中央 C 開始彈奏 C 大調音階 (C4, D4, E4, F4, G4, A4, B4, C5)。',
+      targetMidi: [60, 62, 64, 65, 67, 69, 71, 72]
+    },
+    quiz: [
+      {
+        question: '大調音階的全音 (W) 和半音 (H) 模式是什麼？',
+        options: [
+          '全 - 半 - 全 - 半 - 全 - 半 - 全',
+          '全 - 全 - 半 - 全 - 全 - 全 - 半',
+          '半 - 全 - 全 - 半 - 全 - 全 - 全',
+          '全 - 全 - 全 - 半 - 全 - 全 - 半'
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: '鋼琴上哪個大調音階只使用白鍵？',
+        options: ['G 大調', 'F 大調', 'C 大調', 'D 大調'],
+        correctAnswer: 2
+      },
+      {
+        question: '多少個半音組成一個全音？',
+        options: ['1', '2', '3', '4'],
+        correctAnswer: 1
+      }
+    ]
+  },
+  {
+    id: 'basic-chords',
+    title: '3. 基礎和弦 (三和弦)',
+    content: [
+      '和弦是三個或更多同時彈奏的音符。最基本的和弦類型是三和弦，由三個音符組成。',
+      '三和弦是通過疊加三度音程構建的。在 C 大調音階中，如果我們從 C 開始，跳过 D，彈奏 E，跳过 F，彈奏 G，我們就得到了 C 大調三和弦 (C - E - G)。',
+      '三和弦的三個音符分別稱為根音（起始音）、三音和五音。',
+      '大和弦聽起來“快樂”或“明亮”，而小和弦聽起來“憂傷”或“陰暗”。小和弦是通過將大和弦的三音降低半步而創建的。'
+    ],
+    interactiveElement: {
+      type: 'play-chord',
+      instruction: '彈奏 C 大調三和弦 (C, E, G)。',
+      targetMidi: [60, 64, 67]
+    },
+    quiz: [
+      {
+        question: '只有三個音符的和弦稱為什麼？',
+        options: ['三和弦', '音階', '八度', '音程'],
+        correctAnswer: 0
+      },
+      {
+        question: 'C 大調三和弦中的音符是什麼？',
+        options: ['C - D - E', 'C - F - G', 'C - E - G', 'C - Eb - G'],
+        correctAnswer: 2
+      },
+      {
+        question: '如何將大和弦變為小和弦？',
+        options: [
+          '將根音升高半步',
+          '將三音降低半步',
+          '將五音升高半步',
+          '降低一個八度彈奏'
+        ],
+        correctAnswer: 1
+      }
+    ]
+  },
+  {
+    id: 'intervals',
+    title: '4. 理解音程',
+    content: [
+      '音程是兩個音符之間的音高距離。它們是旋律和和弦的基石。',
+      '音程根據其數字（音階度數距離）和性質（大、小、完全、增、減）命名。',
+      '例如，從 C 到下一個 D 的距離是“二度”。從 C 到 E 是“三度”。從 C 到 G 是“五度”。',
+      '完全五度（如 C 到 G）是音樂中最穩定和最常見的音程之一，跨越 7 個半音。'
+    ],
+    quiz: [
+      {
+        question: '什麼是音程？',
+        options: [
+          '音樂的速度',
+          '兩個音符之間的音高距離',
+          '一種和弦類型',
+          '音符的響度'
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: '從 C 到 G 的音程稱為什麼？',
+        options: ['二度', '三度', '四度', '五度'],
+        correctAnswer: 3
+      },
+      {
+        question: '完全五度中有多少個半音？',
+        options: ['4', '5', '7', '12'],
+        correctAnswer: 2
+      }
+    ]
+  },
+  {
+    id: 'rhythm-basics',
+    title: '5. 節奏與拍號',
+    content: [
+      '節奏是聲音在時間上的安排。它決定了音符何時彈奏以及持續多久。',
+      '節拍是音樂穩定的脈搏。音符是相對於這個節拍來衡量的。',
+      '全音符持續 4 拍。二分音符持續 2 拍。四分音符持續 1 拍。',
+      '拍號告訴我們節拍是如何組織的。最常見的是 4/4 拍，意味著每小節有 4 拍，四分音符為一拍。'
+    ],
+    quiz: [
+      {
+        question: '在 4/4 拍中，四分音符通常佔多少拍？',
+        options: ['1', '2', '3', '4'],
+        correctAnswer: 0
+      },
+      {
+        question: '4/4 拍號中的上層數字代表什麼？',
+        options: [
+          '每秒彈奏 4 個音符',
+          '每小節有 4 拍',
+          '四分音符為一拍',
+          '音樂彈奏 4 次'
+        ],
+        correctAnswer: 1
+      },
+      {
+        question: '如果全音符是 4 拍，多少個二分音符等於一個全音符？',
+        options: ['1', '2', '3', '4'],
+        correctAnswer: 1
+      }
+    ]
+  }
+];
+
+export const getTheoryLessons = (locale: string): TheoryLesson[] => {
+  if (locale === 'zh-CN') return zhCNLessons;
+  if (locale === 'zh-TW') return zhTWLessons;
+  return enLessons;
+};
+
+export const theoryLessons = enLessons; // Keep for backward compatibility if needed

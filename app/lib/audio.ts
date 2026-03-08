@@ -1,4 +1,4 @@
-// app/lib/audio.ts v2.3.3
+// app/lib/audio.ts v2.4.3
 import * as Tone from 'tone';
 
 let synth: Tone.PolySynth | null = null;
@@ -28,19 +28,19 @@ export const stopNote = (note: number) => {
   }
 };
 
-export const setPitchBend = (value: number) => {
+export const setPitchBend = (_value: number) => {
   // Implement pitch bend if needed
 };
 
-export const setModulation = (value: number) => {
+export const setModulation = (_value: number) => {
   // Implement modulation if needed
 };
 
-export const setExpression = (value: number) => {
+export const setExpression = (_value: number) => {
   // Implement expression if needed
 };
 
-export const setSustainPedal = (value: boolean) => {
+export const setSustainPedal = (_value: boolean) => {
   // Implement sustain pedal if needed
 };
 

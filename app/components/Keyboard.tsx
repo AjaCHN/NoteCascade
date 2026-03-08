@@ -41,7 +41,7 @@ export function Keyboard({
 
   const getKeyLabel = (midi: number) => {
     if (!showKeymap) return null;
-    const key = Object.entries(keyMap).find(([_, m]) => m === midi)?.[0];
+    const key = Object.entries(keyMap).find(([_key, m]) => m === midi)?.[0];
     return key ? key.toUpperCase() : null;
   };
 
@@ -56,7 +56,6 @@ export function Keyboard({
         if (isBlack) return null; // Render black keys separately or absolutely positioned
 
         const isActive = activeNotes.has(midi);
-        const velocity = activeNotes.get(midi) || 0;
         const keyLabel = getKeyLabel(midi);
 
         return (

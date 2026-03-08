@@ -1,6 +1,7 @@
-// app/hooks/use-midi.ts v2.4.2
+// app/hooks/use-midi.ts v2.4.4
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import type { VelocityCurve } from '../lib/midi-utils';
 
 export interface MidiDevice {
   id: string;
@@ -22,8 +23,8 @@ export function useMidi() {
   const [activeNotes, setActiveNotes] = useState<Map<number, number>>(new Map());
   const [lastMessage, setLastMessage] = useState<MidiMessage | null>(null);
   const [isSupported, setIsSupported] = useState(true);
-  const [midiChannel, setMidiChannel] = useState(0);
-  const [velocityCurve, setVelocityCurve] = useState(1);
+  const [midiChannel, setMidiChannel] = useState<number | 'all'>('all');
+  const [velocityCurve, setVelocityCurve] = useState<VelocityCurve>('linear');
   const [transpose, setTranspose] = useState(0);
 
   const connectMidi = async () => {
@@ -53,6 +54,7 @@ export function useMidi() {
     activeNotes,
     setActiveNotes,
     lastMessage,
+    setLastMessage,
     isSupported,
     midiChannel,
     setMidiChannel,
