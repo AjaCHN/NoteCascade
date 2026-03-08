@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.5.0]
+- Refactor: Split `AppRoot.tsx` into `GameContainer.tsx` and `KeyboardContainer.tsx` to improve maintainability and reduce file complexity.
+
 ## [2.4.2]
 - L10n: Translated Music Theory page strings and lessons into Chinese (Simplified and Traditional).
 - L10n: Added Traditional Chinese (zh-TW) support to the translation system.

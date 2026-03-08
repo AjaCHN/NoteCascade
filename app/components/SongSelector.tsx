@@ -2,7 +2,8 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { builtInSongs, parseMidiFile } from '../lib/songs';
+import { builtInSongs } from '../lib/songs';
+import { parseMidiFile } from '../lib/songs/midi';
 import type { Song } from '../lib/songs';
 import { Music, Filter, Upload } from 'lucide-react';
 import { useLocale, useScores, useAchievements } from '../lib/store';
