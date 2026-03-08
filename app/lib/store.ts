@@ -79,7 +79,7 @@ export const useAppStore = create<AppState>((set) => ({
   metronomeBeats: 4,
   setMetronomeBeats: (beats) => set({ metronomeBeats: beats }),
   
-  keyboardType: '88',
+  keyboardType: 'virtual',
   setKeyboardType: (type) => set({ keyboardType: type }),
   
   playMode: 'practice',

@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Star, Trophy, Lock, Play, Keyboard as KeyboardIcon } from 'lucide-react';
 import { Translation } from '../lib/translations';
-import type { Song } from '../lib/songs';
+import type { Song, UnlockCondition } from '../lib/songs/types';
 
 interface SongCardProps {
   song: Song;
@@ -13,6 +13,7 @@ interface SongCardProps {
   unlocked: boolean;
   highScore: number | null;
   unlockDescription: string;
+  unlockCondition?: UnlockCondition;
   onPlayPractice: (song: Song) => void;
   onPlayDemo: (song: Song) => void;
   t: Translation;
@@ -24,11 +25,13 @@ export function SongCard({
   unlocked, 
   highScore, 
   unlockDescription, 
+  unlockCondition,
   onPlayPractice,
   onPlayDemo,
   t 
 }: SongCardProps) {
   const [showActions, setShowActions] = useState(false);
+  const displayUnlockDescription = unlockCondition?.description || unlockDescription;
 
   return (
     <div
@@ -94,7 +97,7 @@ export function SongCard({
         ) : (
           <div className="flex items-center gap-1.5 mt-1 text-rose-500 dark:text-rose-400/80">
             <Lock className="w-3.5 h-3.5" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">{unlockDescription}</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">{displayUnlockDescription}</span>
           </div>
         )}
       </div>
