@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.7.0]
+- Feature: Implemented user roles (Admin, Moderator, User, Guest) and permission management.
+- Feature: Added `Permissions` system to control access to specific features.
+- UI: Updated `ProfileButton` to display user roles for privileged accounts.
+
+## [2.6.0]
+- Feature: Integrated Firebase Auth with Google and GitHub login.
+- Feature: Automatic Firestore user document creation for new users.
+- UI: Updated `ProfileButton` to show user avatar and handle authentication state.
+- UI: Enhanced `AuthModal` with social login options.
+
+## [2.5.2]
+- Fixed: React hook warnings in `SheetMusicView.tsx` by removing unnecessary state updates inside effects.
+
+## [2.5.1]
+- Fixed: Added error boundary components (`error.tsx`, `global-error.tsx`) to catch unexpected runtime errors.
+
 ## [2.5.0]
 - Refactor: Split `AppRoot.tsx` into `GameContainer.tsx` and `KeyboardContainer.tsx` to improve maintainability and reduce file complexity.
 

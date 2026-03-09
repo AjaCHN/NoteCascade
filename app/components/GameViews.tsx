@@ -1,4 +1,4 @@
-// app/components/GameViews.tsx v2.4.3
+// app/components/GameViews.tsx v2.4.4
 'use client';
 
 import { GameCanvas } from './GameCanvas';
@@ -61,6 +61,7 @@ export function GameViews({
       {viewMode === 'sheet' && selectedSong && (
         <SheetMusicView 
           song={selectedSong}
+          currentTime={currentTime}
           width={containerSize.width}
           height={containerSize.height}
         />

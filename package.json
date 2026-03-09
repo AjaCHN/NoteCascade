@@ -1,6 +1,6 @@
 {
   "name": "notecascade",
-  "version": "2.3.1",
+  "version": "2.7.0",
   "license": "GPL-3.0-only",
   "scripts": {
     "dev": "next dev",
@@ -12,6 +12,7 @@
     "@google/genai": "^1.17.0",
     "@hookform/resolvers": "^5.2.1",
     "@tonejs/midi": "^2.0.28",
+    "abcjs": "^6.6.2",
     "autoprefixer": "^10.4.21",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
