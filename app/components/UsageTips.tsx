@@ -27,7 +27,7 @@ export function UsageTips() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="absolute top-8 left-8 z-50 flex items-center gap-3 bg-black/80 backdrop-blur-md p-4 rounded-2xl border theme-border shadow-2xl max-w-sm pointer-events-none"
+          className="absolute top-32 right-8 z-50 flex items-center gap-3 bg-black/80 backdrop-blur-md p-4 rounded-2xl border theme-border shadow-2xl max-w-sm pointer-events-none"
         >
           <Lightbulb className="w-6 h-6 text-amber-400 shrink-0" />
           <p className="text-sm theme-text-primary">{tip}</p>
