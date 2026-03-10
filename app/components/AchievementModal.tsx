@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Trophy } from 'lucide-react';
 import { AchievementList } from './AchievementList';
 import { useLocale } from '../lib/store';

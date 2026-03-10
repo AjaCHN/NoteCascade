@@ -9,8 +9,7 @@ import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, us
 import { translations } from './lib/translations';
 import { Keyboard } from './components/Keyboard';
 import { GameCanvas } from './components/GameCanvas';
-import { AnimatePresence } from 'motion/react';
-
+import { motion, AnimatePresence } from 'framer-motion';
 import { SettingsModal } from './components/SettingsModal';
 import { ResultModal } from './components/ResultModal';
 import { AchievementModal } from './components/AchievementModal';
@@ -19,7 +18,6 @@ import { SongSelector } from './components/SongSelector';
 import { useGameLogic } from './hooks/use-game-logic';
 import { usePlayMode } from './lib/store';
 import { RotateCcw, RefreshCw, Play, Pause, SkipForward } from 'lucide-react';
-import { motion } from 'motion/react';
 
 export default function MidiPlayApp() {
   const { 

@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Trophy, RefreshCw, Play, Clock } from 'lucide-react';
 import { Song } from '../lib/songs';
 import { translations } from '../lib/translations';

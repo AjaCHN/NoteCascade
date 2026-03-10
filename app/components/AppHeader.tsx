@@ -1,7 +1,7 @@
 // app/components/AppHeader.tsx v1.4.10
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
@@ -11,9 +11,8 @@ import { translations } from '../lib/translations';
 import { 
   useLocale, usePlayMode, useAppActions, PlayMode
 } from '../lib/store';
-import pkg from '../../package.json';
 
-const { version } = pkg;
+const version = "1.7.1";
 
 interface AppHeaderProps {
   theme: string;
@@ -46,7 +45,26 @@ export function AppHeader({
   const playMode = usePlayMode();
   const { setPlayMode } = useAppActions();
   const t = translations[locale] || translations.en;
-  const [showMenu, setShowMenu] = React.useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const key = e.key.toLowerCase();
+      
+      if (key === 'l') setPlayMode('library');
+      else if (key === 'a') setShowAchievements(!showAchievements);
+      else if (key === 'm') connectMidi?.();
+      else if (key === 's') setShowSettings(!showSettings);
+      else if (key === 'escape') setShowMenu(prev => !prev);
+      else if (showMenu) {
+        if (key === 'f') { toggleFullScreen(); setShowMenu(false); }
+        else if (key === 's') { setShowSettings(true); setShowMenu(false); }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setPlayMode, setShowAchievements, showAchievements, connectMidi, showMenu, toggleFullScreen, setShowSettings, showSettings]);
 
   const modes = [
     { id: 'practice', icon: KeyboardIcon, label: t.practice || 'Practice' },
@@ -76,6 +94,7 @@ export function AppHeader({
           <button
             key={mode.id}
             onClick={() => setPlayMode(mode.id as PlayMode)}
+            title={mode.label}
             className={`flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-xl transition-all ${
               playMode === mode.id 
                 ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' 
@@ -92,14 +111,14 @@ export function AppHeader({
         <button 
           onClick={() => setPlayMode('library')}
           className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${playMode === 'library' ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
-          title={t.library}
+          title={`${t.library} (L)`}
         >
           <LibraryIcon className="h-5 w-5" />
         </button>
         <button 
           onClick={() => setShowAchievements(!showAchievements)}
           className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${showAchievements ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
-          title={t.achievements}
+          title={`${t.achievements} (A)`}
         >
           <Trophy className="h-5 w-5" />
         </button>
@@ -115,6 +134,7 @@ export function AppHeader({
         <button 
           onClick={() => connectMidi && connectMidi()}
           disabled={isConnecting}
+          title="Connect MIDI (M)"
           className={`flex items-center gap-2 rounded-full px-3 md:px-5 py-2 border backdrop-blur-md transition-all cursor-pointer shadow-lg group relative ${
             isConnecting 
               ? 'bg-amber-500/20 border-amber-500/50 opacity-70 cursor-wait' 
@@ -147,23 +167,25 @@ export function AppHeader({
         <button 
           onClick={() => setShowSettings(!showSettings)}
           className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
+          title="Settings (S)"
         >
           <Settings className="h-5 w-5" />
         </button>
         <button 
           onClick={() => setShowMenu(!showMenu)}
           className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
+          title="Menu (Esc)"
         >
           <Menu className="h-5 w-5" />
         </button>
         
         {showMenu && (
           <div className="absolute top-full right-4 mt-2 p-2 bg-black/90 backdrop-blur-md border theme-border rounded-2xl shadow-2xl z-50 flex flex-col gap-1">
-            <button onClick={toggleFullScreen} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
+            <button onClick={toggleFullScreen} title="Full Screen (F)" className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
               {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
               {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
             </button>
-            <button onClick={() => { setShowSettings(true); setShowMenu(false); }} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
+            <button onClick={() => { setShowSettings(true); setShowMenu(false); }} title="Settings (S)" className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
               <Settings className="h-4 w-4" />
               Settings
             </button>
