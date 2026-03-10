@@ -50,6 +50,21 @@ export default function MidiPlayApp() {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isRangeManuallySet, setIsRangeManuallySet] = useState(false);
 
+  // Initial setup and audio sync
+  useEffect(() => {
+    setMounted(true);
+    setVolume(volume);
+    setAudioInstrument(instrument);
+  }, []);
+
+  useEffect(() => {
+    setAudioInstrument(instrument);
+  }, [instrument]);
+
+  useEffect(() => {
+    setVolume(volume);
+  }, [volume]);
+
   // Dynamic keyboard range logic
   useEffect(() => {
     if (!mounted || isRangeManuallySet) return;
@@ -57,9 +72,15 @@ export default function MidiPlayApp() {
     const hasMidi = inputs.length > 0;
     
     if (hasMidi) {
-      // MIDI connected: Use a fixed standard 88-key range and stop auto-adjusting to songs
       if (keyboardRange.start !== 21 || keyboardRange.end !== 108) {
          setKeyboardRange(21, 108);
+      }
+      return;
+    }
+
+    if (windowWidth < 768) {
+      if (keyboardRange.start !== 48 || keyboardRange.end !== 72) {
+        setKeyboardRange(48, 72);
       }
       return;
     }
@@ -70,11 +91,9 @@ export default function MidiPlayApp() {
       const minMidi = Math.min(...midis);
       const maxMidi = Math.max(...midis);
       
-      // Add some padding (e.g., 2-3 notes on each side)
       let start = Math.max(21, minMidi - 2);
       let end = Math.min(108, maxMidi + 2);
       
-      // Ensure start and end are white keys for better visual rendering
       while ([1, 3, 6, 8, 10].includes(start % 12) && start > 21) {
         start--;
       }
@@ -82,11 +101,9 @@ export default function MidiPlayApp() {
         end++;
       }
       
-      // Ensure at least 25 keys width as requested
       const finalStart = start;
-      let finalEnd = Math.max(start + 24, end); // 24 diff means 25 keys
+      let finalEnd = Math.max(start + 24, end); 
 
-      // Ensure finalEnd is also a white key
       while ([1, 3, 6, 8, 10].includes(finalEnd % 12) && finalEnd < 108) {
         finalEnd++;
       }
@@ -95,12 +112,11 @@ export default function MidiPlayApp() {
         setKeyboardRange(finalStart, finalEnd);
       }
     } else {
-      // Default range for no song: ensure 25 keys
       if (keyboardRange.start !== 48 || keyboardRange.end !== 72) {
-        setKeyboardRange(48, 72); // 48 to 72 is 25 keys
+        setKeyboardRange(48, 72);
       }
     }
-  }, [inputs.length, selectedSong, setKeyboardRange, mounted, keyboardRange.start, keyboardRange.end, isRangeManuallySet]);
+  }, [inputs.length, selectedSong, mounted, isRangeManuallySet, windowWidth]);
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
@@ -139,7 +155,6 @@ export default function MidiPlayApp() {
 
   useEffect(() => {
     if (lastMessage) {
-      initAudio();
       const { command, note, velocity } = lastMessage;
       const status = command & 0xf0;
       if (status === 0x90 && velocity > 0) {
@@ -152,21 +167,6 @@ export default function MidiPlayApp() {
 
   useKeyboardInput(setActiveNotes, inputs.length > 0);
 
-  useEffect(() => {
-    setTimeout(() => setMounted(true), 0);
-    setVolume(volume);
-    setAudioInstrument(instrument);
-
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      setTimeout(() => {
-        setKeyboardRange(48, 72); // 25 keys
-      }, 0);
-    }
-  }, [instrument, setKeyboardRange, volume]);
-
-  useEffect(() => {
-    setAudioInstrument(instrument);
-  }, [instrument]);
 
   const isBlackKey = (midi: number) => [1, 3, 6, 8, 10].includes(midi % 12);
   const whiteKeyCount = Array.from({ length: keyboardRange.end - keyboardRange.start + 1 }, (_, i) => keyboardRange.start + i)
