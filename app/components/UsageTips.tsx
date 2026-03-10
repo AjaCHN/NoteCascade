@@ -1,4 +1,4 @@
-// app/components/UsageTips.tsx v1.0.0
+// app/components/UsageTips.tsx v2.0.1
 'use client';
 import { useState, useEffect } from 'react';
 import { tips } from '../lib/tips';
@@ -24,10 +24,10 @@ export function UsageTips() {
     <AnimatePresence>
       {show && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          className="absolute bottom-24 left-4 z-50 flex items-center gap-3 bg-black/80 backdrop-blur-md p-4 rounded-2xl border theme-border shadow-2xl max-w-sm"
+          exit={{ opacity: 0, y: -20 }}
+          className="absolute top-8 left-8 z-50 flex items-center gap-3 bg-black/80 backdrop-blur-md p-4 rounded-2xl border theme-border shadow-2xl max-w-sm pointer-events-none"
         >
           <Lightbulb className="w-6 h-6 text-amber-400 shrink-0" />
           <p className="text-sm theme-text-primary">{tip}</p>

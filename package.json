@@ -1,6 +1,6 @@
 {
   "name": "notecascade",
-  "version": "1.7.3",
+  "version": "2.0.1",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

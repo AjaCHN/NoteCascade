@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.1]
+- Feat: Added 15 new children's songs to the library (Little Rabbit Be Good, Counting Ducks, Malan Flower, Childhood, Edelweiss, The Dull-Ice Flower, Catching Loaches, Little Donkey, Little Swallow, Pulling Radishes, Two Tigers, Doraemon, The Painter, Little Conch, Peppa Pig).
+- UI: Moved random tips display position up to the blank canvas area and ensured it doesn't block other UI elements.
+- L10n: Added translations for the new songs in English and Simplified Chinese.
+
 ## [2.0.0]
 - Refactor: Major refactoring of core hooks (`use-game-logic.ts`, `use-midi.ts`) and components (`Keyboard.tsx`) to improve modularity and reduce token consumption.
 - Refactor: Extracted instrument creation into a separate `instruments.ts` module.

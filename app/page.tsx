@@ -1,4 +1,4 @@
-// app/page.tsx v1.4.7
+// app/page.tsx v2.0.1
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -217,12 +217,11 @@ export default function MidiPlayApp() {
         toggleFullScreen={toggleFullScreen}
       />
 
-      <UsageTips />
-
       <main id="main-content" className="flex flex-1 overflow-hidden relative z-10">
         <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden bg-transparent overflow-x-auto custom-scrollbar">
           <div className="flex-1 flex flex-col min-h-0 relative" style={{ minWidth: typeof minCanvasWidth === 'number' ? `${minCanvasWidth}px` : minCanvasWidth }}>
             <div id="game-canvas-container" className="flex-1 relative min-h-0">
+              {playMode !== 'library' && <UsageTips />}
               {playMode === 'library' ? (
                 <div className="h-full w-full overflow-y-auto custom-scrollbar bg-slate-50/50 dark:bg-slate-950/50">
                   <SongSelector 
