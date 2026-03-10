@@ -1,5 +1,5 @@
-// app/lib/achievements-data.ts v1.7.2
-import type { Achievement } from './store/types';
+// app/lib/achievements-data.ts v1.3.5
+import { Achievement } from './store';
 
 export const INITIAL_ACHIEVEMENTS: Achievement[] = [
   { id: 'first_song', title: 'First Steps', description: 'Play your first song', icon: 'Music', category: 'collection' },

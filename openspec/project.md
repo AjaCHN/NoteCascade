@@ -1,21 +1,30 @@
-// openspec/project.md v2.3.2
-# NoteCascade Project Specification
+# 项目规范：NoteCascade
 
-## Overview
-NoteCascade is a web-based piano learning and rhythm game. It allows users to play MIDI files, track their performance, and learn piano in an interactive way.
+## 概览
+NoteCascade 是一款视觉化 MIDI 键盘练习应用，旨在通过类游戏的界面帮助用户掌握钢琴技能。它具有瀑布流式的音符显示、实时评分和成就系统。
 
-## Core Features
-- **MIDI Playback**: Support for loading and playing MIDI files via `useMidi` hook.
-- **Rhythm Gameplay**: Falling notes interface (Waterfall view) for interactive play.
-- **Performance Tracking**: Scoring system based on timing and accuracy (Perfect/Good/Miss).
-- **Multi-language Support**: i18n support for English (`en`) and Chinese (`zh-CN`).
-- **User Accounts**: Firebase integration for user profiles (ProfileButton).
-- **Audio Engine**: Powered by Tone.js with metronome support.
+## 核心功能
+- **实时 MIDI 输入**：通过 Web MIDI API 连接物理 MIDI 键盘。
+- **视觉反馈**：与所选歌曲同步的下落音符，支持完整下落动画。
+- **评分系统**：Perfect（完美）、Good（良好）、Miss（错过）和 Wrong（错误）击键检测。
+- **曲库**：内置不同难度等级的歌曲，支持 MIDI 文件上传，响应式布局。
+- **成就系统**：练习里程碑的可解锁奖励。
+- **音频反馈**：为演奏的音符提供高质量的合成器声音。
+- **练习模式**：音符在未正确按下时停止下落，辅助练习。
+- **自由演奏**：无评分、无反馈的自由弹奏模式。
+- **多语言支持**：支持 11 种语言。
 
-## Technical Stack
-- **Frontend**: Next.js 15, React 19, Tailwind CSS 4.
-- **State Management**: Zustand.
-- **Audio Engine**: Tone.js.
-- **MIDI Processing**: @tonejs/midi.
-- **Animations**: Motion (framer-motion).
-- **Backend**: Firebase (Auth, Firestore).
+## 技术栈
+- **框架**：Next.js 15+ (App Router)
+- **语言**：TypeScript
+- **样式**：Tailwind CSS
+- **动画**：Framer Motion (motion/react)
+- **音频**：Tone.js
+- **状态管理**：Zustand
+- **图标**：Lucide React
+
+## UI/UX 特性
+- **顶部工具栏**：集成节拍器、音量控制、成就入口和全屏切换。
+- **悬浮控制面板**：游戏内的播放控制和进度条。
+- **设备状态指示**：通过颜色和图标直观显示 MIDI 连接状态。
+- **响应式设计**：适配不同屏幕尺寸，曲库列表自动调整列数。

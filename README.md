@@ -1,6 +1,6 @@
 # NoteCascade 🎹
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38bdf8)](https://tailwindcss.com/)
@@ -20,8 +20,6 @@
 -   **🎨 Theming**: Choose from multiple themes (Dark, Light, Cyber, Classic) to suit your style.
 -   **📱 Responsive Design**: Works on desktop and mobile devices (touch support included).
 -   **🎵 Built-in Songs**: Practice with a library of built-in songs across various styles.
--   **🔐 Authentication**: Secure user accounts with Firebase for progress tracking.
--   **⚙️ Practice Mode**: Adjustable speed and looping for focused learning.
 
 ## 🚀 Getting Started
 
@@ -68,15 +66,6 @@
 -   **Animations**: [Motion](https://motion.dev/)
 -   **Icons**: [Lucide React](https://lucide.dev/)
 
-## 📚 Documentation
-
-- [Project Overview](./openspec/project.md)
-- [Installation & Deployment](./openspec/deployment.md)
-- [Functional Modules](./openspec/modules.md)
-- [API Documentation](./openspec/api.md)
-- [User Guide](./openspec/user-guide.md)
-- [FAQ & Troubleshooting](./openspec/faq.md)
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -89,7 +78,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
-This project is licensed under the GPL v3 License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 👤 Author
 

@@ -1,160 +1,306 @@
-// app/lib/store.ts v2.4.2
-import { create } from "zustand";
-import { Locale } from "./translations";
-import { Achievement } from "./store/types";
-import { INITIAL_ACHIEVEMENTS } from "./achievements-data";
-import { Song } from "./songs/types";
+// app/lib/store.ts v1.3.5
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { Locale } from './translations';
+import { builtInSongs, Song } from './songs';
+import { INITIAL_ACHIEVEMENTS } from './achievements-data';
 
-export interface Score {
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  unlockedAt?: number;
+  progress?: number;
+  maxProgress?: number;
+  category?: 'practice' | 'skill' | 'collection';
+}
+
+export interface ScoreRecord {
   songId: string;
   score: number;
-  timestamp: number;
+  maxScore: number;
+  accuracy: number;
+  perfect: number;
+  good: number;
+  miss: number;
+  wrong: number;
+  maxCombo: number;
+  date: number;
 }
 
-export type PlayMode = 'demo' | 'practice' | 'free';
-export type Theme = 'dark' | 'light' | 'cyber' | 'classic' | 'default';
-export type Instrument = 'piano' | 'synth' | 'epiano' | 'strings' | 'celesta' | 'pad';
+export type Theme = 'dark' | 'light' | 'cyber' | 'classic';
+export type Instrument = 'piano' | 'synth' | 'epiano' | 'strings';
+export type PlayMode = 'library' | 'demo' | 'practice' | 'free';
 
 interface AppState {
-  locale: Locale;
-  setLocale: (locale: Locale) => void;
-  isSettingsOpen: boolean;
-  setSettingsOpen: (open: boolean) => void;
-  isLibraryOpen: boolean;
-  setLibraryOpen: (open: boolean) => void;
-  isAuthOpen: boolean;
-  setAuthOpen: (open: boolean) => void;
-  
-  // Metronome
-  metronomeEnabled: boolean;
-  setMetronomeEnabled: (enabled: boolean) => void;
-  metronomeBpm: number;
-  setMetronomeBpm: (bpm: number) => void;
-  metronomeBeats: number;
-  setMetronomeBeats: (beats: number) => void;
-  
-  // Keyboard
-  keyboardType: '88' | '61' | '49' | '32' | 'virtual';
-  setKeyboardType: (type: '88' | '61' | '49' | '32' | 'virtual') => void;
-  
-  // Play Mode
-  playMode: 'demo' | 'practice' | 'free';
-  setPlayMode: (mode: 'demo' | 'practice' | 'free') => void;
-
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-  instrument: Instrument;
-  setInstrument: (instrument: Instrument) => void;
-  keyboardRange: { start: number; end: number };
-  setKeyboardRange: (range: { start: number; end: number }) => void;
-  showNoteNames: boolean;
-  setShowNoteNames: (show: boolean) => void;
-  showKeymap: boolean;
-  setShowKeymap: (show: boolean) => void;
-  isRangeManuallySet: boolean;
-  setIsRangeManuallySet: (set: boolean) => void;
-  songs: Song[];
-  setSongs: (songs: Song[]) => void;
-  scores: Score[];
-  setScores: (scores: Score[]) => void;
-  
   achievements: Achievement[];
-  setAchievements: (achievements: Achievement[]) => void;
+  scores: ScoreRecord[];
+  totalPracticeTime: number; // in seconds
+  dailyStreak: number;
+  lastPracticeDate: string | null; // YYYY-MM-DD
+  totalNotesHit: number;
+  songsCompleted: number;
+  locale: Locale;
+  theme: Theme;
+  instrument: Instrument;
+  playMode: PlayMode;
+  keyboardRange: { start: number; end: number };
+  showNoteNames: boolean;
+  showKeymap: boolean;
+  metronomeEnabled: boolean;
+  metronomeBpm: number;
+  metronomeBeats: number;
+  actions: {
+    unlockAchievement: (id: string) => void;
+    addScore: (score: ScoreRecord) => void;
+    incrementPracticeTime: (seconds: number) => void;
+    setLocale: (locale: Locale) => void;
+    setTheme: (theme: Theme) => void;
+    setInstrument: (instrument: Instrument) => void;
+    setPlayMode: (mode: PlayMode) => void;
+    setKeyboardRange: (start: number, end: number) => void;
+    setShowNoteNames: (show: boolean) => void;
+    setShowKeymap: (show: boolean) => void;
+    setMetronomeEnabled: (enabled: boolean) => void;
+    setMetronomeBpm: (bpm: number) => void;
+    setMetronomeBeats: (beats: number) => void;
+    resetProgress: () => void;
+    checkAchievements: () => void;
+    updateStreak: () => void;
+  };
 }
 
-export const useAppStore = create<AppState>((set) => ({
-  locale: "zh-CN",
-  setLocale: (locale) => set({ locale }),
-  isSettingsOpen: false,
-  setSettingsOpen: (open) => set({ isSettingsOpen: open }),
-  isLibraryOpen: false,
-  setLibraryOpen: (open) => set({ isLibraryOpen: open }),
-  isAuthOpen: false,
-  setAuthOpen: (open) => set({ isAuthOpen: open }),
-  
-  metronomeEnabled: false,
-  setMetronomeEnabled: (enabled) => set({ metronomeEnabled: enabled }),
-  metronomeBpm: 120,
-  setMetronomeBpm: (bpm) => set({ metronomeBpm: bpm }),
-  metronomeBeats: 4,
-  setMetronomeBeats: (beats) => set({ metronomeBeats: beats }),
-  
-  keyboardType: 'virtual',
-  setKeyboardType: (type) => set({ keyboardType: type }),
-  
-  playMode: 'practice',
-  setPlayMode: (mode) => set({ playMode: mode }),
+export const useAppStore = create<AppState>()(
+  persist(
+    (set, get) => ({
+      achievements: INITIAL_ACHIEVEMENTS,
+      scores: [],
+      totalPracticeTime: 0,
+      dailyStreak: 0,
+      lastPracticeDate: null,
+      totalNotesHit: 0,
+      songsCompleted: 0,
+      locale: 'en',
+      theme: 'dark',
+      instrument: 'piano',
+      playMode: 'practice',
+      keyboardRange: { start: 48, end: 84 },
+      showNoteNames: true,
+      showKeymap: true,
+      metronomeEnabled: false,
+      metronomeBpm: 120,
+      metronomeBeats: 4,
+      actions: {
+        unlockAchievement: (id) =>
+          set((state) => {
+            const achievement = state.achievements.find((a) => a.id === id);
+            if (achievement && !achievement.unlockedAt) {
+              return {
+                achievements: state.achievements.map((a) =>
+                  a.id === id ? { ...a, unlockedAt: Date.now(), progress: a.maxProgress } : a
+                ),
+              };
+            }
+            return state;
+          }),
+        addScore: (score) => {
+          set((state) => ({
+            scores: [score, ...state.scores].slice(0, 100),
+            totalNotesHit: state.totalNotesHit + score.perfect + score.good,
+            songsCompleted: state.songsCompleted + 1,
+          }));
+          get().actions.updateStreak();
+          get().actions.checkAchievements();
+        },
+        incrementPracticeTime: (seconds) => {
+          set((state) => ({
+            totalPracticeTime: state.totalPracticeTime + seconds,
+          }));
+          // Check time-based achievements periodically
+          if (get().totalPracticeTime % 60 === 0) {
+             get().actions.checkAchievements();
+          }
+        },
+        updateStreak: () => {
+          const today = new Date().toISOString().split('T')[0];
+          const state = get();
+          
+          if (state.lastPracticeDate === today) return;
 
-  theme: 'default',
-  setTheme: (theme) => set({ theme }),
-  instrument: 'piano',
-  setInstrument: (instrument) => set({ instrument }),
-  keyboardRange: { start: 21, end: 108 },
-  setKeyboardRange: (range) => set({ keyboardRange: range }),
-  showNoteNames: true,
-  setShowNoteNames: (show) => set({ showNoteNames: show }),
-  showKeymap: true,
-  setShowKeymap: (show) => set({ showKeymap: show }),
-  isRangeManuallySet: false,
-  setIsRangeManuallySet: (isSet) => set({ isRangeManuallySet: isSet }),
-  songs: [],
-  setSongs: (songs) => set({ songs }),
-  scores: [],
-  setScores: (scores) => set({ scores }),
-  
-  achievements: INITIAL_ACHIEVEMENTS,
-  setAchievements: (achievements) => set({ achievements }),
-}));
+          const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+          
+          if (state.lastPracticeDate === yesterday) {
+            set({ dailyStreak: state.dailyStreak + 1, lastPracticeDate: today });
+          } else {
+            set({ dailyStreak: 1, lastPracticeDate: today });
+          }
+        },
+        checkAchievements: () => {
+          const state = get();
+          const { scores, totalPracticeTime, dailyStreak, totalNotesHit, achievements } = state;
+          const lastScore = scores[0]; // Most recent score
 
-// Selectors
+          const newAchievements = achievements.map(ach => {
+            if (ach.unlockedAt) return ach;
+
+            let unlocked = false;
+            let progress = ach.progress || 0;
+
+            switch (ach.id) {
+              case 'first_song':
+                if (scores.length > 0) unlocked = true;
+                break;
+              case 'perfect_10':
+                if (lastScore && lastScore.perfect >= 10) unlocked = true; // Simplified check, ideally needs consecutive tracking in game
+                break;
+              case 'practice_1h':
+                progress = totalPracticeTime;
+                if (totalPracticeTime >= 3600) unlocked = true;
+                break;
+              case 'score_90':
+                if (lastScore && lastScore.accuracy >= 0.9) unlocked = true;
+                break;
+              case 'play_3_styles':
+                const styles = new Set(scores.map(s => {
+                  const song = builtInSongs.find(song => song.id === s.songId);
+                  return song?.style;
+                }).filter(Boolean));
+                progress = styles.size;
+                if (styles.size >= 3) unlocked = true;
+                break;
+              case 'streak_3':
+                progress = dailyStreak;
+                if (dailyStreak >= 3) unlocked = true;
+                break;
+              case 'notes_1000':
+                progress = totalNotesHit;
+                if (totalNotesHit >= 1000) unlocked = true;
+                break;
+              case 'full_combo':
+                if (lastScore && lastScore.miss === 0 && lastScore.wrong === 0) unlocked = true;
+                break;
+              case 'early_bird':
+                const hour = new Date().getHours();
+                if (hour < 8 && lastScore) unlocked = true;
+                break;
+              case 'night_owl':
+                const hourOwl = new Date().getHours();
+                if (hourOwl >= 22 && lastScore) unlocked = true;
+                break;
+            }
+
+            if (unlocked) {
+              return { ...ach, unlockedAt: Date.now(), progress: ach.maxProgress || progress };
+            }
+            return { ...ach, progress };
+          });
+
+          // Only update if changes
+          if (JSON.stringify(newAchievements) !== JSON.stringify(achievements)) {
+            set({ achievements: newAchievements });
+          }
+        },
+        setLocale: (locale) => set({ locale }),
+        setTheme: (theme) => set({ theme }),
+        setInstrument: (instrument) => set({ instrument }),
+        setPlayMode: (playMode) => set({ playMode }),
+        setKeyboardRange: (start, end) => set({ keyboardRange: { start, end } }),
+        setShowNoteNames: (showNoteNames) => set({ showNoteNames }),
+        setShowKeymap: (showKeymap) => set({ showKeymap }),
+        setMetronomeEnabled: (metronomeEnabled) => set({ metronomeEnabled }),
+        setMetronomeBpm: (metronomeBpm) => set({ metronomeBpm }),
+        setMetronomeBeats: (metronomeBeats) => set({ metronomeBeats }),
+        resetProgress: () =>
+          set({
+            achievements: INITIAL_ACHIEVEMENTS,
+            scores: [],
+            totalPracticeTime: 0,
+            dailyStreak: 0,
+            lastPracticeDate: null,
+            totalNotesHit: 0,
+            songsCompleted: 0,
+            locale: 'en',
+            theme: 'dark',
+            instrument: 'piano',
+            playMode: 'practice',
+            keyboardRange: { start: 48, end: 84 },
+            showNoteNames: true,
+            showKeymap: true,
+            metronomeEnabled: false,
+            metronomeBpm: 120,
+            metronomeBeats: 4,
+          }),
+      },
+    }),
+    {
+      name: 'notecascade-storage',
+      storage: createJSONStorage(() => typeof window !== 'undefined' ? window.localStorage : {
+        getItem: () => null,
+        setItem: () => {},
+        removeItem: () => {},
+      } as unknown as Storage),
+      partialize: (state) => ({
+        achievements: state.achievements,
+        scores: state.scores,
+        totalPracticeTime: state.totalPracticeTime,
+        dailyStreak: state.dailyStreak,
+        lastPracticeDate: state.lastPracticeDate,
+        totalNotesHit: state.totalNotesHit,
+        songsCompleted: state.songsCompleted,
+        locale: state.locale,
+        theme: state.theme,
+        keyboardRange: state.keyboardRange,
+        showNoteNames: state.showNoteNames,
+        showKeymap: state.showKeymap,
+        metronomeEnabled: state.metronomeEnabled,
+        metronomeBpm: state.metronomeBpm,
+        metronomeBeats: state.metronomeBeats,
+      }),
+      merge: (persistedState, currentState) => {
+        // Merge logic to ensure new achievements are added to persisted state
+        const persisted = persistedState as AppState;
+        const mergedAchievements = [...INITIAL_ACHIEVEMENTS];
+        
+        if (persisted && persisted.achievements) {
+          persisted.achievements.forEach(pAch => {
+            const index = mergedAchievements.findIndex(a => a.id === pAch.id);
+            if (index !== -1) {
+              mergedAchievements[index] = { ...mergedAchievements[index], ...pAch };
+            }
+          });
+        }
+        
+        return {
+          ...currentState,
+          ...persisted,
+          achievements: mergedAchievements,
+        };
+      },
+    }
+  )
+);
+
+// Helper hooks for easier access
+export const useAchievements = () => useAppStore((state) => state.achievements);
+export const useScores = () => useAppStore((state) => state.scores);
 export const useLocale = () => useAppStore((state) => state.locale);
-export const useMetronomeEnabled = () => useAppStore((state) => state.metronomeEnabled);
-export const useMetronomeBpm = () => useAppStore((state) => state.metronomeBpm);
-export const useMetronomeBeats = () => useAppStore((state) => state.metronomeBeats);
-export const useKeyboardType = () => useAppStore((state) => state.keyboardType);
-export const usePlayMode = () => useAppStore((state) => state.playMode);
 export const useTheme = () => useAppStore((state) => state.theme);
 export const useInstrument = () => useAppStore((state) => state.instrument);
+export const usePlayMode = () => useAppStore((state) => state.playMode);
 export const useKeyboardRange = () => useAppStore((state) => state.keyboardRange);
 export const useShowNoteNames = () => useAppStore((state) => state.showNoteNames);
 export const useShowKeymap = () => useAppStore((state) => state.showKeymap);
-export const useIsRangeManuallySet = () => useAppStore((state) => state.isRangeManuallySet);
-export const useSongs = () => useAppStore((state) => state.songs);
-export const useScores = () => useAppStore((state) => state.scores);
-export const useAchievements = () => useAppStore((state) => state.achievements);
+export const useMetronomeEnabled = () => useAppStore((state) => state.metronomeEnabled);
+export const useMetronomeBpm = () => useAppStore((state) => state.metronomeBpm);
+export const useMetronomeBeats = () => useAppStore((state) => state.metronomeBeats);
+export const useAppActions = () => useAppStore((state) => state.actions);
 
-export const useAppActions = () => {
-  const setLocale = useAppStore((state) => state.setLocale);
-  const setMetronomeEnabled = useAppStore((state) => state.setMetronomeEnabled);
-  const setMetronomeBpm = useAppStore((state) => state.setMetronomeBpm);
-  const setMetronomeBeats = useAppStore((state) => state.setMetronomeBeats);
-  const setPlayMode = useAppStore((state) => state.setPlayMode);
-  const setKeyboardType = useAppStore((state) => state.setKeyboardType);
-  const setKeyboardRange = useAppStore((state) => state.setKeyboardRange);
-  const setSongs = useAppStore((state) => state.setSongs);
-  const setScores = useAppStore((state) => state.setScores);
-  const setAchievements = useAppStore((state) => state.setAchievements);
-  const setTheme = useAppStore((state) => state.setTheme);
-  const setInstrument = useAppStore((state) => state.setInstrument);
-  const setShowNoteNames = useAppStore((state) => state.setShowNoteNames);
-  const setShowKeymap = useAppStore((state) => state.setShowKeymap);
-  const setIsRangeManuallySet = useAppStore((state) => state.setIsRangeManuallySet);
-  
-  return {
-    setLocale,
-    setMetronomeEnabled,
-    setMetronomeBpm,
-    setMetronomeBeats,
-    setPlayMode,
-    setKeyboardType,
-    setKeyboardRange,
-    setSongs,
-    setScores,
-    setAchievements,
-    setTheme,
-    setInstrument,
-    setShowNoteNames,
-    setShowKeymap,
-    setIsRangeManuallySet
-  };
-};
+export function getNextSong(currentSong: Song): Song {
+  const currentIndex = builtInSongs.findIndex(s => s.id === currentSong.id);
+  if (currentIndex === -1) {
+    return builtInSongs[0];
+  }
+  const nextIndex = (currentIndex + 1) % builtInSongs.length;
+  return builtInSongs[nextIndex];
+}

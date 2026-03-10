@@ -1,10 +1,10 @@
-// app/components/settings/GeneralSettings.tsx v2.0.2
+// app/components/settings/GeneralSettings.tsx v1.3.5
 'use client';
 
 import React from 'react';
 import { Globe, Palette, Mic2, ChevronDown, Check } from 'lucide-react';
-import { Locale, translations, languageNames, Translation } from '../../lib/translations';
-import type { Theme, Instrument } from '../../lib/store';
+import { Locale, translations, languageNames } from '../../lib/translations';
+import { Theme, Instrument } from '../../lib/store';
 
 interface GeneralSettingsProps {
   locale: Locale;
@@ -13,7 +13,7 @@ interface GeneralSettingsProps {
   setTheme: (theme: Theme) => void;
   instrument: Instrument;
   setInstrument: (instrument: Instrument) => void;
-  t: Translation;
+  t: Record<string, string>;
 }
 
 export function GeneralSettings({
@@ -30,7 +30,7 @@ export function GeneralSettings({
       <section>
         <div className="flex items-center gap-2 mb-4">
           <Globe className="h-4 w-4 text-indigo-400" />
-          <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.settings.language}</label>
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.language}</label>
         </div>
         <div className="relative group">
           <select 
@@ -49,7 +49,7 @@ export function GeneralSettings({
       <section>
         <div className="flex items-center gap-2 mb-4">
           <Palette className="h-4 w-4 text-indigo-400" />
-          <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.settings.theme}</label>
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.theme}</label>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {(['dark', 'light', 'cyber', 'classic'] as Theme[]).map((tName) => (
@@ -62,7 +62,7 @@ export function GeneralSettings({
                   : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-border-primary'
               }`}
             >
-              <span className="text-xs font-bold capitalize">{t.settings[`theme_${tName}` as keyof typeof t.settings] || tName}</span>
+              <span className="text-xs font-bold capitalize">{t[`theme_${tName}`] || tName}</span>
               {theme === tName && <Check className="h-4 w-4 text-indigo-400" />}
             </button>
           ))}
@@ -72,10 +72,10 @@ export function GeneralSettings({
       <section>
         <div className="flex items-center gap-2 mb-4">
           <Mic2 className="h-4 w-4 text-indigo-400" />
-          <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.settings.instrument}</label>
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.instrument}</label>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          {(['piano', 'synth', 'epiano', 'strings', 'celesta', 'pad'] as Instrument[]).map((inst) => (
+          {(['piano', 'synth', 'epiano', 'strings'] as Instrument[]).map((inst) => (
             <button
               key={inst}
               onClick={() => setInstrument(inst)}
@@ -85,7 +85,7 @@ export function GeneralSettings({
                   : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-border-primary'
               }`}
             >
-              <span className="text-xs font-bold capitalize">{t.settings[`inst_${inst}` as keyof typeof t.settings] || inst}</span>
+              <span className="text-xs font-bold capitalize">{t[`inst_${inst}`] || inst}</span>
               {instrument === inst && <Check className="h-4 w-4 text-indigo-400" />}
             </button>
           ))}

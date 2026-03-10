@@ -1,49 +1,390 @@
-// app/lib/audio.ts v2.4.3
+// app/lib/audio.ts v1.4.8
 import * as Tone from 'tone';
 
 let synth: Tone.PolySynth | null = null;
+let piano: Tone.Sampler | null = null;
+let epiano: Tone.PolySynth | null = null;
+let strings: Tone.PolySynth | null = null;
+let masterVolume: Tone.Volume | null = null;
+let masterEq: Tone.EQ3 | null = null;
+let masterReverb: Tone.Freeverb | null = null;
+let masterLimiter: Tone.Limiter | null = null;
+let masterCompressor: Tone.Compressor | null = null;
+let expressionGain: Tone.Gain | null = null;
+let vibrato: Tone.Vibrato | null = null;
+let metronomeSynth: Tone.MembraneSynth | null = null;
+let currentInstrument: string = 'piano';
+
+export const setAudioInstrument = (instrument: string) => {
+  currentInstrument = instrument;
+};
+
+export const setPitchBend = (value: number) => {
+  // value is 0 to 1, 0.5 is center
+  const detune = (value - 0.5) * 2400; // +/- 1 octave (1200 cents per octave)
+  if (synth) synth.set({ detune });
+  if (epiano) epiano.set({ detune });
+  if (strings) strings.set({ detune });
+  // Use a type cast to bypass the missing detune property in the Sampler type definition
+  if (piano) (piano as unknown as { set: (opt: { detune: number }) => void }).set({ detune });
+};
+
+export const setModulation = (value: number) => {
+  // value is 0 to 1
+  if (vibrato) {
+    vibrato.depth.value = value * 0.5;
+  }
+};
+
+export const setExpression = (value: number) => {
+  // value is 0 to 1
+  if (expressionGain) {
+    expressionGain.gain.rampTo(value, 0.05);
+  }
+};
 
 export const initAudio = async () => {
   await Tone.start();
+  
+  if (!masterVolume) {
+    // Add EQ to boost lows and slightly boost highs for clarity
+    masterEq = new Tone.EQ3({
+      low: 4,     // Boost bass
+      mid: -1,    // Slightly scoop mids
+      high: 2     // Boost highs
+    });
+    
+    // Add a subtle room reverb to make it sound less dry
+    masterReverb = new Tone.Freeverb({
+      roomSize: 0.6,
+      dampening: 2000,
+      wet: 0.2
+    });
+
+    // Add a compressor to smooth out peaks and prevent distortion
+    masterCompressor = new Tone.Compressor({
+      threshold: -30, // Lower threshold to start compressing earlier
+      ratio: 12,      // Higher ratio for stronger compression
+      attack: 0.003,
+      release: 0.25
+    });
+
+    // Add a limiter at the very end to prevent clipping
+    masterLimiter = new Tone.Limiter(-3); // More headroom
+
+    // Vibrato for modulation
+    vibrato = new Tone.Vibrato({
+      frequency: 5,
+      depth: 0
+    });
+
+    expressionGain = new Tone.Gain(1);
+
+    masterVolume = new Tone.Volume(-6); // Lower base volume to provide more headroom for polyphony
+    
+    // Chain: Volume -> Vibrato -> Expression -> EQ -> Compressor -> Reverb -> Limiter -> Destination
+    masterVolume.chain(vibrato, expressionGain, masterEq, masterCompressor, masterReverb, masterLimiter, Tone.Destination);
+  }
+  
+  if (!piano) {
+    piano = new Tone.Sampler({
+      urls: {
+        A0: "A0.mp3",
+        C1: "C1.mp3",
+        "D#1": "Ds1.mp3",
+        "F#1": "Fs1.mp3",
+        A1: "A1.mp3",
+        C2: "C2.mp3",
+        "D#2": "Ds2.mp3",
+        "F#2": "Fs2.mp3",
+        A2: "A2.mp3",
+        C3: "C3.mp3",
+        "D#3": "Ds3.mp3",
+        "F#3": "Fs3.mp3",
+        A3: "A3.mp3",
+        C4: "C4.mp3",
+        "D#4": "Ds4.mp3",
+        "F#4": "Fs4.mp3",
+        A4: "A4.mp3",
+        C5: "C5.mp3",
+        "D#5": "Ds5.mp3",
+        "F#5": "Fs5.mp3",
+        A5: "A5.mp3",
+        C6: "C6.mp3",
+        "D#6": "Ds6.mp3",
+        "F#6": "Fs6.mp3",
+        A6: "A6.mp3",
+        C7: "C7.mp3",
+        "D#7": "Ds7.mp3",
+        "F#7": "Fs7.mp3",
+        A7: "A7.mp3",
+        C8: "C8.mp3"
+      },
+      release: 1.5,
+      baseUrl: "https://tonejs.github.io/audio/salamander/"
+    }).connect(masterVolume);
+  }
+
   if (!synth) {
-    synth = new Tone.PolySynth(Tone.Synth).toDestination();
+    // Use a fat oscillator for a thicker, modern synth sound
+    synth = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { 
+        type: "fatsawtooth",
+        count: 3,
+        spread: 20
+      },
+      envelope: { 
+        attack: 0.01, 
+        decay: 0.3, 
+        sustain: 0.4, 
+        release: 1.2 
+      }
+    });
+    synth.maxPolyphony = 32;
+    
+    const synthFilter = new Tone.Filter(3000, "lowpass");
+    synth.chain(synthFilter, masterVolume);
+  }
+
+  if (!epiano) {
+    // Classic Rhodes-like FM Synth patch
+    epiano = new Tone.PolySynth(Tone.FMSynth, {
+      harmonicity: 3,
+      modulationIndex: 5,
+      oscillator: { type: "sine" },
+      envelope: { attack: 0.01, decay: 2, sustain: 0.2, release: 1.5 },
+      modulation: { type: "triangle" },
+      modulationEnvelope: { attack: 0.01, decay: 0.5, sustain: 0, release: 0.5 }
+    });
+    epiano.maxPolyphony = 32;
+    
+    // Add Chorus for that classic EPiano shimmer
+    const epianoChorus = new Tone.Chorus(4, 2.5, 0.5).start();
+    epiano.chain(epianoChorus, masterVolume);
+  }
+
+  if (!strings) {
+    // Thick ensemble strings using fat sawtooth
+    strings = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { 
+        type: "fatsawtooth",
+        count: 4,
+        spread: 30
+      },
+      envelope: { 
+        attack: 0.4, 
+        decay: 0.2, 
+        sustain: 0.8, 
+        release: 2 
+      }
+    });
+    strings.maxPolyphony = 32;
+    
+    // Filter to remove harsh highs and make it sound more like strings
+    const stringsFilter = new Tone.Filter(1500, "lowpass");
+    strings.chain(stringsFilter, masterVolume);
+  }
+
+  if (!metronomeSynth) {
+    metronomeSynth = new Tone.MembraneSynth({
+      pitchDecay: 0.008,
+      octaves: 2,
+      envelope: {
+        attack: 0.001,
+        decay: 0.1,
+        sustain: 0,
+        release: 0.01
+      }
+    }).connect(masterVolume);
   }
 };
 
-export const setVolume = (val: number) => {
-  Tone.getDestination().volume.value = Tone.gainToDb(val);
-};
-
-export const startNote = (note: number, velocity: number) => {
-  if (synth) {
-    const freq = Tone.Frequency(note, "midi").toFrequency();
-    synth.triggerAttack(freq, Tone.now(), velocity);
+export const playMetronomeClick = (isFirstBeat: boolean = false) => {
+  if (metronomeSynth) {
+    metronomeSynth.triggerAttackRelease(isFirstBeat ? "C5" : "C4", "32n", undefined, isFirstBeat ? 0.8 : 0.4);
   }
 };
 
-export const stopNote = (note: number) => {
-  if (synth) {
-    const freq = Tone.Frequency(note, "midi").toFrequency();
-    synth.triggerRelease(freq, Tone.now());
+let metronomeEventId: number | null = null;
+
+export const setMetronome = (enabled: boolean, bpm: number, beats: number) => {
+  Tone.Transport.bpm.value = bpm;
+  Tone.Transport.timeSignature = beats;
+  
+  if (metronomeEventId !== null) {
+    Tone.Transport.clear(metronomeEventId);
+    metronomeEventId = null;
+  }
+
+  if (enabled) {
+    metronomeEventId = Tone.Transport.scheduleRepeat((time) => {
+      if (metronomeSynth) {
+        // Get precise beat from the scheduled time
+        const bbs = Tone.Time(time).toBarsBeatsSixteenths();
+        const beat = parseInt(bbs.split(':')[1]);
+        const isFirstBeat = beat === 0;
+        metronomeSynth.triggerAttackRelease(isFirstBeat ? "C5" : "C4", "32n", time, isFirstBeat ? 0.8 : 0.4);
+      }
+    }, "4n");
   }
 };
 
-export const setPitchBend = (_value: number) => {
-  // Implement pitch bend if needed
+export const startTransport = () => {
+  if (Tone.Transport.state !== 'started') {
+    Tone.Transport.start();
+  }
 };
 
-export const setModulation = (_value: number) => {
-  // Implement modulation if needed
+export const stopTransport = () => {
+  if (Tone.Transport.state === 'started') {
+    Tone.Transport.stop();
+  }
 };
 
-export const setExpression = (_value: number) => {
-  // Implement expression if needed
+export const setVolume = (value: number) => {
+  if (masterVolume) {
+    // Convert 0-100 to decibels. 100 = 0dB, 0 = -60dB
+    const db = value === 0 ? -Infinity : 20 * Math.log10(value / 100);
+    masterVolume.volume.value = db;
+  }
 };
 
-export const setSustainPedal = (_value: boolean) => {
-  // Implement sustain pedal if needed
+let isSustainPedalDown = false;
+const sustainedNotes = new Set<string>();
+const activeNotes = new Set<string>();
+
+export const setSustainPedal = (isDown: boolean) => {
+  isSustainPedalDown = isDown;
+  if (!isDown) {
+    sustainedNotes.forEach(note => {
+      if (!activeNotes.has(note)) {
+        stopNoteInternal(note);
+      }
+    });
+    sustainedNotes.clear();
+  }
 };
 
-export const resetAudioEffects = () => {
-  // Reset audio effects if needed
+export const startNote = (note: string | number, velocity: number = 0.7) => {
+  const noteToPlay = typeof note === 'number' ? Tone.Frequency(note, "midi").toNote() : note;
+  activeNotes.add(noteToPlay);
+  sustainedNotes.delete(noteToPlay);
+  
+  let played = false;
+  
+  if (currentInstrument === 'piano' && piano?.loaded) {
+    piano.triggerAttack(noteToPlay, undefined, velocity);
+    played = true;
+  } else if (currentInstrument === 'epiano' && epiano) {
+    epiano.triggerAttack(noteToPlay, undefined, velocity);
+    played = true;
+  } else if (currentInstrument === 'strings' && strings) {
+    strings.triggerAttack(noteToPlay, undefined, velocity);
+    played = true;
+  } 
+  
+  if (!played && synth) {
+    synth.triggerAttack(noteToPlay, undefined, velocity);
+  }
+};
+
+export const playNote = (note: string | number, duration: string | number = '8n', velocity: number = 0.7) => {
+  // console.log('playNote called with:', note, duration, velocity);
+  const noteToPlay = typeof note === 'number' ? Tone.Frequency(note, "midi").toNote() : note;
+  let played = false;
+
+  if (currentInstrument === 'piano' && piano?.loaded) {
+    // console.log('Playing with piano:', noteToPlay);
+    piano.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
+    played = true;
+  } else if (currentInstrument === 'epiano' && epiano) {
+    epiano.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
+    played = true;
+  } else if (currentInstrument === 'strings' && strings) {
+    strings.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
+    played = true;
+  } 
+  
+  if (!played && synth) {
+    // console.log('Fallback to synth:', noteToPlay);
+    synth.triggerAttackRelease(noteToPlay, duration, undefined, velocity);
+  }
+};
+
+export const stopNote = (note: string | number) => {
+  const noteToPlay = typeof note === 'number' ? Tone.Frequency(note, "midi").toNote() : note;
+  activeNotes.delete(noteToPlay);
+  if (isSustainPedalDown) {
+    sustainedNotes.add(noteToPlay);
+  } else {
+    stopNoteInternal(noteToPlay);
+  }
+};
+
+const stopNoteInternal = (noteToPlay: string) => {
+  let played = false;
+
+  if (currentInstrument === 'piano' && piano?.loaded) {
+    piano.triggerRelease(noteToPlay);
+    played = true;
+  } else if (currentInstrument === 'epiano' && epiano) {
+    epiano.triggerRelease(noteToPlay);
+    played = true;
+  } else if (currentInstrument === 'strings' && strings) {
+    strings.triggerRelease(noteToPlay);
+    played = true;
+  } 
+  
+  if (!played && synth) {
+    synth.triggerRelease(noteToPlay);
+  }
+};
+
+export const clearScheduledEvents = () => {
+  Tone.Transport.cancel();
+};
+
+export const scheduleNote = (
+  note: { midi: number; time: number; duration: number; velocity: number },
+  onStart?: () => void,
+  onEnd?: () => void
+) => {
+  const noteToPlay = Tone.Frequency(note.midi, "midi").toNote();
+  
+  Tone.Transport.schedule((time) => {
+    let played = false;
+    
+    // Trigger UI callback
+    if (onStart) {
+      Tone.Draw.schedule(onStart, time);
+    }
+
+    if (currentInstrument === 'piano' && piano?.loaded) {
+      piano.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
+      played = true;
+    } else if (currentInstrument === 'epiano' && epiano) {
+      epiano.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
+      played = true;
+    } else if (currentInstrument === 'strings' && strings) {
+      strings.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
+      played = true;
+    } 
+    
+    if (!played && synth) {
+      synth.triggerAttackRelease(noteToPlay, note.duration, time, note.velocity);
+    }
+  }, note.time);
+
+  // Schedule note end callback for UI
+  if (onEnd) {
+    Tone.Transport.schedule((time) => {
+      Tone.Draw.schedule(onEnd, time);
+    }, note.time + note.duration);
+  }
+};
+
+export const ensureAudioContext = async () => {
+  if (Tone.getContext().state !== 'running') {
+    await Tone.getContext().resume();
+  }
 };

@@ -1,5 +1,5 @@
-// app/lib/songs/utils.ts v1.7.2
-import type { Note, Song } from './types';
+// app/lib/songs/utils.ts v1.4.2
+import type { Note } from '../songs';
 
 export function parseMelody(melody: string, bpm: number = 120): { notes: Note[], duration: number } {
   const notes: Note[] = [];
@@ -30,10 +30,4 @@ export function parseMelody(melody: string, bpm: number = 120): { notes: Note[],
     currentTime += durationSecs;
   }
   return { notes, duration: currentTime + 1 }; // add 1s padding at the end
-}
-
-export function getNextSong(currentSong: Song, allSongs: Song[]): Song {
-  const currentIndex = allSongs.findIndex(s => s.id === currentSong.id);
-  if (currentIndex === -1) return allSongs[0] || currentSong;
-  return allSongs[(currentIndex + 1) % allSongs.length];
 }

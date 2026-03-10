@@ -1,20 +1,19 @@
-// app/components/AppHeader.tsx v2.4.2
+// app/components/AppHeader.tsx v1.4.10
 'use client';
 
-import { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
-  Library as LibraryIcon,
-  Menu, LayoutGrid, Music, Hash, BookOpen
+  Keyboard as KeyboardIcon, Music, Library as LibraryIcon, Trophy, Menu
 } from 'lucide-react';
 import { translations } from '../lib/translations';
-import { useLocale, useAppActions, usePlayMode } from '../lib/store';
-import { InfoModals } from './InfoModals';
-import { ProfileButton } from './ProfileButton';
-import { MenuDropdown } from './header/MenuDropdown';
+import { 
+  useLocale, usePlayMode, useAppActions, PlayMode
+} from '../lib/store';
+import pkg from '../../package.json';
 
-const version = '2.4.2';
+const { version } = pkg;
 
 interface AppHeaderProps {
   theme: string;
@@ -26,12 +25,8 @@ interface AppHeaderProps {
   isConnecting?: boolean;
   isFullScreen: boolean;
   toggleFullScreen: () => void;
-  setShowLibrary: (show: boolean) => void;
-  showLibrary: boolean;
-  viewMode: 'waterfall' | 'sheet' | 'numbered' | 'theory';
-  setViewMode: (mode: 'waterfall' | 'sheet' | 'numbered' | 'theory') => void;
-  midiChannel?: number | 'all';
-  setMidiChannel?: (channel: number | 'all') => void;
+  setShowAchievements: (show: boolean) => void;
+  showAchievements: boolean;
 }
 
 export function AppHeader({ 
@@ -44,28 +39,22 @@ export function AppHeader({
   isConnecting,
   isFullScreen,
   toggleFullScreen,
-  setShowLibrary,
-  showLibrary,
-  viewMode,
-  setViewMode,
-  midiChannel,
-  setMidiChannel
+  setShowAchievements,
+  showAchievements
 }: AppHeaderProps) {
   const locale = useLocale();
   const playMode = usePlayMode();
   const { setPlayMode } = useAppActions();
   const t = translations[locale] || translations.en;
-  const [showMenu, setShowMenu] = useState(false);
-  const [infoModalType, setInfoModalType] = useState<'about' | 'changelog' | 'guide' | null>(null);
+  const [showMenu, setShowMenu] = React.useState(false);
+
+  const modes = [
+    { id: 'practice', icon: KeyboardIcon, label: t.practice || 'Practice' },
+    { id: 'free', icon: Music, label: t.freePlay || 'Free' },
+  ];
 
   return (
-    <>
-      <InfoModals 
-        isOpen={!!infoModalType} 
-        onClose={() => setInfoModalType(null)} 
-        type={infoModalType} 
-      />
-      <header id="app-header" className="flex h-14 md:h-20 shrink-0 items-center justify-between border-b theme-border px-4 md:px-6 glass-panel z-50">
+    <header id="app-header" className="flex h-14 md:h-20 shrink-0 items-center justify-between border-b theme-border px-4 md:px-6 glass-panel z-50">
       <div className="flex items-center gap-3">
         <div className={`flex h-8 w-8 md:h-12 md:w-12 items-center justify-center rounded-2xl shadow-lg glow-indigo transition-all overflow-hidden relative ${
           theme === 'cyber' ? 'bg-green-500' : theme === 'classic' ? 'bg-amber-700' : 'bg-gradient-to-br from-indigo-500 to-purple-600'
@@ -74,132 +63,55 @@ export function AppHeader({
         </div>
         <div className="hidden lg:block">
           <h1 id="app-title" className="text-lg md:text-xl font-bold tracking-tight theme-text-primary text-glow">
-            {t.ui.title} 
+            {t.title} 
             <span className="text-[10px] font-mono text-indigo-400 ml-1 opacity-70">v{version}</span>
           </h1>
-          <p className="text-[10px] uppercase tracking-[0.2em] theme-text-secondary font-bold opacity-80">{t.ui.subtitle}</p>
-        </div>
-
-        {/* Menu Button */}
-        <div className="relative ml-2">
-          <button
-            onClick={() => setShowMenu(!showMenu)}
-            className={`p-2 rounded-lg transition-all ${showMenu ? 'bg-white/10 theme-text-primary' : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'}`}
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-
-          <MenuDropdown 
-            show={showMenu} 
-            t={t} 
-            setShowMenu={setShowMenu} 
-            setInfoModalType={setInfoModalType} 
-          />
+          <p className="text-[10px] uppercase tracking-[0.2em] theme-text-secondary font-bold opacity-80">{t.subtitle}</p>
         </div>
       </div>
 
-      <div className="flex-1 flex justify-center items-center gap-4 overflow-hidden px-2">
-        {/* Play Mode Toggle */}
-        <div className="flex items-center gap-1 p-1 rounded-full theme-bg-secondary border theme-border overflow-x-auto custom-scrollbar-mini max-w-full">
-          {(['demo', 'practice', 'free'] as const).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setPlayMode(mode)}
-              className={`px-3 md:px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 ${
-                playMode === mode
-                  ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
-                  : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'
-              }`}
-            >
-              {t.game[mode] || mode}
-            </button>
-          ))}
-        </div>
-
-        {/* View Mode Toggle */}
-        <div className="hidden sm:flex items-center gap-1 p-1 rounded-full theme-bg-secondary border theme-border shrink-0">
+      {/* Mode Switcher - Center */}
+      <div className="flex items-center bg-black/20 rounded-2xl p-1 border theme-border backdrop-blur-md">
+        {modes.map((mode) => (
           <button
-            onClick={() => setViewMode('waterfall')}
-            className={`p-1.5 rounded-full transition-all ${
-              viewMode === 'waterfall' 
-                ? 'bg-indigo-500 text-white shadow-md' 
+            key={mode.id}
+            onClick={() => setPlayMode(mode.id as PlayMode)}
+            className={`flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-xl transition-all ${
+              playMode === mode.id 
+                ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' 
                 : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'
             }`}
-            title="Waterfall View"
           >
-            <LayoutGrid className="w-4 h-4" />
+            <mode.icon className={`h-4 w-4 ${playMode === mode.id ? 'animate-pulse' : ''}`} />
+            <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{mode.label}</span>
           </button>
-          <button
-            onClick={() => setViewMode('sheet')}
-            className={`p-1.5 rounded-full transition-all ${
-              viewMode === 'sheet' 
-                ? 'bg-indigo-500 text-white shadow-md' 
-                : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'
-            }`}
-            title="Sheet Music"
-          >
-            <Music className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setViewMode('numbered')}
-            className={`p-1.5 rounded-full transition-all ${
-              viewMode === 'numbered' 
-                ? 'bg-indigo-500 text-white shadow-md' 
-                : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'
-            }`}
-            title="Numbered Notation"
-          >
-            <Hash className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setViewMode('theory')}
-            className={`p-1.5 rounded-full transition-all ${
-              viewMode === 'theory' 
-                ? 'bg-indigo-500 text-white shadow-md' 
-                : 'theme-text-secondary hover:theme-text-primary hover:bg-white/5'
-            }`}
-            title="Music Theory"
-          >
-            <BookOpen className="w-4 h-4" />
-          </button>
-        </div>
+        ))}
       </div>
 
-      <div className="flex items-center gap-2 md:gap-4 shrink-0">
+      <div className="flex items-center gap-2 md:gap-4">
         <button 
-          onClick={() => setShowLibrary(!showLibrary)}
-          className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${showLibrary ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
-          title={t.ui.library || 'Library'}
+          onClick={() => setPlayMode('library')}
+          className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${playMode === 'library' ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
+          title={t.library}
         >
           <LibraryIcon className="h-5 w-5" />
         </button>
+        <button 
+          onClick={() => setShowAchievements(!showAchievements)}
+          className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${showAchievements ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
+          title={t.achievements}
+        >
+          <Trophy className="h-5 w-5" />
+        </button>
 
         <button 
-          onClick={() => setShowSettings(!showSettings)}
-          className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
-          title={t.settings.title || 'Settings'}
+          onClick={toggleFullScreen}
+          className="hidden md:flex rounded-full p-2.5 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
+          title="Toggle Full Screen"
         >
-          <Settings className="h-5 w-5" />
+          {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
         </button>
         
-        <ProfileButton />
-
-        {setMidiChannel && (
-          <select
-            value={midiChannel}
-            onChange={(e) => setMidiChannel(e.target.value === 'all' ? 'all' : parseInt(e.target.value, 10))}
-            className="hidden md:block bg-black/20 border theme-border rounded-lg px-2 py-1.5 text-xs theme-text-primary outline-none focus:ring-1 focus:ring-indigo-500"
-            title="MIDI Channel"
-          >
-            <option value="all">All CH</option>
-            {Array.from({ length: 16 }, (_, i) => (
-              <option key={i + 1} value={i + 1}>
-                CH {i + 1}
-              </option>
-            ))}
-          </select>
-        )}
-
         <button 
           onClick={() => connectMidi && connectMidi()}
           disabled={isConnecting}
@@ -229,19 +141,35 @@ export function AppHeader({
 
           {/* Tooltip on hover */}
           <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-black/80 backdrop-blur-md border theme-border rounded-lg text-[10px] font-bold uppercase tracking-widest theme-text-primary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-            {isConnecting ? (t.game.connecting || 'Connecting...') : selectedInputId ? (t.game.connected || 'Connected') : t.game.noDevice}
+            {isConnecting ? 'Connecting...' : selectedInputId ? 'Connected' : t.noDevice}
           </div>
         </button>
-
         <button 
-          onClick={toggleFullScreen}
-          className="hidden md:flex rounded-full p-2.5 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
-          title={t.settings.toggleFullScreen || 'Toggle Full Screen'}
+          onClick={() => setShowSettings(!showSettings)}
+          className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
         >
-          {isFullScreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+          <Settings className="h-5 w-5" />
         </button>
+        <button 
+          onClick={() => setShowMenu(!showMenu)}
+          className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        
+        {showMenu && (
+          <div className="absolute top-full right-4 mt-2 p-2 bg-black/90 backdrop-blur-md border theme-border rounded-2xl shadow-2xl z-50 flex flex-col gap-1">
+            <button onClick={toggleFullScreen} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
+              {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
+            </button>
+            <button onClick={() => { setShowSettings(true); setShowMenu(false); }} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
+              <Settings className="h-4 w-4" />
+              Settings
+            </button>
+          </div>
+        )}
       </div>
     </header>
-    </>
   );
 }

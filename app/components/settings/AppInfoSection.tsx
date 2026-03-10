@@ -1,13 +1,12 @@
-// app/components/settings/AppInfoSection.tsx v1.7.2
+// app/components/settings/AppInfoSection.tsx v1.3.5
 'use client';
 
 import React from 'react';
 import { Info, Github, User, Heart, ExternalLink } from 'lucide-react';
 import pkg from '../../../package.json';
-import { Translation } from '../../lib/translations';
 
 interface AppInfoSectionProps {
-  t: Translation;
+  t: Record<string, string>;
 }
 
 export function AppInfoSection({ t }: AppInfoSectionProps) {
@@ -17,7 +16,7 @@ export function AppInfoSection({ t }: AppInfoSectionProps) {
     <section className="mt-12 pt-12 border-t theme-border">
       <div className="flex items-center gap-2 mb-6">
         <Info className="h-4 w-4 text-indigo-400" />
-        <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.settings.appInfo}</label>
+        <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.appInfo}</label>
       </div>
       <div className="space-y-6">
         <div className="flex items-center justify-between p-4 rounded-2xl theme-bg-secondary border theme-border">
@@ -30,7 +29,7 @@ export function AppInfoSection({ t }: AppInfoSectionProps) {
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-widest">
             <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            {t.settings.statusActive}
+            {t.statusActive}
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">

@@ -1,18 +1,20 @@
-// app/components/Keyboard.tsx v2.4.1
+// app/components/Keyboard.tsx v1.3.5
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
+import { startNote as startAudioNote, stopNote as stopAudioNote } from '../lib/audio';
 
 interface KeyboardProps {
   activeNotes: Map<number, number>;
   startNote: number;
   endNote: number;
   showNoteNames: boolean;
-  showKeymap: boolean;
-  keyMap: Record<string, number>;
-  onNoteOn: (midi: number) => void;
-  onNoteOff: (midi: number) => void;
+  showKeymap?: boolean;
+  keyMap?: Record<string, number>;
+  onNoteOn?: (midi: number) => void;
+  onNoteOff?: (midi: number) => void;
+  isMidiConnected: boolean;
 }
 
 export function Keyboard({
@@ -23,123 +25,172 @@ export function Keyboard({
   showKeymap,
   keyMap,
   onNoteOn,
-  onNoteOff
+  onNoteOff,
+  isMidiConnected,
 }: KeyboardProps) {
-  const keys = useMemo(() => {
-    const result = [];
-    for (let i = startNote; i <= endNote; i++) {
-      result.push(i);
-    }
-    return result;
-  }, [startNote, endNote]);
+  const [localActiveNotes, setLocalActiveNotes] = useState<Set<number>>(new Set());
+  const containerRef = useRef<HTMLDivElement>(null);
+  const activePointers = useRef<Map<number, number>>(new Map()); // pointerId -> midi
 
-  const isBlackKey = (midi: number) => [1, 3, 6, 8, 10].includes(midi % 12);
+  const isBlackKey = (midi: number) => {
+    const note = midi % 12;
+    return [1, 3, 6, 8, 10].includes(note);
+  };
+
   const getNoteName = (midi: number) => {
-    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    return notes[midi % 12];
+    const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const octave = Math.floor(midi / 12) - 1;
+    const name = names[midi % 12];
+    return `${name}${octave}`;
   };
 
-  const getKeyLabel = (midi: number) => {
-    if (!showKeymap) return null;
-    const key = Object.entries(keyMap).find(([_key, m]) => m === midi)?.[0];
-    return key ? key.toUpperCase() : null;
+  // Calculate layout
+  const keys = Array.from({ length: endNote - startNote + 1 }, (_, i) => startNote + i);
+  const whiteKeys = keys.filter(midi => !isBlackKey(midi));
+  const whiteKeyWidth = 100 / whiteKeys.length;
+
+  const handleKeyPress = useCallback((midi: number) => {
+    if (!isMidiConnected) {
+      startAudioNote(midi);
+    }
+    setLocalActiveNotes(prev => new Set(prev).add(midi));
+    onNoteOn?.(midi);
+  }, [onNoteOn, isMidiConnected]);
+
+  const handleKeyRelease = useCallback((midi: number) => {
+    // Delay note release slightly to simulate sustain/resonance for clicks
+    setTimeout(() => {
+      if (!isMidiConnected) {
+        stopAudioNote(midi);
+      }
+      setLocalActiveNotes(prev => {
+        const next = new Set(prev);
+        next.delete(midi);
+        return next;
+      });
+      onNoteOff?.(midi);
+    }, 100); // 100ms sustain
+  }, [onNoteOff, isMidiConnected]);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const midiStr = el?.getAttribute('data-midi');
+    if (midiStr) {
+      const midi = parseInt(midiStr, 10);
+      activePointers.current.set(e.pointerId, midi);
+      handleKeyPress(midi);
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    }
   };
 
-  // Calculate white key width based on total white keys
-  const whiteKeyCount = keys.filter(midi => !isBlackKey(midi)).length;
-  const whiteKeyWidth = `${100 / whiteKeyCount}%`;
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!activePointers.current.has(e.pointerId)) return;
+    
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const midiStr = el?.getAttribute('data-midi');
+    const currentMidi = activePointers.current.get(e.pointerId);
+    
+    if (midiStr) {
+      const newMidi = parseInt(midiStr, 10);
+      if (currentMidi !== newMidi) {
+        if (currentMidi !== undefined) handleKeyRelease(currentMidi);
+        handleKeyPress(newMidi);
+        activePointers.current.set(e.pointerId, newMidi);
+      }
+    } else {
+      if (currentMidi !== undefined) {
+        handleKeyRelease(currentMidi);
+        activePointers.current.delete(e.pointerId);
+      }
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    const currentMidi = activePointers.current.get(e.pointerId);
+    if (currentMidi !== undefined) {
+      handleKeyRelease(currentMidi);
+      activePointers.current.delete(e.pointerId);
+    }
+    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    const pointers = activePointers.current;
+    return () => {
+      pointers.forEach((midi) => handleKeyRelease(midi));
+      pointers.clear();
+    };
+  }, [handleKeyRelease]);
+
+  let whiteKeyIndex = 0;
 
   return (
-    <div className="w-full h-full flex relative select-none touch-none bg-zinc-900/50 backdrop-blur-sm">
+    <div 
+      ref={containerRef}
+      className="relative flex h-full w-full bg-black select-none touch-none"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+    >
       {keys.map((midi) => {
         const isBlack = isBlackKey(midi);
-        if (isBlack) return null; // Render black keys separately or absolutely positioned
-
-        const isActive = activeNotes.has(midi);
-        const keyLabel = getKeyLabel(midi);
-
-        return (
-          <div
-            key={midi}
-            className="relative h-full border-r border-zinc-300/20 last:border-r-0 bg-white rounded-b-sm active:bg-zinc-100 transition-colors duration-75"
-            style={{ width: whiteKeyWidth }}
-            onMouseDown={() => onNoteOn(midi)}
-            onMouseUp={() => onNoteOff(midi)}
-            onMouseLeave={() => isActive && onNoteOff(midi)}
-            onTouchStart={(e) => { e.preventDefault(); onNoteOn(midi); }}
-            onTouchEnd={(e) => { e.preventDefault(); onNoteOff(midi); }}
-          >
-            {isActive && (
-              <motion.div
-                layoutId={`active-white-${midi}`}
-                className="absolute inset-0 bg-indigo-500/50 rounded-b-sm"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.05 }}
-              />
-            )}
-            
-            <div className="absolute bottom-2 left-0 right-0 flex flex-col items-center justify-end pointer-events-none">
-              {showNoteNames && (
-                <span className={`text-[10px] font-bold ${isActive ? 'text-white' : 'text-zinc-400'}`}>
-                  {getNoteName(midi)}
-                </span>
-              )}
-              {keyLabel && (
-                <span className={`text-[8px] font-mono mt-0.5 ${isActive ? 'text-white/80' : 'text-zinc-300'}`}>
-                  {keyLabel}
-                </span>
-              )}
-            </div>
-          </div>
-        );
-      })}
-
-      {/* Render Black Keys */}
-      {keys.map((midi) => {
-        const isBlack = isBlackKey(midi);
-        if (!isBlack) return null;
-
-        const isActive = activeNotes.has(midi);
+        const isActive = activeNotes.has(midi) || localActiveNotes.has(midi);
+        const velocity = activeNotes.get(midi) || (localActiveNotes.has(midi) ? 0.7 : 0);
         
-        // Calculate position
-        // Find previous white key index
-        const prevWhiteKeys = keys.filter(k => k < midi && !isBlackKey(k)).length;
-        const leftPos = `calc(${prevWhiteKeys} * ${whiteKeyWidth} - (${whiteKeyWidth} * 0.35))`;
-        const width = `calc(${whiteKeyWidth} * 0.7)`;
+        let left = 0;
+        if (!isBlack) {
+          left = whiteKeyIndex * whiteKeyWidth;
+          whiteKeyIndex++;
+        } else {
+          // Black key is positioned relative to the previous white key
+          left = (whiteKeyIndex - 1) * whiteKeyWidth + (whiteKeyWidth * 0.65);
+        }
 
-        const keyLabel = getKeyLabel(midi);
+        // Find mapped key if any
+        let mappedKey = '';
+        if (showKeymap && keyMap) {
+          const entry = Object.entries(keyMap).find(([, m]) => m === midi);
+          if (entry) {
+            mappedKey = entry[0].toUpperCase();
+          }
+        }
 
         return (
           <div
             key={midi}
-            className="absolute top-0 h-[60%] z-10 bg-zinc-900 rounded-b-sm border border-zinc-800 shadow-md"
-            style={{ left: leftPos, width: width }}
-            onMouseDown={() => onNoteOn(midi)}
-            onMouseUp={() => onNoteOff(midi)}
-            onMouseLeave={() => isActive && onNoteOff(midi)}
-            onTouchStart={(e) => { e.preventDefault(); onNoteOn(midi); }}
-            onTouchEnd={(e) => { e.preventDefault(); onNoteOff(midi); }}
+            data-midi={midi}
+            className={`absolute cursor-pointer rounded-b-md transition-colors duration-75 ${
+              isBlack 
+                ? 'bg-black border border-white/20 shadow-sm' 
+                : 'bg-white border-r border-black/20 shadow-sm'
+            }`}
+            style={{
+              left: `${left}%`,
+              width: `${isBlack ? whiteKeyWidth * 0.7 : whiteKeyWidth}%`,
+              height: isBlack ? '60%' : '100%',
+              zIndex: isBlack ? 10 : 5,
+            }}
           >
             {isActive && (
               <motion.div
-                layoutId={`active-black-${midi}`}
-                className="absolute inset-0 bg-indigo-400 rounded-b-sm"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.05 }}
+                animate={{ opacity: Math.max(0.3, velocity * 0.8) }}
+                className={`absolute inset-0 rounded-b-md ${isBlack ? 'bg-indigo-500/60' : 'bg-indigo-500/40'}`}
+                style={{ pointerEvents: 'none' }}
               />
             )}
-            
-             <div className="absolute bottom-2 left-0 right-0 flex flex-col items-center justify-end pointer-events-none">
-              {keyLabel && (
-                <span className={`text-[8px] font-mono ${isActive ? 'text-white' : 'text-zinc-500'}`}>
-                  {keyLabel}
-                </span>
-              )}
-            </div>
+            {showNoteNames && !isBlack && (
+              <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-slate-800 font-bold opacity-60 pointer-events-none">
+                {getNoteName(midi)}
+              </span>
+            )}
+            {showKeymap && mappedKey && (
+              <span className={`absolute ${isBlack ? 'bottom-2 text-white/70' : 'bottom-6 text-slate-500'} left-1/2 -translate-x-1/2 text-xs sm:text-sm font-mono font-black pointer-events-none`}>
+                {mappedKey}
+              </span>
+            )}
           </div>
         );
       })}

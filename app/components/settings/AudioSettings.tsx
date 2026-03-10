@@ -1,11 +1,9 @@
-// app/components/settings/AudioSettings.tsx v1.7.2
+// app/components/settings/AudioSettings.tsx v1.3.5
 'use client';
 
 import React from 'react';
 import { Volume2, Music as MusicIcon } from 'lucide-react';
 import { motion } from 'motion/react';
-
-import { Translation } from '../../lib/translations';
 
 interface AudioSettingsProps {
   volume: number;
@@ -16,7 +14,7 @@ interface AudioSettingsProps {
   setMetronomeBpm: (bpm: number) => void;
   metronomeBeats: number;
   setMetronomeBeats: (beats: number) => void;
-  t: Translation;
+  t: Record<string, string>;
 }
 
 export function AudioSettings({
@@ -35,7 +33,7 @@ export function AudioSettings({
       <section>
         <div className="flex items-center gap-2 mb-4">
           <Volume2 className="h-4 w-4 text-indigo-400" />
-          <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.settings.volume || 'Volume'}</label>
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.volume || 'Volume'}</label>
         </div>
         <div className="flex items-center gap-4 p-4 rounded-2xl theme-bg-secondary border theme-border">
           <input 

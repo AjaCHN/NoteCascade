@@ -1,9 +1,8 @@
-// app/hooks/use-game-engine.ts v2.0.1
+// app/hooks/use-game-engine.ts v1.3.5
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Translation } from '../lib/translations';
-import type { Song } from '../lib/songs/types';
+import { Song } from '../lib/songs';
 
 export interface Feedback {
   id: number;
@@ -23,7 +22,7 @@ export function useGameEngine(
   activeNotes: Map<number, number>,
   isPlaying: boolean,
   keyboardRange: { start: number; end: number },
-  t: Translation,
+  t: Record<string, string>,
   dimensions: { width: number; height: number },
   keyGeometries: Map<number, { x: number, width: number, isBlack: boolean }>,
   onScoreUpdate: (score: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => void,
@@ -31,9 +30,9 @@ export function useGameEngine(
 ) {
   const [score, setScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-  const [recentHits, setRecentHits] = useState<{ timeDiff: number; timestamp: number; type: Feedback['type'] }[]>([]);
   const processedNotes = useRef<Set<number>>(new Set());
   const lastActiveNotes = useRef<Set<number>>(new Set());
+  const recentHits = useRef<{ timeDiff: number; timestamp: number; type: Feedback['type'] }[]>([]);
   const feedbackIdCounter = useRef(0);
   const hitEffects = useRef<{ x: number; y: number; type: Feedback['type']; timestamp: number }[]>([]);
 
@@ -73,25 +72,25 @@ export function useGameEngine(
 
           let type: Feedback['type'] = 'good';
           let points = 50;
-          let text = t.common.good.toUpperCase();
+          let text = t.good.toUpperCase();
 
           if (absTimeDiff < PERFECT_THRESHOLD) {
             type = 'perfect';
             points = 100;
-            text = t.common.perfect.toUpperCase();
+            text = t.perfect.toUpperCase();
           } else if (timeDiff < 0) {
-            text = t.game.early;
+            text = t.early;
           } else {
-            text = t.game.late;
+            text = t.late;
           }
 
           const velocityDiff = velocity - match.velocity;
           if (Math.abs(velocityDiff) > 0.3) {
-            text += velocityDiff > 0 ? `\n${t.game.tooHard}` : `\n${t.game.tooSoft}`;
+            text += velocityDiff > 0 ? `\n${t.tooHard}` : `\n${t.tooSoft}`;
             points = Math.floor(points * 0.8);
           }
 
-          setRecentHits(prev => [...prev, { timeDiff, timestamp: Date.now(), type }]);
+          recentHits.current.push({ timeDiff, timestamp: Date.now(), type });
 
           setScore(prev => ({
             ...prev,
@@ -104,7 +103,7 @@ export function useGameEngine(
         } else {
           if (midi >= keyboardRange.start && midi <= keyboardRange.end) {
             setScore(prev => ({ ...prev, wrong: prev.wrong + 1, currentScore: Math.max(0, prev.currentScore - 10) }));
-            addFeedback(t.common.wrong.toUpperCase(), 'wrong', midi);
+            addFeedback(t.wrong.toUpperCase(), 'wrong', midi);
           }
         }
       }
@@ -114,7 +113,7 @@ export function useGameEngine(
       if (!processedNotes.current.has(idx) && n.time < currentTime - GOOD_THRESHOLD) {
         processedNotes.current.add(idx);
         setScore(prev => ({ ...prev, miss: prev.miss + 1 }));
-        addFeedback(t.common.miss.toUpperCase(), 'miss', n.midi);
+        addFeedback(t.miss.toUpperCase(), 'miss', n.midi);
       }
     });
 
@@ -130,7 +129,7 @@ export function useGameEngine(
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setScore({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
       processedNotes.current = new Set();
-      setRecentHits([]);
+      recentHits.current = [];
     }
   }, [currentTime, song]);
 

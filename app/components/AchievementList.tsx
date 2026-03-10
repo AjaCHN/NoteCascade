@@ -1,11 +1,11 @@
-// app/components/AchievementList.tsx v1.7.2
+// app/components/AchievementList.tsx v1.3.5
 'use client';
 
 import React from 'react';
 import { useAchievements, useLocale } from '../lib/store';
 import { Trophy, Lock, CheckCircle2, Music, Star, Clock, Palette, LucideIcon, Flame, Zap, Crown, Sun, Moon } from 'lucide-react';
 import { motion } from 'motion/react';
-import { translations, Translation } from '../lib/translations';
+import { translations } from '../lib/translations';
 
 const iconMap: Record<string, LucideIcon> = {
   Music,
@@ -23,13 +23,13 @@ const iconMap: Record<string, LucideIcon> = {
 export function AchievementList() {
   const achievements = useAchievements();
   const locale = useLocale();
-  const t: Translation = translations[locale];
+  const t = translations[locale] || translations.en;
 
   return (
     <div className="flex flex-col space-y-6 p-6">
       <h2 className="text-xl font-black text-white flex items-center gap-3 text-glow">
         <Trophy className="w-6 h-6 text-amber-400" />
-        {t.achievements.title}
+        {t.achievements}
       </h2>
       <div className="grid grid-cols-1 gap-4">
         {achievements.map((achievement, idx) => {
@@ -62,10 +62,10 @@ export function AchievementList() {
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className={`font-black text-sm uppercase tracking-widest truncate ${isUnlocked ? 'text-white' : 'text-slate-500'}`}>
-                    {t.achievements[`${achievement.id}_title` as keyof typeof t.achievements] || achievement.title}
+                    {t[`ach_${achievement.id}_title`] || achievement.title}
                   </span>
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest truncate mt-0.5">
-                    {t.achievements[`${achievement.id}_desc` as keyof typeof t.achievements] || achievement.description}
+                    {t[`ach_${achievement.id}_desc`] || achievement.description}
                   </span>
                 </div>
               </div>
@@ -73,7 +73,7 @@ export function AchievementList() {
               {!isUnlocked && maxProgress !== undefined && (
                 <div className="space-y-2">
                   <div className="flex justify-between text-[8px] font-black uppercase tracking-[0.2em] text-slate-600">
-                    <span>{t.common.progress}</span>
+                    <span>{t.progress}</span>
                     <span>{Math.floor(progress)} / {maxProgress}</span>
                   </div>
                   <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden border border-white/5">

@@ -1,4 +1,4 @@
-// app/lib/songs/chinese.ts v1.7.2
+// app/lib/songs/chinese.ts v1.4.2
 export const chineseSongs = [
   {
     id: 'jasmine_flower',

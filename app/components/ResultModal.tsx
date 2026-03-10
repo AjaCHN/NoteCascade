@@ -1,39 +1,38 @@
-// app/components/ResultModal.tsx v2.4.0
+// app/components/ResultModal.tsx v1.4.4
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Trophy, RefreshCw, Play, Clock } from 'lucide-react';
-import type { Song } from '../lib/songs';
-import { translations, Translation } from '../lib/translations';
+import { Song } from '../lib/songs';
+import { translations } from '../lib/translations';
 import { useLocale } from '../lib/store';
-
-import { ScoreRecord } from '../lib/store/types';
 
 interface ResultModalProps {
   show: boolean;
   onClose: () => void;
   onRetry: () => void;
-  score: ScoreRecord;
+  score: {
+    perfect: number;
+    good: number;
+    miss: number;
+    wrong: number;
+    currentScore: number;
+  };
   song: Song;
 }
 
 export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps) {
   const locale = useLocale();
-  const t: Translation = translations[locale];
-  const [countdown, setCountdown] = useState(5);
-
-  useEffect(() => {
-    if (countdown === 0) {
-      onClose();
-    }
-  }, [countdown, onClose]);
+  const t = translations[locale] || translations.en;
+  const [countdown, setCountdown] = useState(10);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
           clearInterval(timer);
+          onClose();
           return 0;
         }
         return prev - 1;
@@ -41,7 +40,7 @@ export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps)
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [onClose]);
 
   const totalNotes = score.perfect + score.good + score.miss + score.wrong;
   const accuracy = totalNotes > 0 
@@ -65,7 +64,7 @@ export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps)
           <motion.div 
             initial={{ width: '100%' }}
             animate={{ width: '0%' }}
-            transition={{ duration: 5, ease: 'linear' }}
+            transition={{ duration: 10, ease: 'linear' }}
             className="h-full bg-indigo-500"
           />
         </div>
@@ -74,27 +73,27 @@ export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps)
           <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-400 mb-4">
             <Trophy className="h-10 w-10" />
           </div>
-          <h2 className="text-3xl md:text-4xl font-black text-white mb-2">{t.common.result}</h2>
-          <p className="text-slate-400 font-medium">{t.songs[song.id as keyof typeof t.songs] || song.title} - {t.artists[song.artist.toLowerCase() as keyof typeof t.artists] || song.artist}</p>
+          <h2 className="text-3xl md:text-4xl font-black text-white mb-2">{t.result}</h2>
+          <p className="text-slate-400 font-medium">{t[`song_${song.id}`] || song.title} - {t[`artist_${song.artist.toLowerCase()}`] || song.artist}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-10">
           <div className="bg-slate-800/50 rounded-3xl p-6 border border-slate-700/50">
-            <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">{t.common.totalScore}</div>
-            <div className="text-3xl font-black text-white tabular-nums">{score.score.toLocaleString()}</div>
+            <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">{t.totalScore}</div>
+            <div className="text-3xl font-black text-white tabular-nums">{score.currentScore.toLocaleString()}</div>
           </div>
           <div className="bg-slate-800/50 rounded-3xl p-6 border border-slate-700/50">
-            <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">{t.common.accuracy}</div>
+            <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">{t.accuracy}</div>
             <div className="text-3xl font-black text-indigo-400 tabular-nums">
               {accuracy.toFixed(1)}%
             </div>
           </div>
           <div className="col-span-2 grid grid-cols-4 gap-2">
             {[
-              { key: 'perfect', label: t.common.perfect, value: score.perfect, color: 'text-emerald-400' },
-              { key: 'good', label: t.common.good, value: score.good, color: 'text-blue-400' },
-              { key: 'miss', label: t.common.miss, value: score.miss, color: 'text-amber-400' },
-              { key: 'wrong', label: t.common.wrong, value: score.wrong, color: 'text-rose-400' },
+              { key: 'perfect', label: t.perfect, value: score.perfect, color: 'text-emerald-400' },
+              { key: 'good', label: t.good, value: score.good, color: 'text-blue-400' },
+              { key: 'miss', label: t.miss, value: score.miss, color: 'text-amber-400' },
+              { key: 'wrong', label: t.wrong, value: score.wrong, color: 'text-rose-400' },
             ].map((stat, idx) => (
               <div key={`${stat.key}-${idx}`} className="bg-slate-800/30 rounded-2xl p-3 border border-slate-700/30">
                 <div className={`text-[8px] uppercase tracking-tighter font-bold ${stat.color} mb-1`}>{stat.label}</div>
@@ -110,14 +109,14 @@ export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps)
             className="flex-1 rounded-2xl bg-slate-800 py-4 font-bold text-white hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"
           >
             <RefreshCw className="h-5 w-5" />
-            {t.common.retry}
+            {t.retry}
           </button>
           <button 
             onClick={onClose}
             className="flex-1 rounded-2xl bg-indigo-500 py-4 font-bold text-white hover:bg-indigo-400 transition-colors flex items-center justify-center gap-2 relative"
           >
             <Play className="h-5 w-5 fill-current" />
-            {t.common.continue}
+            {t.continue}
             <div className="absolute right-4 flex items-center gap-1 text-[10px] opacity-50">
               <Clock className="h-3 w-3" />
               {countdown}s

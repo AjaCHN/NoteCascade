@@ -1,10 +1,9 @@
-// app/components/settings/KeyboardSettings.tsx v1.7.2
+// app/components/settings/KeyboardSettings.tsx v1.3.5
 'use client';
 
 import React from 'react';
 import { Keyboard as KeyboardIcon } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Translation } from '../../lib/translations';
 
 interface KeyboardSettingsProps {
   keyboardRange: { start: number; end: number };
@@ -13,7 +12,7 @@ interface KeyboardSettingsProps {
   setShowNoteNames: (show: boolean) => void;
   showKeymap: boolean;
   setShowKeymap: (show: boolean) => void;
-  t: Translation;
+  t: Record<string, string>;
   setIsRangeManuallySet?: (val: boolean) => void;
 }
 
@@ -33,7 +32,7 @@ export function KeyboardSettings({
     <section>
       <div className="flex items-center gap-2 mb-4">
         <KeyboardIcon className="h-4 w-4 text-indigo-400" />
-        <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.settings.keyboardRange}</label>
+        <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.keyboardRange}</label>
       </div>
       <div className="space-y-4">
         <div className="grid grid-cols-4 gap-2">
@@ -53,13 +52,13 @@ export function KeyboardSettings({
                   : 'theme-border theme-bg-secondary theme-text-secondary hover:theme-text-primary'
               }`}
             >
-              {keys}
+              {keys}{t.keys}
             </button>
           ))}
         </div>
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between p-4 rounded-2xl theme-bg-secondary border theme-border">
-            <span className="text-xs font-bold theme-text-primary">{t.settings.showNoteNames}</span>
+            <span className="text-xs font-bold theme-text-primary">{t.showNoteNames}</span>
             <button 
               onClick={() => setShowNoteNames(!showNoteNames)}
               className={`w-12 h-6 rounded-full transition-all relative ${showNoteNames ? 'bg-indigo-500' : 'bg-slate-700'}`}
@@ -71,7 +70,7 @@ export function KeyboardSettings({
             </button>
           </div>
           <div className="flex items-center justify-between p-4 rounded-2xl theme-bg-secondary border theme-border">
-            <span className="text-xs font-bold theme-text-primary">{t.settings.showKeymap}</span>
+            <span className="text-xs font-bold theme-text-primary">{t.showKeymap}</span>
             <button 
               onClick={() => setShowKeymap(!showKeymap)}
               className={`w-12 h-6 rounded-full transition-all relative ${showKeymap ? 'bg-indigo-500' : 'bg-slate-700'}`}

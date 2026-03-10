@@ -1,6 +1,6 @@
 # NoteCascade 🎹
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38bdf8)](https://tailwindcss.com/)
@@ -20,8 +20,6 @@
 -   **🎨 主题切换**：选择多种主题（深色、浅色、赛博朋克、经典）以适应您的风格。
 -   **📱 响应式设计**：适用于桌面和移动设备（包含触摸支持）。
 -   **🎵 内置歌曲**：使用包含各种风格的内置歌曲库进行练习。
--   **🔐 身份验证**：使用 Firebase 进行安全的用户账户管理，以便跟踪进度。
--   **⚙️ 练习模式**：可调节的速度和循环播放功能，实现专注学习。
 
 ## 🚀 快速开始
 
@@ -68,15 +66,6 @@
 -   **动画**：[Motion](https://motion.dev/)
 -   **图标**：[Lucide React](https://lucide.dev/)
 
-## 📚 文档
-
-- [项目概述](./openspec/project.md)
-- [安装与部署](./openspec/deployment.md)
-- [功能模块说明](./openspec/modules.md)
-- [API 接口文档](./openspec/api.md)
-- [用户操作指南](./openspec/user-guide.md)
-- [常见问题与故障排除](./openspec/faq.md)
-
 ## 🤝 贡献
 
 欢迎贡献！请随时提交 Pull Request。
@@ -89,7 +78,7 @@
 
 ## 📄 许可证
 
-本项目基于 GPL v3 许可证开源 - 详见 [LICENSE](LICENSE) 文件。
+本项目基于 MIT 许可证开源 - 详见 [LICENSE](LICENSE) 文件。
 
 ## 👤 作者
 

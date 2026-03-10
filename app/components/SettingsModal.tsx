@@ -1,4 +1,4 @@
-// app/components/SettingsModal.tsx v1.7.3
+// app/components/SettingsModal.tsx v1.3.6
 'use client';
 
 import React from 'react';
@@ -9,23 +9,20 @@ import {
   useKeyboardRange, useShowNoteNames, useShowKeymap,
   useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats
 } from '../lib/store';
-import { Translation, translations } from '../lib/translations';
+import { translations } from '../lib/translations';
 
 // Sub-components
 import { GeneralSettings } from './settings/GeneralSettings';
 import { KeyboardSettings } from './settings/KeyboardSettings';
 import { MidiSettings } from './settings/MidiSettings';
-import { AudioSettings } from './settings/AudioSettings';
 import { AppInfoSection } from './settings/AppInfoSection';
+import { AudioSettings } from './settings/AudioSettings';
 
-import type { MidiDevice, MidiMessage } from '../hooks/use-midi';
-import type { VelocityCurve } from '../lib/midi-utils';
+import { MidiDevice, VelocityCurve, MidiMessage } from '../hooks/use-midi';
 
 interface SettingsModalProps {
   show: boolean;
   onClose: () => void;
-  volume: number;
-  setVolume: (val: number) => void;
   midiProps: {
     isSupported: boolean;
     inputs: MidiDevice[];
@@ -41,9 +38,12 @@ interface SettingsModalProps {
     isConnecting: boolean;
     lastMessage: MidiMessage | null;
   };
+  setIsRangeManuallySet?: (val: boolean) => void;
+  volume: number;
+  setVolume: (val: number) => void;
 }
 
-export function SettingsModal({ onClose, volume, setVolume, midiProps }: SettingsModalProps) {
+export function SettingsModal({ onClose, midiProps, setIsRangeManuallySet, volume, setVolume }: SettingsModalProps) {
   const locale = useLocale();
   const theme = useTheme();
   const instrument = useInstrument();
@@ -57,10 +57,10 @@ export function SettingsModal({ onClose, volume, setVolume, midiProps }: Setting
   const { 
     setLocale, setTheme, setInstrument, 
     setKeyboardRange, setShowNoteNames, setShowKeymap,
-    setIsRangeManuallySet, setMetronomeEnabled, setMetronomeBpm, setMetronomeBeats
+    setMetronomeEnabled, setMetronomeBpm, setMetronomeBeats
   } = useAppActions();
 
-  const t: Translation = translations[locale];
+  const t = translations[locale] || translations.en;
 
   return (
     <motion.div 
@@ -80,7 +80,7 @@ export function SettingsModal({ onClose, volume, setVolume, midiProps }: Setting
             <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
               <SettingsIcon className="h-6 w-6" />
             </div>
-            <h2 className="text-2xl font-bold theme-text-primary">{t.settings.title}</h2>
+            <h2 className="text-2xl font-bold theme-text-primary">{t.settings}</h2>
           </div>
           <button 
             onClick={onClose} 
@@ -118,7 +118,7 @@ export function SettingsModal({ onClose, volume, setVolume, midiProps }: Setting
           <div className="space-y-8">
             <KeyboardSettings 
               keyboardRange={keyboardRange}
-              setKeyboardRange={(start, end) => setKeyboardRange({ start, end })}
+              setKeyboardRange={setKeyboardRange}
               showNoteNames={showNoteNames}
               setShowNoteNames={setShowNoteNames}
               showKeymap={showKeymap}
@@ -140,7 +140,7 @@ export function SettingsModal({ onClose, volume, setVolume, midiProps }: Setting
             onClick={onClose}
             className="px-10 py-4 rounded-2xl bg-indigo-500 font-black text-white hover:bg-indigo-400 transition-all shadow-lg shadow-indigo-500/20 hover:scale-[1.02] active:scale-[0.98]"
           >
-            {t.common.done}
+            {t.done}
           </button>
         </div>
       </motion.div>
