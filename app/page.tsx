@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useMidi } from './hooks/use-midi';
 import { useKeyboardInput } from './hooks/use-keyboard-input';
-import { startNote, stopNote, setVolume, setAudioInstrument } from './lib/audio';
+import { startNote, stopNote, setVolume, setAudioInstrument, setSustainPedal } from './lib/audio';
 import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, useShowNoteNames, useShowKeymap, usePlayMode } from './lib/store';
 import { translations } from './lib/translations';
 import { Keyboard } from './components/Keyboard';
@@ -47,6 +47,13 @@ export default function MidiPlayApp() {
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const [mounted, setMounted] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isSustainActive, setIsSustainActive] = useState(false);
+
+  const toggleSustain = () => {
+    const next = !isSustainActive;
+    setIsSustainActive(next);
+    setSustainPedal(next);
+  };
   const [isRangeManuallySet, setIsRangeManuallySet] = useState(false);
 
   // Initial setup and audio sync
@@ -253,6 +260,16 @@ export default function MidiPlayApp() {
             </div>
 
             <div id="keyboard-wrapper" className="shrink-0 relative z-20 h-24 md:h-32 border-t theme-border">
+              <button
+                onClick={toggleSustain}
+                className={`absolute top-2 right-2 z-30 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all shadow-sm ${
+                  isSustainActive 
+                    ? 'bg-indigo-500 text-white border-indigo-400 shadow-indigo-500/20' 
+                    : 'theme-bg-secondary theme-text-secondary theme-border hover:theme-text-primary hover:theme-border-primary'
+                }`}
+              >
+                {t.sustain || 'Sustain'}
+              </button>
               <Keyboard 
                 activeNotes={activeNotes} 
                 startNote={keyboardRange.start} 

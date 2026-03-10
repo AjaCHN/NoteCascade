@@ -144,5 +144,6 @@ export const en = {
     audio: 'Audio',
     keyboard: 'Keyboard',
     midi: 'MIDI',
+    sustain: 'Sustain',
     about: 'About',
 };

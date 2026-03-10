@@ -183,5 +183,6 @@ export const zhCN = {
     audio: '音频',
     keyboard: '键盘',
     midi: 'MIDI',
+    sustain: '延音',
     about: '关于',
 };
