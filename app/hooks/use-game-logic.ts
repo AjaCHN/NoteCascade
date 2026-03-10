@@ -1,6 +1,7 @@
-// app/hooks/use-game-logic.ts v1.4.7
+// app/hooks/use-game-logic.ts v1.4.8
 import { useState, useEffect, useCallback, useRef } from 'react';
 import * as Tone from 'tone';
+import confetti from 'canvas-confetti';
 import { Song, builtInSongs } from '../lib/songs';
 import { useAppActions, usePlayMode, useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats, getNextSong } from '../lib/store';
 import { initAudio, startTransport, stopTransport, clearScheduledEvents, ensureAudioContext, setMetronome, scheduleNote } from '../lib/audio';
@@ -20,6 +21,7 @@ export function useGameLogic(
   const [selectedSong, setSelectedSong] = useState<Song>(builtInSongs[0]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const currentTimeRef = useRef(0);
   const [showResult, setShowResult] = useState(false);
   const [lastScore, setLastScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
   const latestScoreRef = useRef(lastScore);
@@ -28,6 +30,7 @@ export function useGameLogic(
     setIsPlaying(false);
     stopTransport();
     setCurrentTime(0);
+    currentTimeRef.current = 0;
     setLastScore({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
   }, []);
 
@@ -36,7 +39,14 @@ export function useGameLogic(
   }, [lastScore]);
 
   useEffect(() => {
-    resetSong();
+    currentTimeRef.current = currentTime;
+  }, [currentTime]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      resetSong();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [playMode, resetSong]);
 
   useEffect(() => {
@@ -57,6 +67,7 @@ export function useGameLogic(
     if (playMode === 'demo' || playMode === 'free') {
       setIsPlaying(false);
       setCurrentTime(0);
+      currentTimeRef.current = 0;
       return;
     }
 
@@ -80,12 +91,10 @@ export function useGameLogic(
     });
 
     if (accuracy > 0.8) {
-      import('canvas-confetti').then((confetti) => {
-        confetti.default({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
       });
     }
     
@@ -103,10 +112,14 @@ export function useGameLogic(
       await initAudio();
       await ensureAudioContext();
       
-      if (currentTime >= (selectedSong.duration || 0)) {
+      const currentT = currentTimeRef.current;
+      if (currentT >= (selectedSong.duration || 0)) {
         setCurrentTime(0);
+        currentTimeRef.current = 0;
+        Tone.Transport.seconds = 0;
+      } else {
+        Tone.Transport.seconds = currentT;
       }
-      Tone.Transport.seconds = currentTime;
 
       // Schedule notes for Demo mode
       if (playMode === 'demo') {
@@ -133,15 +146,18 @@ export function useGameLogic(
       setIsPlaying(true);
       startTransport();
     }
-  }, [isPlaying, currentTime, selectedSong, playMode, setActiveNotes]);
+  }, [isPlaying, selectedSong, playMode, setActiveNotes]);
 
   const prevActiveNotesSize = useRef(0);
   useEffect(() => {
-    if (activeNotes.size > 0 && prevActiveNotesSize.current === 0 && !isPlaying) {
-      togglePlay();
-    }
-    prevActiveNotesSize.current = activeNotes.size;
-  }, [activeNotes.size, isPlaying, togglePlay]);
+    const timer = setTimeout(() => {
+      if (playMode !== 'free' && activeNotes.size > 0 && prevActiveNotesSize.current === 0 && !isPlaying) {
+        togglePlay();
+      }
+      prevActiveNotesSize.current = activeNotes.size;
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [activeNotes.size, isPlaying, togglePlay, playMode]);
 
   // Update currentTime from Transport
   useEffect(() => {

@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.7.3]
+- Bugfix: Fixed a bug where Free Play mode would incorrectly trigger auto-play when notes were played.
+
 ## [1.7.2]
 - UI: Removed duplicate settings button from the top toolbar.
 - UI: Added Demo Mode to the mode switcher.

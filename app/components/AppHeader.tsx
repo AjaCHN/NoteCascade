@@ -1,11 +1,11 @@
 // app/components/AppHeader.tsx v1.7.2
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
-  Keyboard as KeyboardIcon, Music, Library as LibraryIcon, Trophy, Menu, Play
+  Keyboard as KeyboardIcon, Music, Library, Trophy, Menu, Play, HelpCircle
 } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { 
@@ -19,6 +19,7 @@ interface AppHeaderProps {
   selectedInputId: string | null;
   inputs: { id: string; name: string }[];
   setShowSettings: (show: boolean) => void;
+  setActiveSettingsSection: (section: 'general' | 'audio' | 'keyboard' | 'midi' | 'about') => void;
   showSettings: boolean;
   connectMidi?: () => void;
   isConnecting?: boolean;
@@ -33,6 +34,7 @@ export function AppHeader({
   selectedInputId, 
   inputs, 
   setShowSettings,
+  setActiveSettingsSection,
   showSettings,
   connectMidi,
   isConnecting,
@@ -47,6 +49,12 @@ export function AppHeader({
   const t = translations[locale] || translations.en;
   const [showMenu, setShowMenu] = useState(false);
 
+  const openSettings = useCallback((section: 'general' | 'audio' | 'keyboard' | 'midi' | 'about') => {
+    setActiveSettingsSection(section);
+    setShowSettings(true);
+    setShowMenu(false);
+  }, [setActiveSettingsSection, setShowSettings]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -55,16 +63,19 @@ export function AppHeader({
       if (key === 'l') setPlayMode('library');
       else if (key === 'a') setShowAchievements(!showAchievements);
       else if (key === 'm') connectMidi?.();
-      else if (key === 's') setShowSettings(!showSettings);
+      else if (key === 's') {
+        setActiveSettingsSection('general');
+        setShowSettings(!showSettings);
+      }
       else if (key === 'escape') setShowMenu(prev => !prev);
       else if (showMenu) {
         if (key === 'f') { toggleFullScreen(); setShowMenu(false); }
-        else if (key === 's') { setShowSettings(true); setShowMenu(false); }
+        else if (key === 's') { openSettings('general'); }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setPlayMode, setShowAchievements, showAchievements, connectMidi, showMenu, toggleFullScreen, setShowSettings, showSettings]);
+  }, [setPlayMode, setShowAchievements, showAchievements, connectMidi, showMenu, toggleFullScreen, setShowSettings, showSettings, setActiveSettingsSection, openSettings]);
 
   const modes = [
     { id: 'demo', icon: Play, label: t.demo || 'Demo' },
@@ -114,7 +125,7 @@ export function AppHeader({
           className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${playMode === 'library' ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
           title={`${t.library} (L)`}
         >
-          <LibraryIcon className="h-5 w-5" />
+          <Library className="h-5 w-5" />
         </button>
 
         <button 
@@ -172,13 +183,34 @@ export function AppHeader({
               <Trophy className="h-4 w-4" />
               Achievements
             </button>
+            <button onClick={() => { setPlayMode('library'); setShowMenu(false); }} title="Song Library (L)" className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
+              <Library className="h-4 w-4" />
+              Library
+            </button>
             <button onClick={toggleFullScreen} title="Full Screen (F)" className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
               {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
               {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
             </button>
-            <button onClick={() => { setShowSettings(true); setShowMenu(false); }} title="Settings (S)" className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
+            <div className="h-px bg-white/10 my-1" />
+            <button onClick={() => openSettings('general')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
               <Settings className="h-4 w-4" />
-              Settings
+              General
+            </button>
+            <button onClick={() => openSettings('audio')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
+              <Music className="h-4 w-4" />
+              Audio
+            </button>
+            <button onClick={() => openSettings('keyboard')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
+              <KeyboardIcon className="h-4 w-4" />
+              Keyboard
+            </button>
+            <button onClick={() => openSettings('midi')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
+              <RefreshCw className="h-4 w-4" />
+              MIDI
+            </button>
+            <button onClick={() => openSettings('about')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
+              <HelpCircle className="h-4 w-4" />
+              Help / About
             </button>
           </div>
         )}

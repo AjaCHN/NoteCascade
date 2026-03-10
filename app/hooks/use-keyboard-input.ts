@@ -3,7 +3,8 @@ import { useEffect } from 'react';
 import { startNote, stopNote, initAudio, setSustainPedal } from '../lib/audio';
 
 export function useKeyboardInput(
-  setActiveNotes: React.Dispatch<React.SetStateAction<Map<number, number>>>
+  setActiveNotes: React.Dispatch<React.SetStateAction<Map<number, number>>>,
+  isMidiConnected: boolean
 ) {
   useEffect(() => {
     const KEYBOARD_MAP: Record<string, number> = {
@@ -13,7 +14,7 @@ export function useKeyboardInput(
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (isMidiConnected || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
       
       if (e.code === 'Space') {
         e.preventDefault();
@@ -30,6 +31,7 @@ export function useKeyboardInput(
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
+      if (isMidiConnected) return;
       if (e.code === 'Space') {
         setSustainPedal(false);
         return;
@@ -68,5 +70,5 @@ export function useKeyboardInput(
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [setActiveNotes]);
+  }, [setActiveNotes, isMidiConnected]);
 }

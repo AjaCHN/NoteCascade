@@ -1,9 +1,9 @@
-// app/components/SongCard.tsx v1.3.5
+// app/components/SongCard.tsx v1.3.6
 'use client';
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Star, Trophy, Lock } from 'lucide-react';
+import { Star, Trophy, Lock, Play, Keyboard as KeyboardIcon } from 'lucide-react';
 import { Song } from '../lib/songs';
 
 interface SongCardProps {
@@ -12,7 +12,7 @@ interface SongCardProps {
   unlocked: boolean;
   highScore: number | null;
   unlockDescription: string;
-  onSelect: (song: Song) => void;
+  onSelect: (song: Song, mode?: 'demo' | 'practice') => void;
   t: Record<string, string>;
 }
 
@@ -26,12 +26,10 @@ export function SongCard({
   t 
 }: SongCardProps) {
   return (
-    <button
-      onClick={() => unlocked && onSelect(song)}
-      disabled={!unlocked}
+    <div
       className={`group flex items-center justify-between rounded-2xl border p-5 transition-all relative overflow-hidden ${
         !unlocked 
-          ? 'theme-border bg-black/5 dark:bg-white/2 opacity-40 cursor-not-allowed'
+          ? 'theme-border bg-black/5 dark:bg-white/2 opacity-40'
           : isSelected
             ? 'border-indigo-500 bg-indigo-500/10 shadow-xl shadow-indigo-500/10'
             : 'theme-border theme-bg-secondary hover:border-indigo-500/30 hover:bg-indigo-500/5 hover:scale-[1.02] active:scale-[0.98]'
@@ -44,7 +42,7 @@ export function SongCard({
         />
       )}
       
-      <div className="flex flex-col items-start gap-2 relative z-10 min-w-0 flex-1">
+      <div className="flex flex-col items-start gap-2 relative z-10 min-w-0 flex-1 cursor-pointer" onClick={() => unlocked && onSelect(song)}>
         <div className="flex items-center gap-2 w-full">
           <div className="flex-1 min-w-0 overflow-x-auto custom-scrollbar-mini pb-1">
             <span className={`font-black text-xl tracking-tight leading-none whitespace-nowrap ${unlocked ? 'theme-text-primary' : 'theme-text-secondary'}`}>
@@ -92,6 +90,25 @@ export function SongCard({
           </div>
         )}
       </div>
-    </button>
+
+      {unlocked && (
+        <div className="absolute inset-y-0 right-0 flex items-center gap-2 pr-4 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+          <button 
+            onClick={() => onSelect(song, 'demo')}
+            className="p-2 rounded-full bg-indigo-500 text-white hover:bg-indigo-600 transition-all shadow-lg"
+            title={t.demo}
+          >
+            <Play className="w-4 h-4 fill-current" />
+          </button>
+          <button 
+            onClick={() => onSelect(song, 'practice')}
+            className="p-2 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-lg"
+            title={t.practice}
+          >
+            <KeyboardIcon className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

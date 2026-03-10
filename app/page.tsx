@@ -15,6 +15,7 @@ import { ResultModal } from './components/ResultModal';
 import { AchievementModal } from './components/AchievementModal';
 import { AppHeader } from './components/AppHeader';
 import { SongSelector } from './components/SongSelector';
+import { UsageTips } from './components/UsageTips';
 import { useGameLogic } from './hooks/use-game-logic';
 import { usePlayMode } from './lib/store';
 import { RotateCcw, RefreshCw, Play, Pause, SkipForward } from 'lucide-react';
@@ -41,6 +42,7 @@ export default function MidiPlayApp() {
   } = useGameLogic(activeNotes, setActiveNotes);
 
   const [showSettings, setShowSettings] = useState(false);
+  const [activeSettingsSection, setActiveSettingsSection] = useState<'general' | 'audio' | 'keyboard' | 'midi' | 'about'>('general');
   const [showAchievements, setShowAchievements] = useState(false);
   const [volume, setVolumeState] = useState(80);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
@@ -148,7 +150,7 @@ export default function MidiPlayApp() {
     }
   }, [lastMessage]);
 
-  useKeyboardInput(setActiveNotes);
+  useKeyboardInput(setActiveNotes, inputs.length > 0);
 
   useEffect(() => {
     setTimeout(() => setMounted(true), 0);
@@ -204,6 +206,7 @@ export default function MidiPlayApp() {
         selectedInputId={selectedInputId}
         inputs={inputs}
         setShowSettings={setShowSettings}
+        setActiveSettingsSection={setActiveSettingsSection}
         showSettings={showSettings}
         setShowAchievements={setShowAchievements}
         showAchievements={showAchievements}
@@ -213,6 +216,8 @@ export default function MidiPlayApp() {
         toggleFullScreen={toggleFullScreen}
       />
 
+      <UsageTips />
+
       <main id="main-content" className="flex flex-1 overflow-hidden relative z-10">
         <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden bg-transparent overflow-x-auto custom-scrollbar">
           <div className="flex-1 flex flex-col min-h-0 relative" style={{ minWidth: typeof minCanvasWidth === 'number' ? `${minCanvasWidth}px` : minCanvasWidth }}>
@@ -220,10 +225,10 @@ export default function MidiPlayApp() {
               {playMode === 'library' ? (
                 <div className="h-full w-full overflow-y-auto custom-scrollbar bg-slate-50/50 dark:bg-slate-950/50">
                   <SongSelector 
-                    onSelect={(song) => {
+                    onSelect={(song, mode) => {
                       setSelectedSong(song);
                       resetSong();
-                      setPlayMode('practice'); // Switch to practice mode when song selected
+                      setPlayMode(mode || 'practice'); // Switch to practice mode when song selected
                     }}
                     selectedSongId={selectedSong.id}
                   />
@@ -316,6 +321,7 @@ export default function MidiPlayApp() {
           <SettingsModal 
             key="settings-modal"
             show={showSettings}
+            activeSection={activeSettingsSection}
             onClose={() => setShowSettings(false)}
             midiProps={midiProps}
             setIsRangeManuallySet={setIsRangeManuallySet}

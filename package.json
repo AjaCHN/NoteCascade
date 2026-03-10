@@ -1,6 +1,6 @@
 {
   "name": "notecascade",
-  "version": "1.7.1",
+  "version": "1.7.3",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,6 +19,7 @@
     "midi-writer-js": "^3.1.1",
     "motion": "^12.23.24",
     "next": "^15.4.9",
+    "next-auth": "^4.24.13",
     "postcss": "^8.5.6",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",

@@ -23,6 +23,7 @@ import { MidiDevice, VelocityCurve, MidiMessage } from '../hooks/use-midi';
 interface SettingsModalProps {
   show: boolean;
   onClose: () => void;
+  activeSection?: 'general' | 'audio' | 'keyboard' | 'midi' | 'about';
   midiProps: {
     isSupported: boolean;
     inputs: MidiDevice[];
@@ -43,7 +44,7 @@ interface SettingsModalProps {
   setVolume: (val: number) => void;
 }
 
-export function SettingsModal({ onClose, midiProps, setIsRangeManuallySet, volume, setVolume }: SettingsModalProps) {
+export function SettingsModal({ onClose, activeSection = 'general', midiProps, setIsRangeManuallySet, volume, setVolume }: SettingsModalProps) {
   const locale = useLocale();
   const theme = useTheme();
   const instrument = useInstrument();
@@ -91,47 +92,61 @@ export function SettingsModal({ onClose, midiProps, setIsRangeManuallySet, volum
         </div>
 
         {/* Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 overflow-y-auto custom-scrollbar pr-4 pb-4">
-          <div className="space-y-8">
-            <GeneralSettings 
-              locale={locale}
-              setLocale={setLocale}
-              theme={theme}
-              setTheme={setTheme}
-              instrument={instrument}
-              setInstrument={setInstrument}
-              t={t}
-            />
-            <AudioSettings 
-              volume={volume}
-              setVolume={setVolume}
-              metronomeEnabled={metronomeEnabled}
-              setMetronomeEnabled={setMetronomeEnabled}
-              metronomeBpm={metronomeBpm}
-              setMetronomeBpm={setMetronomeBpm}
-              metronomeBeats={metronomeBeats}
-              setMetronomeBeats={setMetronomeBeats}
-              t={t}
-            />
-          </div>
+        <div className="overflow-y-auto custom-scrollbar pr-4 pb-4">
+          {(activeSection === 'general' || activeSection === 'audio') && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+              {activeSection === 'general' && (
+                <GeneralSettings 
+                  locale={locale}
+                  setLocale={setLocale}
+                  theme={theme}
+                  setTheme={setTheme}
+                  instrument={instrument}
+                  setInstrument={setInstrument}
+                  t={t}
+                />
+              )}
+              {activeSection === 'audio' && (
+                <AudioSettings 
+                  volume={volume}
+                  setVolume={setVolume}
+                  metronomeEnabled={metronomeEnabled}
+                  setMetronomeEnabled={setMetronomeEnabled}
+                  metronomeBpm={metronomeBpm}
+                  setMetronomeBpm={setMetronomeBpm}
+                  metronomeBeats={metronomeBeats}
+                  setMetronomeBeats={setMetronomeBeats}
+                  t={t}
+                />
+              )}
+            </div>
+          )}
 
-          <div className="space-y-8">
-            <KeyboardSettings 
-              keyboardRange={keyboardRange}
-              setKeyboardRange={setKeyboardRange}
-              showNoteNames={showNoteNames}
-              setShowNoteNames={setShowNoteNames}
-              showKeymap={showKeymap}
-              setShowKeymap={setShowKeymap}
-              t={t}
-              setIsRangeManuallySet={setIsRangeManuallySet}
-            />
-            <MidiSettings t={t} midiProps={midiProps} />
-          </div>
+          {(activeSection === 'keyboard' || activeSection === 'midi') && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+              {activeSection === 'keyboard' && (
+                <KeyboardSettings 
+                  keyboardRange={keyboardRange}
+                  setKeyboardRange={setKeyboardRange}
+                  showNoteNames={showNoteNames}
+                  setShowNoteNames={setShowNoteNames}
+                  showKeymap={showKeymap}
+                  setShowKeymap={setShowKeymap}
+                  t={t}
+                  setIsRangeManuallySet={setIsRangeManuallySet}
+                />
+              )}
+              {activeSection === 'midi' && (
+                <MidiSettings t={t} midiProps={midiProps} />
+              )}
+            </div>
+          )}
           
-          <div className="md:col-span-2">
-            <AppInfoSection t={t} />
-          </div>
+          {activeSection === 'about' && (
+            <div className="md:col-span-2">
+              <AppInfoSection t={t} />
+            </div>
+          )}
         </div>
 
         {/* Footer */}
