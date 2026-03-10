@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.0.0]
+- Refactor: Major refactoring of core hooks (`use-game-logic.ts`, `use-midi.ts`) and components (`Keyboard.tsx`) to improve modularity and reduce token consumption.
+- Refactor: Extracted instrument creation into a separate `instruments.ts` module.
+- Refactor: Extracted MIDI types and utils into a dedicated directory.
+- Refactor: Extracted `Key` component from `Keyboard.tsx`.
+- Refactor: Extracted `GameControls` and `BackgroundEffects` from `page.tsx`.
+- L10n: Completed translations for all 11 supported languages, including new settings keys (metronome, sensitivity, latency, etc.).
+- UI: Updated `AudioSettings` to use localized strings.
+
 ## [1.7.3]
 - Bugfix: Fixed a bug where Free Play mode would incorrectly trigger auto-play when notes were played.
 

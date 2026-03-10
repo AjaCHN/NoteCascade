@@ -51,11 +51,11 @@ export function AudioSettings({
       <section>
         <div className="flex items-center gap-2 mb-4">
           <MusicIcon className="h-4 w-4 text-indigo-400" />
-          <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">Metronome</label>
+          <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.metronome || 'Metronome'}</label>
         </div>
         <div className="space-y-4 p-4 rounded-2xl theme-bg-secondary border theme-border">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold theme-text-primary">Enable Metronome</span>
+            <span className="text-xs font-bold theme-text-primary">{t.metronome_enabled || 'Enable Metronome'}</span>
             <button 
               onClick={() => setMetronomeEnabled(!metronomeEnabled)}
               className={`w-12 h-6 rounded-full transition-all relative ${metronomeEnabled ? 'bg-indigo-500' : 'bg-slate-700'}`}
@@ -70,7 +70,7 @@ export function AudioSettings({
           <div className={`space-y-4 transition-opacity ${metronomeEnabled ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
             <div>
               <div className="flex justify-between text-[10px] theme-text-secondary font-bold mb-2">
-                <span>BPM</span>
+                <span>{t.bpm || 'BPM'}</span>
                 <span>{metronomeBpm}</span>
               </div>
               <input 
@@ -85,7 +85,7 @@ export function AudioSettings({
             
             <div>
               <div className="flex justify-between text-[10px] theme-text-secondary font-bold mb-2">
-                <span>Beats per Measure</span>
+                <span>{t.beats || 'Beats per Measure'}</span>
                 <span>{metronomeBeats}</span>
               </div>
               <div className="grid grid-cols-4 gap-2">
