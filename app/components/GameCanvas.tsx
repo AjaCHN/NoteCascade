@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { Song } from '../lib/songs';
 import { useLocale, usePlayMode } from '../lib/store';
 import { translations } from '../lib/translations';

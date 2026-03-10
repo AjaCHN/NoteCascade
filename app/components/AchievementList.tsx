@@ -4,7 +4,7 @@
 import React from 'react';
 import { useAchievements, useLocale } from '../lib/store';
 import { Trophy, Lock, CheckCircle2, Music, Star, Clock, Palette, LucideIcon, Flame, Zap, Crown, Sun, Moon } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { translations } from '../lib/translations';
 
 const iconMap: Record<string, LucideIcon> = {

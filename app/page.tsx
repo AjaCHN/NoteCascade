@@ -9,7 +9,7 @@ import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, us
 import { translations } from './lib/translations';
 import { Keyboard } from './components/Keyboard';
 import { GameCanvas } from './components/GameCanvas';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { SettingsModal } from './components/SettingsModal';
 import { ResultModal } from './components/ResultModal';
 import { AchievementModal } from './components/AchievementModal';
