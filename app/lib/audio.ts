@@ -18,12 +18,10 @@ export const setAudioInstrument = (instrument: string) => { currentInstrument = 
 export const setPitchBend = (value: number) => {
   const detune = (value - 0.5) * 2400;
   if (!instruments) return;
-  const { synth, epiano, strings, piano } = instruments;
+  const { synth, epiano, strings } = instruments;
   if (synth) synth.set({ detune });
   if (epiano) epiano.set({ detune });
   if (strings) strings.set({ detune });
-  // @ts-ignore - detune exists on Sampler but type definition is missing it in set()
-  if (piano) piano.set({ detune });
 };
 
 export const setModulation = (value: number) => { if (vibrato) vibrato.depth.value = value * 0.5; };

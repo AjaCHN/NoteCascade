@@ -16,7 +16,6 @@ import { AchievementModal } from './components/AchievementModal';
 import { AppHeader } from './components/AppHeader';
 import { SongSelector } from './components/SongSelector';
 import { UsageTips } from './components/UsageTips';
-import { GameControls } from './components/GameControls';
 import { BackgroundEffects } from './components/BackgroundEffects';
 import { useGameLogic } from './hooks/use-game-logic';
 
@@ -239,20 +238,16 @@ export default function MidiPlayApp() {
                     keyboardRange={keyboardRange}
                     showNoteNames={showNoteNames}
                     theme={theme}
+                    controls={{
+                      isPlaying,
+                      currentTime,
+                      duration: selectedSong.duration || 0,
+                      onReset: resetSong,
+                      onRetry: () => { resetSong(); togglePlay(); },
+                      onTogglePlay: togglePlay,
+                      onNextSong: handleNextSong
+                    }}
                   />
-
-                  {/* Floating Controls - Hide in free play mode */}
-                  {playMode !== 'free' && (
-                    <GameControls 
-                      currentTime={currentTime}
-                      duration={selectedSong.duration || 0}
-                      isPlaying={isPlaying}
-                      onReset={resetSong}
-                      onRetry={() => { resetSong(); togglePlay(); }}
-                      onTogglePlay={togglePlay}
-                      onNextSong={handleNextSong}
-                    />
-                  )}
                 </>
               )}
             </div>

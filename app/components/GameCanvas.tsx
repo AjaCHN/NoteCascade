@@ -19,6 +19,15 @@ interface GameCanvasProps {
   keyboardRange: { start: number; end: number };
   showNoteNames: boolean;
   theme: string;
+  controls?: {
+    isPlaying: boolean;
+    currentTime: number;
+    duration: number;
+    onReset: () => void;
+    onRetry: () => void;
+    onTogglePlay: () => void;
+    onNextSong: () => void;
+  };
 }
 
 function isBlackKey(midi: number): boolean {
@@ -34,7 +43,8 @@ export function GameCanvas({
   isPlaying,
   keyboardRange,
   showNoteNames,
-  theme
+  theme,
+  controls
 }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -130,7 +140,15 @@ export function GameCanvas({
   return (
     <div ref={containerRef} className={`relative h-full w-full overflow-hidden ${theme === 'light' ? 'bg-slate-50' : 'bg-slate-950'}`}>
       <canvas ref={canvasRef} className="h-full w-full" />
-      {playMode !== 'free' && <GameStatsOverlay song={song} score={score} theme={theme} t={t} />}
+      {playMode !== 'free' && (
+        <GameStatsOverlay 
+          song={song} 
+          score={score} 
+          t={t} 
+          recentHits={recentHits.current}
+          controls={controls}
+        />
+      )}
 
       <div className="absolute inset-0 pointer-events-none z-30">
         <AnimatePresence>
