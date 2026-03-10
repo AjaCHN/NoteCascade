@@ -1,18 +1,18 @@
-// app/components/AppHeader.tsx v1.4.10
+// app/components/AppHeader.tsx v1.7.2
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
-  Keyboard as KeyboardIcon, Music, Library as LibraryIcon, Trophy, Menu
+  Keyboard as KeyboardIcon, Music, Library as LibraryIcon, Trophy, Menu, Play
 } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { 
   useLocale, usePlayMode, useAppActions, PlayMode
 } from '../lib/store';
 
-const version = "1.7.1";
+const version = "1.7.2";
 
 interface AppHeaderProps {
   theme: string;
@@ -67,6 +67,7 @@ export function AppHeader({
   }, [setPlayMode, setShowAchievements, showAchievements, connectMidi, showMenu, toggleFullScreen, setShowSettings, showSettings]);
 
   const modes = [
+    { id: 'demo', icon: Play, label: t.demo || 'Demo' },
     { id: 'practice', icon: KeyboardIcon, label: t.practice || 'Practice' },
     { id: 'free', icon: Music, label: t.freePlay || 'Free' },
   ];
@@ -115,13 +116,6 @@ export function AppHeader({
         >
           <LibraryIcon className="h-5 w-5" />
         </button>
-        <button 
-          onClick={() => setShowAchievements(!showAchievements)}
-          className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${showAchievements ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
-          title={`${t.achievements} (A)`}
-        >
-          <Trophy className="h-5 w-5" />
-        </button>
 
         <button 
           onClick={toggleFullScreen}
@@ -165,13 +159,6 @@ export function AppHeader({
           </div>
         </button>
         <button 
-          onClick={() => setShowSettings(!showSettings)}
-          className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
-          title="Settings (S)"
-        >
-          <Settings className="h-5 w-5" />
-        </button>
-        <button 
           onClick={() => setShowMenu(!showMenu)}
           className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
           title="Menu (Esc)"
@@ -181,6 +168,10 @@ export function AppHeader({
         
         {showMenu && (
           <div className="absolute top-full right-4 mt-2 p-2 bg-black/90 backdrop-blur-md border theme-border rounded-2xl shadow-2xl z-50 flex flex-col gap-1">
+            <button onClick={() => { setShowAchievements(true); setShowMenu(false); }} title="Achievements (A)" className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
+              <Trophy className="h-4 w-4" />
+              Achievements
+            </button>
             <button onClick={toggleFullScreen} title="Full Screen (F)" className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
               {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
               {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}

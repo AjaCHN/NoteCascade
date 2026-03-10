@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.7.2]
+- UI: Removed duplicate settings button from the top toolbar.
+- UI: Added Demo Mode to the mode switcher.
+- UI: Moved Achievements list to the collapsed menu.
+
 ## [1.7.1]
 - Audio: Optimized polyphony management and voice limiting to prevent audio dropouts during complex passages.
 - Audio: Fine-tuned compressor and limiter settings to eliminate clipping when multiple keys are pressed simultaneously.

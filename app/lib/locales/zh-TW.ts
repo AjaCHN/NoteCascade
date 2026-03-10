@@ -1,4 +1,4 @@
-// app/lib/locales/zh-TW.ts v1.3.5
+// app/lib/locales/zh-TW.ts v1.7.2
 export const zhTW = {
     title: '音符瀑布',
     subtitle: '掌控你的琴鍵',
