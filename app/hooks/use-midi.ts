@@ -1,5 +1,6 @@
-// app/hooks/use-midi.ts v1.4.11
+// app/hooks/use-midi.ts v1.4.12
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { setPitchBend, setModulation, setExpression, setSustainPedal } from '../lib/audio';
 
 export interface MidiDevice {
   id: string;
@@ -116,29 +117,21 @@ export function useMidi() {
     else if (command === 0xE0) {
       // Pitch Bend
       const value = (data2 << 7 | data1) / 16383; // 0 to 1
-      import('../lib/audio').then(audio => {
-        audio.setPitchBend(value);
-      });
+      setPitchBend(value);
     }
     else if (command === 0xB0) {
       // Control Change
       if (data1 === 1) {
         // Modulation
-        import('../lib/audio').then(audio => {
-          audio.setModulation(data2 / 127);
-        });
+        setModulation(data2 / 127);
       }
       else if (data1 === 7 || data1 === 11) {
         // Volume or Expression
-        import('../lib/audio').then(audio => {
-          audio.setExpression(data2 / 127);
-        });
+        setExpression(data2 / 127);
       }
       else if (data1 === 64) {
         // Sustain Pedal
-        import('../lib/audio').then(audio => {
-          audio.setSustainPedal(data2 >= 64);
-        });
+        setSustainPedal(data2 >= 64);
       }
       else if (data1 === 123 || data1 === 121) {
         // All notes off

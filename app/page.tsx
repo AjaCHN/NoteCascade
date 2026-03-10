@@ -52,18 +52,21 @@ export default function MidiPlayApp() {
 
   // Initial setup and audio sync
   useEffect(() => {
-    setMounted(true);
-    setVolume(volume);
-    setAudioInstrument(instrument);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    setAudioInstrument(instrument);
-  }, [instrument]);
+    if (mounted) {
+      setAudioInstrument(instrument);
+    }
+  }, [instrument, mounted]);
 
   useEffect(() => {
-    setVolume(volume);
-  }, [volume]);
+    if (mounted) {
+      setVolume(volume);
+    }
+  }, [volume, mounted]);
 
   // Dynamic keyboard range logic
   useEffect(() => {
@@ -116,7 +119,7 @@ export default function MidiPlayApp() {
         setKeyboardRange(48, 72);
       }
     }
-  }, [inputs.length, selectedSong, mounted, isRangeManuallySet, windowWidth]);
+  }, [inputs.length, selectedSong, mounted, isRangeManuallySet, windowWidth, keyboardRange.start, keyboardRange.end, setKeyboardRange]);
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
