@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.3.0]
+- UI: Added "Library" label to the song library button for better accessibility.
+- UX: Optimized result modal auto-close countdown to 5 seconds.
+- Fix: Prevented score updates when the result modal is active to ensure finality of results.
+- Chore: Cleaned up redundant files and formatted documentation.
+
 ## [2.2.1]
 - Fix: Resolved `ENOENT` errors related to missing `.next` manifest files by performing a clean build and restarting the development server.
 

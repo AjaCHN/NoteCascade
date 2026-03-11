@@ -236,6 +236,7 @@ export default function MidiPlayApp() {
                     currentTime={currentTime}
                     activeNotes={activeNotes}
                     isPlaying={isPlaying}
+                    showResult={showResult}
                     onScoreUpdate={setLastScore}
                     keyboardRange={keyboardRange}
                     showNoteNames={showNoteNames}

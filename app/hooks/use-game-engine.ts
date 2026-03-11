@@ -26,7 +26,8 @@ export function useGameEngine(
   dimensions: { width: number; height: number },
   keyGeometries: Map<number, { x: number, width: number, isBlack: boolean }>,
   onScoreUpdate: (score: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => void,
-  playMode: string
+  playMode: string,
+  showResult: boolean = false
 ) {
   const [score, setScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
@@ -51,7 +52,7 @@ export function useGameEngine(
   }, [dimensions.height, keyGeometries, playMode]);
 
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying || showResult) return;
     if (playMode === 'free') {
       lastActiveNotes.current = new Set(activeNotes.keys());
       return;
@@ -129,7 +130,7 @@ export function useGameEngine(
     });
 
     lastActiveNotes.current = new Set(activeNotes.keys());
-  }, [currentTime, activeNotes, song, isPlaying, addFeedback, t, keyboardRange.start, keyboardRange.end, playMode]);
+  }, [currentTime, activeNotes, song, isPlaying, showResult, addFeedback, t, keyboardRange.start, keyboardRange.end, playMode]);
 
   useEffect(() => {
     onScoreUpdate(score);

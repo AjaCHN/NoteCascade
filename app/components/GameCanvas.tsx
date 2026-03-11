@@ -16,6 +16,7 @@ interface GameCanvasProps {
   activeNotes: Map<number, number>;
   onScoreUpdate: (score: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => void;
   isPlaying: boolean;
+  showResult?: boolean;
   keyboardRange: { start: number; end: number };
   showNoteNames: boolean;
   theme: string;
@@ -41,6 +42,7 @@ export function GameCanvas({
   activeNotes, 
   onScoreUpdate, 
   isPlaying,
+  showResult = false,
   keyboardRange,
   showNoteNames,
   theme,
@@ -93,7 +95,8 @@ export function GameCanvas({
     dimensions,
     keyGeometries,
     onScoreUpdate,
-    playMode
+    playMode,
+    showResult
   );
 
   useGameRenderer(

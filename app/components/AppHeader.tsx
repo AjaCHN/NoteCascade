@@ -122,10 +122,11 @@ export function AppHeader({
       <div className="flex items-center gap-2 md:gap-4">
         <button 
           onClick={() => setPlayMode('library')}
-          className={`rounded-full p-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${playMode === 'library' ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
+          className={`flex items-center gap-2 rounded-full px-3 py-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${playMode === 'library' ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
           title={`${t.library} (L)`}
         >
           <Library className="h-5 w-5" />
+          <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{t.library}</span>
         </button>
 
         <button 
