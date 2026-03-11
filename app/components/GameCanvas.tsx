@@ -1,8 +1,7 @@
-// app/components/GameCanvas.tsx v1.3.5
+// app/components/GameCanvas.tsx v1.3.6
 'use client';
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { Song } from '../lib/songs';
 import { useLocale, usePlayMode } from '../lib/store';
 import { translations } from '../lib/translations';
@@ -85,7 +84,7 @@ export function GameCanvas({
     return geometries;
   }, [keyboardRange.start, keyboardRange.end, dimensions.width]);
 
-  const { score, feedbacks, recentHits, hitEffects, activeNoteStatus } = useGameEngine(
+  const { score, recentHits, hitEffects, activeNoteStatus } = useGameEngine(
     song,
     currentTime,
     activeNotes,
@@ -153,30 +152,6 @@ export function GameCanvas({
           controls={controls}
         />
       )}
-
-      <div className="absolute inset-0 pointer-events-none z-30">
-        <AnimatePresence>
-          {feedbacks.map((f) => (
-            <motion.div
-              key={f.id}
-              initial={{ y: f.y, x: f.x, opacity: 0, scale: 0.5 }}
-              animate={{ y: f.y - 100, opacity: 1, scale: 1.2 }}
-              exit={{ opacity: 0 }}
-              className={`absolute -translate-x-1/2 text-center font-black text-xl italic drop-shadow-lg ${
-                f.type === 'perfect' ? 'text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]' : 
-                f.type === 'early' ? 'text-blue-400 drop-shadow-[0_0_10px_rgba(96,165,250,0.8)]' : 
-                f.type === 'late' ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]' : 
-                f.type === 'good' ? 'text-blue-400 drop-shadow-[0_0_10px_rgba(96,165,250,0.8)]' : 
-                f.type === 'miss' ? 'text-slate-400 drop-shadow-[0_0_10px_rgba(148,163,184,0.8)]' : 'text-rose-400 drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]'
-              }`}
-            >
-              {f.text.split('\n').map((line, i) => (
-                <div key={i} className={i > 0 ? 'text-sm opacity-80' : ''}>{line}</div>
-              ))}
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
     </div>
   );
 }

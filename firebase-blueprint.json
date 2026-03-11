@@ -1,0 +1,22 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile settings",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "User ID" },
+        "instrument": { "type": "string", "description": "Selected instrument" },
+        "volume": { "type": "number", "description": "Volume level" },
+        "keyboardRange": { "type": "object", "description": "Keyboard range" }
+      },
+      "required": ["uid"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": { "$ref": "UserProfile" },
+      "description": "User profile document"
+    }
+  }
+}

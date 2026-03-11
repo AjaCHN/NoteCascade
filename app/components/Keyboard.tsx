@@ -43,11 +43,9 @@ export function Keyboard({
   }, [onNoteOn, isMidiConnected, isMappingMode, onMappingTargetSelect]);
 
   const handleKeyRelease = useCallback((midi: number) => {
-    setTimeout(() => {
-      if (!isMidiConnected) stopAudioNote(midi);
-      setLocalActiveNotes(prev => { const n = new Set(prev); n.delete(midi); return n; });
-      onNoteOff?.(midi);
-    }, 100);
+    if (!isMidiConnected) stopAudioNote(midi);
+    setLocalActiveNotes(prev => { const n = new Set(prev); n.delete(midi); return n; });
+    onNoteOff?.(midi);
   }, [onNoteOff, isMidiConnected]);
 
   const handlePointer = (e: React.PointerEvent, type: 'down' | 'move' | 'up') => {

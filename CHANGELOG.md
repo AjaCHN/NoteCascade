@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.0.0]
+- Refactor: Major refactoring of core store (`store.ts`) to improve modularity and reduce token consumption by splitting into `types.ts` and `actions.ts`.
+- Chore: Updated versioning.
+
 ## [2.3.0]
 - UI: Added "Library" label to the song library button for better accessibility.
 - UX: Optimized result modal auto-close countdown to 5 seconds.

@@ -100,7 +100,8 @@ const getInstrument = () => {
   return synth;
 };
 
-export const startNote = (note: string | number, velocity: number = 0.7) => {
+export const startNote = (note: string | number, velocity: number = 0.7, muted: boolean = false) => {
+  if (muted) return;
   const noteToPlay = typeof note === 'number' ? Tone.Frequency(note, "midi").toNote() : note;
   activeNotes.add(noteToPlay);
   sustainedNotes.delete(noteToPlay);

@@ -162,12 +162,12 @@ export default function MidiPlayApp() {
       const { command, note, velocity } = lastMessage;
       const status = command & 0xf0;
       if (status === 0x90 && velocity > 0) {
-        startNote(note, velocity / 127);
+        startNote(note, velocity / 127, playMode === 'demo');
       } else if (status === 0x80 || (status === 0x90 && velocity === 0)) {
         stopNote(note);
       }
     }
-  }, [lastMessage]);
+  }, [lastMessage, playMode]);
 
   useKeyboardInput(setActiveNotes, inputs.length > 0);
 

@@ -34,9 +34,9 @@ export function GameStatsOverlay({ song, score, t, recentHits = [], controls }: 
 
   return (
     <div id="game-stats-overlay" className="pointer-events-none absolute inset-0 flex flex-col p-4 md:p-8">
-      <div className="flex flex-col items-start w-full relative gap-6">
+      <div className="flex w-full relative">
         {/* Left side: Song info & Controls */}
-        <div className="flex flex-col gap-4 md:gap-6 max-w-md pointer-events-auto">
+        <div className="flex flex-col gap-4 md:gap-6 max-w-md pointer-events-auto flex-1">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -84,6 +84,31 @@ export function GameStatsOverlay({ song, score, t, recentHits = [], controls }: 
               </div>
             </div>
           )}
+        </div>
+
+        {/* Right side: Score, Stats, Timing */}
+        <div className="absolute bottom-24 right-4 flex flex-col items-end pointer-events-auto gap-4">
+          <div className="flex flex-col items-end">
+            <div className="text-[10px] uppercase tracking-[0.3em] theme-text-secondary font-black mb-1">{t.currentScore}</div>
+            <div className="text-4xl md:text-7xl font-black theme-text-primary tabular-nums tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+              {score.currentScore.toLocaleString()}
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="flex flex-col gap-2 mt-2">
+            {[
+              { key: 'perfect', label: t.perfect, value: score.perfect, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+              { key: 'good', label: t.good, value: score.good, color: 'text-blue-400', bg: 'bg-blue-400/10' },
+              { key: 'miss', label: t.miss, value: score.miss, color: 'text-amber-400', bg: 'bg-amber-400/10' },
+              { key: 'wrong', label: t.wrong, value: score.wrong, color: 'text-rose-400', bg: 'bg-rose-400/10' },
+            ].map((stat) => (
+              <div key={stat.key} className={`flex items-center justify-between gap-4 px-3 py-1 rounded-lg border theme-border ${stat.bg} backdrop-blur-md w-32`}>
+                <span className={`text-[9px] uppercase font-black ${stat.color}`}>{stat.label}</span>
+                <span className="text-sm font-black theme-text-primary tabular-nums">{stat.value}</span>
+              </div>
+            ))}
+          </div>
 
           {/* Timing Indicator Bar */}
           <div className="flex flex-col gap-1.5 w-48">
@@ -108,29 +133,6 @@ export function GameStatsOverlay({ song, score, t, recentHits = [], controls }: 
                 )}
               </AnimatePresence>
             </div>
-          </div>
-
-          {/* Stats on the left now */}
-          <div className="flex flex-wrap gap-2 mt-2">
-            {[
-              { key: 'perfect', label: t.perfect, value: score.perfect, color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
-              { key: 'good', label: t.good, value: score.good, color: 'text-blue-400', bg: 'bg-blue-400/10' },
-              { key: 'miss', label: t.miss, value: score.miss, color: 'text-amber-400', bg: 'bg-amber-400/10' },
-              { key: 'wrong', label: t.wrong, value: score.wrong, color: 'text-rose-400', bg: 'bg-rose-400/10' },
-            ].map((stat) => (
-              <div key={stat.key} className={`flex items-center gap-2 px-3 py-1 rounded-lg border theme-border ${stat.bg} backdrop-blur-md`}>
-                <span className={`text-[9px] uppercase font-black ${stat.color}`}>{stat.label}</span>
-                <span className="text-sm font-black theme-text-primary tabular-nums">{stat.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Score still prominent but maybe moved or adjusted */}
-        <div className="absolute top-0 right-0 flex flex-col items-end pointer-events-auto">
-          <div className="text-[10px] uppercase tracking-[0.3em] theme-text-secondary font-black mb-1">{t.currentScore}</div>
-          <div className="text-4xl md:text-7xl font-black theme-text-primary tabular-nums tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-            {score.currentScore.toLocaleString()}
           </div>
         </div>
       </div>
