@@ -1,4 +1,4 @@
-// app/components/Keyboard.tsx v2.0.0
+// app/components/Keyboard.tsx v2.1.0
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
@@ -15,6 +15,8 @@ interface KeyboardProps {
   onNoteOn?: (midi: number) => void;
   onNoteOff?: (midi: number) => void;
   isMidiConnected: boolean;
+  isMappingMode?: boolean;
+  onMappingTargetSelect?: (midi: number) => void;
 }
 
 const isBlackKey = (midi: number) => [1, 3, 6, 8, 10].includes(midi % 12);
@@ -25,16 +27,20 @@ const getNoteName = (midi: number) => {
 
 export function Keyboard({
   activeNotes, startNote, endNote, showNoteNames, showKeymap, keyMap,
-  onNoteOn, onNoteOff, isMidiConnected,
+  onNoteOn, onNoteOff, isMidiConnected, isMappingMode, onMappingTargetSelect
 }: KeyboardProps) {
   const [localActiveNotes, setLocalActiveNotes] = useState<Set<number>>(new Set());
   const activePointers = useRef<Map<number, number>>(new Map());
 
   const handleKeyPress = useCallback((midi: number) => {
+    if (isMappingMode && onMappingTargetSelect) {
+      onMappingTargetSelect(midi);
+      return;
+    }
     if (!isMidiConnected) startAudioNote(midi);
     setLocalActiveNotes(prev => new Set(prev).add(midi));
     onNoteOn?.(midi);
-  }, [onNoteOn, isMidiConnected]);
+  }, [onNoteOn, isMidiConnected, isMappingMode, onMappingTargetSelect]);
 
   const handleKeyRelease = useCallback((midi: number) => {
     setTimeout(() => {

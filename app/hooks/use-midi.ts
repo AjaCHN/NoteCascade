@@ -1,4 +1,4 @@
-// app/hooks/use-midi.ts v2.0.0
+// app/hooks/use-midi.ts v2.1.0
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { setPitchBend, setModulation, setExpression, setSustainPedal } from '../lib/audio';
 import { MidiDevice, MidiMessage, VelocityCurve } from './midi/types';
@@ -17,31 +17,65 @@ export function useMidi() {
   const [isSupported, setIsSupported] = useState<boolean>(true);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [activeNotes, setActiveNotes] = useState<Map<number, number>>(new Map());
+  const [midiMapping, setMidiMapping] = useState<Record<number, number>>({});
+  const [isMappingMode, setIsMappingMode] = useState<boolean>(false);
+  const [mappingTarget, setMappingTarget] = useState<number | null>(null);
   const midiAccessRef = useRef<WebMidi.MIDIAccess | null>(null);
 
-  const settingsRef = useRef({ selectedInputId, midiChannel, velocityCurve, transpose });
+  const settingsRef = useRef({ 
+    selectedInputId, midiChannel, velocityCurve, transpose,
+    midiMapping, isMappingMode, mappingTarget
+  });
+
   useEffect(() => {
-    settingsRef.current = { selectedInputId, midiChannel, velocityCurve, transpose };
-  }, [selectedInputId, midiChannel, velocityCurve, transpose]);
+    settingsRef.current = { 
+      selectedInputId, midiChannel, velocityCurve, transpose,
+      midiMapping, isMappingMode, mappingTarget
+    };
+  }, [selectedInputId, midiChannel, velocityCurve, transpose, midiMapping, isMappingMode, mappingTarget]);
 
   const onMidiMessage = useCallback((event: WebMidi.MIDIMessageEvent) => {
-    const { selectedInputId, midiChannel, velocityCurve, transpose } = settingsRef.current;
+    const { 
+      selectedInputId: currentInputId, 
+      midiChannel: currentChannel, 
+      velocityCurve: currentCurve, 
+      transpose: currentTranspose,
+      midiMapping: currentMapping, 
+      isMappingMode: currentMappingMode, 
+      mappingTarget: currentMappingTarget
+    } = settingsRef.current;
+
     const inputId = (event.target as WebMidi.MIDIInput)?.id;
-    if (selectedInputId && selectedInputId !== 'all' && inputId && inputId !== selectedInputId) return;
+    if (currentInputId && currentInputId !== 'all' && inputId && inputId !== currentInputId) return;
     if (!event.data || event.data.length < 3) return;
 
     const [statusByte, data1, data2] = event.data;
     const command = statusByte & 0xf0;
     const channel = (statusByte & 0x0f) + 1;
 
-    if (midiChannel !== 'all' && channel !== midiChannel) return;
+    if (currentChannel !== 'all' && channel !== currentChannel) return;
 
     if (command === 0x90 || command === 0x80) {
-      const note = Math.max(0, Math.min(127, data1 + transpose));
+      const rawNote = data1;
+      let note = Math.max(0, Math.min(127, rawNote + currentTranspose));
+      
+      // Apply mapping if exists
+      if (currentMapping[rawNote] !== undefined) {
+        note = currentMapping[rawNote];
+      }
+
+      // Handle mapping mode
+      if (currentMappingMode && currentMappingTarget !== null && command === 0x90 && data2 > 0) {
+        setMidiMapping(prev => ({ ...prev, [rawNote]: currentMappingTarget }));
+        setIsMappingMode(false);
+        setMappingTarget(null);
+        return;
+      }
+
       let velocity = data2;
 
       if (command === 0x90 && velocity > 0) {
-        velocity = Math.round(applyVelocityCurve(velocity, velocityCurve));
+        velocity = Math.round(applyVelocityCurve(velocity, currentCurve));
       }
 
       setLastMessage({ command, note, velocity, channel, timestamp: event.timeStamp });
@@ -132,6 +166,29 @@ export function useMidi() {
     }
   }, [onMidiMessage, updateDevices]);
 
+  const scanBluetoothMidi = useCallback(async () => {
+    if (typeof navigator === 'undefined' || !('bluetooth' in navigator)) {
+      console.warn('Web Bluetooth is not supported in this browser.');
+      return;
+    }
+
+    try {
+      // @ts-expect-error - Web Bluetooth MIDI is experimental
+      const device = await (navigator as unknown as { bluetooth: { requestDevice: (options: object) => Promise<BluetoothDevice> } }).bluetooth.requestDevice({
+        filters: [{ services: ['03b80e5a-ede8-4b33-a751-6ce34ec4c700'] }]
+      });
+      
+      if (device) {
+        console.log('Bluetooth MIDI device selected:', device.name);
+        // After pairing, Web MIDI API should pick it up. 
+        // We trigger a refresh to be sure.
+        setTimeout(() => connectMidi(), 2000);
+      }
+    } catch (error) {
+      console.error('Bluetooth MIDI scan failed:', error);
+    }
+  }, [connectMidi]);
+
   useEffect(() => {
     let mounted = true;
     const isMounted = () => mounted;
@@ -150,6 +207,8 @@ export function useMidi() {
     inputs, outputs, selectedInputId, setSelectedInputId,
     midiChannel, setMidiChannel, velocityCurve, setVelocityCurve,
     transpose, setTranspose, lastMessage, isSupported, isConnecting,
-    activeNotes, setActiveNotes, connectMidi,
+    activeNotes, setActiveNotes, connectMidi, scanBluetoothMidi,
+    midiMapping, setMidiMapping, isMappingMode, setIsMappingMode,
+    mappingTarget, setMappingTarget
   };
 }

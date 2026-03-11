@@ -209,4 +209,13 @@ export const zhCN = {
     about: '关于',
     fullScreen: '全屏',
     exitFullScreen: '退出全屏',
+    scanBluetooth: '扫描蓝牙设备',
+    bluetoothTip: '通过蓝牙连接您的无线 MIDI 键盘。请确保您的设备已启用蓝牙。',
+    midiMapping: 'MIDI 映射',
+    mappingSelectTarget: '点击虚拟键盘上的按键以选择映射目标...',
+    mappingWait: '现在按下物理 MIDI 设备上的按键以将其映射到 {note}',
+    mappingTip: '将物理 MIDI 按键映射到特定的虚拟按键。点击“开始映射”然后按照说明操作。',
+    startMapping: '开始映射',
+    addMapping: '添加映射',
+    cancel: '取消',
 };

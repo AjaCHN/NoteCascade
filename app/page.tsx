@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useMidi } from './hooks/use-midi';
 import { useKeyboardInput } from './hooks/use-keyboard-input';
-import { startNote, stopNote, setVolume, setAudioInstrument, setSustainPedal } from './lib/audio';
+import { startNote, stopNote, setVolume, setAudioInstrument } from './lib/audio';
 import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, useShowNoteNames, useShowKeymap, usePlayMode } from './lib/store';
 import { translations } from './lib/translations';
 import { Keyboard } from './components/Keyboard';
@@ -23,7 +23,8 @@ export default function MidiPlayApp() {
   const { 
     activeNotes, setActiveNotes, lastMessage, isSupported, isConnecting, inputs, selectedInputId,
     setSelectedInputId, midiChannel, setMidiChannel, velocityCurve, setVelocityCurve,
-    transpose, setTranspose, connectMidi
+    transpose, setTranspose, connectMidi, scanBluetoothMidi, midiMapping, setMidiMapping,
+    isMappingMode, setIsMappingMode, mappingTarget, setMappingTarget
   } = useMidi();
   const { setKeyboardRange, setPlayMode } = useAppActions();
   const locale = useLocale();
@@ -47,13 +48,7 @@ export default function MidiPlayApp() {
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const [mounted, setMounted] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [isSustainActive, setIsSustainActive] = useState(false);
 
-  const toggleSustain = () => {
-    const next = !isSustainActive;
-    setIsSustainActive(next);
-    setSustainPedal(next);
-  };
   const [isRangeManuallySet, setIsRangeManuallySet] = useState(false);
 
   // Initial setup and audio sync
@@ -187,7 +182,8 @@ export default function MidiPlayApp() {
   const midiProps = {
     activeNotes, setActiveNotes, lastMessage, isSupported, inputs, selectedInputId,
     setSelectedInputId, midiChannel, setMidiChannel, velocityCurve, setVelocityCurve,
-    transpose, setTranspose, connectMidi, isConnecting
+    transpose, setTranspose, connectMidi, isConnecting, scanBluetoothMidi,
+    midiMapping, setMidiMapping, isMappingMode, setIsMappingMode, mappingTarget, setMappingTarget
   };
 
   if (!mounted) {
@@ -273,6 +269,8 @@ export default function MidiPlayApp() {
                 onNoteOn={(midi) => setActiveNotes(prev => new Map(prev).set(midi, 0.7))}
                 onNoteOff={(midi) => setActiveNotes(prev => { const next = new Map(prev); next.delete(midi); return next; })}
                 isMidiConnected={inputs.length > 0}
+                isMappingMode={isMappingMode && mappingTarget === null}
+                onMappingTargetSelect={(midi) => setMappingTarget(midi)}
               />
             </div>
           </div>

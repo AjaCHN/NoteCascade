@@ -170,4 +170,13 @@ export const en = {
     about: 'About',
     fullScreen: 'Full Screen',
     exitFullScreen: 'Exit Full Screen',
+    scanBluetooth: 'Scan for Devices',
+    bluetoothTip: 'Connect your wireless MIDI keyboard via Bluetooth. Ensure Bluetooth is enabled on your device.',
+    midiMapping: 'MIDI Mapping',
+    mappingSelectTarget: 'Click a key on the virtual keyboard to select mapping target...',
+    mappingWait: 'Now press a key on your physical MIDI device to map it to {note}',
+    mappingTip: 'Map physical MIDI keys to specific virtual keys. Click "Start Mapping" then follow the instructions.',
+    startMapping: 'Start Mapping',
+    addMapping: 'Add Mapping',
+    cancel: 'Cancel',
 };

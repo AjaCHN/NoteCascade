@@ -36,8 +36,15 @@ interface SettingsModalProps {
     transpose: number;
     setTranspose: (transpose: number) => void;
     connectMidi: () => void;
+    scanBluetoothMidi: () => void;
     isConnecting: boolean;
     lastMessage: MidiMessage | null;
+    midiMapping: Record<number, number>;
+    setMidiMapping: (mapping: Record<number, number>) => void;
+    isMappingMode: boolean;
+    setIsMappingMode: (val: boolean) => void;
+    mappingTarget: number | null;
+    setMappingTarget: (val: number | null) => void;
   };
   setIsRangeManuallySet?: (val: boolean) => void;
   volume: number;
