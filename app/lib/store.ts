@@ -33,8 +33,8 @@ export const useAppStore = create<AppState>()(
       name: 'notecascade-storage',
       storage: createJSONStorage(() => ({
         getItem: (name: string): string | null => Cookies.get(name) || null,
-        setItem: (name: string, value: string): void => Cookies.set(name, value, { expires: 365 }),
-        removeItem: (name: string): void => Cookies.remove(name),
+        setItem: (name: string, value: string): void => { Cookies.set(name, value, { expires: 365 }); },
+        removeItem: (name: string): void => { Cookies.remove(name); },
       }) as unknown as Storage),
       partialize: (state) => ({
         achievements: state.achievements,
