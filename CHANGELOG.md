@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.3]
+- Fix: Resolved `app-paths-manifest.json` ENOENT error by cleaning up `.next` build artifacts and reverting explicit `distDir` configuration to use default behavior.
+
+## [2.0.2]
+- Fix: Resolved build errors related to missing `routes-manifest.json` and `not-found` page by adding custom error/not-found pages and explicitly configuring `distDir`.
+
 ## [2.0.1]
 - Feat: Added 15 new children's songs to the library (Little Rabbit Be Good, Counting Ducks, Malan Flower, Childhood, Edelweiss, The Dull-Ice Flower, Catching Loaches, Little Donkey, Little Swallow, Pulling Radishes, Two Tigers, Doraemon, The Painter, Little Conch, Peppa Pig).
 - UI: Moved random tips display position up to the blank canvas area and ensured it doesn't block other UI elements.
