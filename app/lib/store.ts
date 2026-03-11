@@ -250,6 +250,8 @@ export const useAppStore = create<AppState>()(
         songsCompleted: state.songsCompleted,
         locale: state.locale,
         theme: state.theme,
+        instrument: state.instrument,
+        playMode: state.playMode,
         keyboardRange: state.keyboardRange,
         showNoteNames: state.showNoteNames,
         showKeymap: state.showKeymap,

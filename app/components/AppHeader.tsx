@@ -169,51 +169,53 @@ export function AppHeader({
             {isConnecting ? 'Connecting...' : selectedInputId ? 'Connected' : t.noDevice}
           </div>
         </button>
-        <button 
-          onClick={() => setShowMenu(!showMenu)}
-          className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
-          title="Menu (Esc)"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-        
-        {showMenu && (
-          <div className="absolute top-full right-4 mt-2 p-2 bg-black/90 backdrop-blur-md border theme-border rounded-2xl shadow-2xl z-50 flex flex-col gap-1">
-            <button onClick={() => { setShowAchievements(true); setShowMenu(false); }} title={`${t.achievements} (A)`} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
-              <Trophy className="h-4 w-4" />
-              {t.achievements}
-            </button>
-            <button onClick={() => { setPlayMode('library'); setShowMenu(false); }} title={`${t.library} (L)`} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
-              <Library className="h-4 w-4" />
-              {t.library}
-            </button>
-            <button onClick={toggleFullScreen} title={`${isFullScreen ? t.exitFullScreen : t.fullScreen} (F)`} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
-              {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-              {isFullScreen ? t.exitFullScreen : t.fullScreen}
-            </button>
-            <div className="h-px bg-white/10 my-1" />
-            <button onClick={() => openSettings('general')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
-              <Settings className="h-4 w-4" />
-              {t.general}
-            </button>
-            <button onClick={() => openSettings('audio')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
-              <Music className="h-4 w-4" />
-              {t.audio}
-            </button>
-            <button onClick={() => openSettings('keyboard')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
-              <KeyboardIcon className="h-4 w-4" />
-              {t.keyboard}
-            </button>
-            <button onClick={() => openSettings('midi')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
-              <RefreshCw className="h-4 w-4" />
-              {t.midi}
-            </button>
-            <button onClick={() => openSettings('about')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest">
-              <HelpCircle className="h-4 w-4" />
-              {t.about}
-            </button>
-          </div>
-        )}
+        <div className="relative" onMouseLeave={() => setShowMenu(false)}>
+          <button 
+            onClick={() => setShowMenu(!showMenu)}
+            className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
+            title="Menu (Esc)"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          
+          {showMenu && (
+            <div className="absolute top-full right-0 mt-2 p-2 bg-black/90 backdrop-blur-md border theme-border rounded-2xl shadow-2xl z-50 flex flex-col gap-1 min-w-[160px]">
+              <button onClick={() => { setShowAchievements(true); setShowMenu(false); }} title={`${t.achievements} (A)`} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest text-left">
+                <Trophy className="h-4 w-4" />
+                {t.achievements}
+              </button>
+              <button onClick={() => { setPlayMode('library'); setShowMenu(false); }} title={`${t.library} (L)`} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest text-left">
+                <Library className="h-4 w-4" />
+                {t.library}
+              </button>
+              <button onClick={toggleFullScreen} title={`${isFullScreen ? t.exitFullScreen : t.fullScreen} (F)`} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest text-left">
+                {isFullScreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                {isFullScreen ? t.exitFullScreen : t.fullScreen}
+              </button>
+              <div className="h-px bg-white/10 my-1" />
+              <button onClick={() => openSettings('general')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest text-left">
+                <Settings className="h-4 w-4" />
+                {t.general}
+              </button>
+              <button onClick={() => openSettings('audio')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest text-left">
+                <Music className="h-4 w-4" />
+                {t.audio}
+              </button>
+              <button onClick={() => openSettings('keyboard')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest text-left">
+                <KeyboardIcon className="h-4 w-4" />
+                {t.keyboard}
+              </button>
+              <button onClick={() => openSettings('midi')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest text-left">
+                <RefreshCw className="h-4 w-4" />
+                {t.midi}
+              </button>
+              <button onClick={() => openSettings('about')} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest text-left">
+                <HelpCircle className="h-4 w-4" />
+                {t.about}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

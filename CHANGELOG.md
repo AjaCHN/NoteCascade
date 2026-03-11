@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.1]
+- Fix: Resolved `ENOENT` errors related to missing `.next` manifest files by performing a clean build and restarting the development server.
+
+## [2.2.0]
+- Feat: Added local persistence for all settings (instrument, play mode, etc.) using localStorage, allowing settings to be remembered without an account.
+- UX: Top-right menu now automatically closes when the mouse pointer leaves the menu area.
+
 ## [2.1.0]
 - L10n: Added and perfected all application tips translations for all 11 supported languages.
 - Feat: Expanded usage tips from 7 to 10 items.
