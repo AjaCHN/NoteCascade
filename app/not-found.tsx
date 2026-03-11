@@ -1,4 +1,4 @@
-// app/not-found.tsx v2.0.1
+// app/not-found.tsx v2.3.1
 import Link from 'next/link';
 
 export default function NotFound() {

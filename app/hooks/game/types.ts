@@ -1,4 +1,4 @@
-// app/hooks/game/types.ts v1.0.0
+// app/hooks/game/types.ts v2.3.1
 export interface ScoreData {
   perfect: number;
   good: number;

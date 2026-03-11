@@ -1,4 +1,4 @@
-// app/hooks/use-game-logic.ts v2.0.0
+// app/hooks/use-game-logic.ts v2.3.1
 import { useState, useEffect, useCallback, useRef } from 'react';
 import * as Tone from 'tone';
 import confetti from 'canvas-confetti';

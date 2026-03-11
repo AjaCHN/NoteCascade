@@ -1,4 +1,4 @@
-// app/components/ResultModal.tsx v1.4.4
+// app/components/ResultModal.tsx v2.3.1
 'use client';
 
 import React, { useEffect, useState } from 'react';

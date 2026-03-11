@@ -1,4 +1,4 @@
-// app/lib/store/types.ts v2.0.0
+// app/lib/store/types.ts v2.3.1
 import { Locale } from '../translations';
 
 export interface Achievement {

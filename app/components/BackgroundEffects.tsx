@@ -1,4 +1,4 @@
-// app/components/BackgroundEffects.tsx v1.0.0
+// app/components/BackgroundEffects.tsx v2.3.1
 'use client';
 
 import React from 'react';

@@ -1,4 +1,4 @@
-// app/components/settings/MidiSettings.tsx v2.0.0
+// app/components/settings/MidiSettings.tsx v2.3.1
 'use client';
 
 import React from 'react';

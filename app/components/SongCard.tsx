@@ -1,4 +1,4 @@
-// app/components/SongCard.tsx v1.3.6
+// app/components/SongCard.tsx v2.3.1
 'use client';
 
 import React from 'react';

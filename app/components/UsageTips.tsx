@@ -1,4 +1,4 @@
-// app/components/UsageTips.tsx v2.0.2
+// app/components/UsageTips.tsx v2.3.1
 'use client';
 import { useState, useEffect } from 'react';
 import { tipKeys } from '../lib/tips';

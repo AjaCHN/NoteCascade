@@ -1,4 +1,4 @@
-# NoteCascade 🎹
+# NoteCascade 🎹 v2.3.1
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
@@ -20,6 +20,7 @@
 -   **🎨 主题切换**：选择多种主题（深色、浅色、赛博朋克、经典）以适应您的风格。
 -   **📱 响应式设计**：适用于桌面和移动设备（包含触摸支持）。
 -   **🎵 内置歌曲**：使用包含各种风格的内置歌曲库进行练习。
+-   **⚙️ 增强的鲁棒性**：菜单自动关闭、完善的错误处理与状态管理。
 
 ## 🚀 快速开始
 

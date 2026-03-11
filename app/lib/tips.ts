@@ -1,4 +1,4 @@
-// app/lib/tips.ts v2.0.0
+// app/lib/tips.ts v2.3.1
 export const tipKeys = [
   'tip_1',
   'tip_2',

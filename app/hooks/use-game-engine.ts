@@ -1,4 +1,4 @@
-// app/hooks/use-game-engine.ts v1.3.5
+// app/hooks/use-game-engine.ts v2.3.1
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';

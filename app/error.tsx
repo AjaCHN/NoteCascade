@@ -1,4 +1,4 @@
-// app/error.tsx v2.0.1
+// app/error.tsx v2.3.1
 'use client';
 
 import { useEffect } from 'react';

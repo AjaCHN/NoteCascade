@@ -1,4 +1,4 @@
-// app/components/settings/AudioSettings.tsx v1.3.5
+// app/components/settings/AudioSettings.tsx v2.3.1
 'use client';
 
 import React from 'react';

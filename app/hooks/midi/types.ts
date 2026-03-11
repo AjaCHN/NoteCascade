@@ -1,4 +1,4 @@
-// app/hooks/midi/types.ts v1.0.0
+// app/hooks/midi/types.ts v2.3.1
 export interface MidiDevice {
   id: string;
   name: string;

@@ -1,4 +1,4 @@
-// app/loading.tsx v2.0.1
+// app/loading.tsx v2.3.1
 export default function Loading() {
   return (
     <div className="flex h-dvh w-full items-center justify-center bg-slate-950 text-slate-500">

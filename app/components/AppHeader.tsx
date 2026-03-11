@@ -1,4 +1,4 @@
-// app/components/AppHeader.tsx v1.7.2
+// app/components/AppHeader.tsx v2.3.1
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
@@ -12,7 +12,7 @@ import {
   useLocale, usePlayMode, useAppActions, PlayMode
 } from '../lib/store';
 
-const version = "1.7.2";
+const version = "2.3.1";
 
 interface AppHeaderProps {
   theme: string;
@@ -48,6 +48,26 @@ export function AppHeader({
   const { setPlayMode } = useAppActions();
   const t = translations[locale] || translations.en;
   const [showMenu, setShowMenu] = useState(false);
+  const menuTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseLeave = useCallback(() => {
+    menuTimeoutRef.current = setTimeout(() => {
+      setShowMenu(false);
+    }, 2000);
+  }, []);
+
+  const handleMouseEnter = useCallback(() => {
+    if (menuTimeoutRef.current) {
+      clearTimeout(menuTimeoutRef.current);
+      menuTimeoutRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (menuTimeoutRef.current) clearTimeout(menuTimeoutRef.current);
+    };
+  }, []);
 
   const openSettings = useCallback((section: 'general' | 'audio' | 'keyboard' | 'midi' | 'about') => {
     setActiveSettingsSection(section);
@@ -170,7 +190,11 @@ export function AppHeader({
             {isConnecting ? 'Connecting...' : selectedInputId ? 'Connected' : t.noDevice}
           </div>
         </button>
-        <div className="relative" onMouseLeave={() => setShowMenu(false)}>
+        <div 
+          className="relative" 
+          onMouseLeave={handleMouseLeave}
+          onMouseEnter={handleMouseEnter}
+        >
           <button 
             onClick={() => setShowMenu(!showMenu)}
             className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"

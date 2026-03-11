@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.3.1
+- 增强：右上角菜单在鼠标移出 2 秒后自动关闭
+- 修复：国际化语言文件完整性检查及补全
+- 优化：更新 README 和 openspec 文档
+- 优化：提升应用鲁棒性
+
 ## [2.0.0]
 - Refactor: Major refactoring of core store (`store.ts`) to improve modularity and reduce token consumption by splitting into `types.ts` and `actions.ts`.
 - Chore: Updated versioning.

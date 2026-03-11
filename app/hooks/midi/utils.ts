@@ -1,4 +1,4 @@
-// app/hooks/midi/utils.ts v1.0.0
+// app/hooks/midi/utils.ts v2.3.1
 import { VelocityCurve } from './types';
 
 export const applyVelocityCurve = (velocity: number, curve: VelocityCurve): number => {

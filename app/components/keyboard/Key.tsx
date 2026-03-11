@@ -1,4 +1,4 @@
-// app/components/keyboard/Key.tsx v1.0.0
+// app/components/keyboard/Key.tsx v2.3.1
 import React from 'react';
 import { motion } from 'motion/react';
 

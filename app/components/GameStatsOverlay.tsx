@@ -1,4 +1,4 @@
-// app/components/GameStatsOverlay.tsx v1.4.5
+// app/components/GameStatsOverlay.tsx v2.3.1
 'use client';
 
 import React from 'react';

@@ -1,4 +1,4 @@
-// app/lib/store/actions.ts v2.0.1
+// app/lib/store/actions.ts v2.3.1
 import { AppState, ScoreRecord } from './types';
 import { INITIAL_ACHIEVEMENTS } from '../achievements-data';
 import { builtInSongs } from '../songs';
