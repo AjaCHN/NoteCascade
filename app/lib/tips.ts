@@ -1,10 +1,13 @@
-// app/lib/tips.ts v1.0.0
-export const tips = [
-  "Try playing with different instruments in the settings!",
-  "You can transpose the keyboard to play in different keys.",
-  "Use the 'Practice' mode to learn songs at your own pace.",
-  "Connect a MIDI keyboard for a more realistic experience.",
-  "Check your achievements to see how much you've improved!",
-  "Use keyboard shortcuts to quickly switch modes and settings.",
-  "Adjust the velocity curve to match your playing style.",
+// app/lib/tips.ts v2.0.0
+export const tipKeys = [
+  'tip_1',
+  'tip_2',
+  'tip_3',
+  'tip_4',
+  'tip_5',
+  'tip_6',
+  'tip_7',
+  'tip_8',
+  'tip_9',
+  'tip_10',
 ];

@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.1.0]
+- L10n: Added and perfected all application tips translations for all 11 supported languages.
+- Feat: Expanded usage tips from 7 to 10 items.
+
 ## [2.0.3]
 - Fix: Resolved `app-paths-manifest.json` ENOENT error by cleaning up `.next` build artifacts and reverting explicit `distDir` configuration to use default behavior.
 
