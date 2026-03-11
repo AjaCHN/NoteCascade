@@ -207,4 +207,6 @@ export const zhCN = {
     midi: 'MIDI',
     sustain: '延音',
     about: '关于',
+    fullScreen: '全屏',
+    exitFullScreen: '退出全屏',
 };

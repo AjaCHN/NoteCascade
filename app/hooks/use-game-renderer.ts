@@ -28,6 +28,7 @@ export function useGameRenderer(
   showNoteNames: boolean,
   recentHits: React.MutableRefObject<{ timeDiff: number; timestamp: number; type: Feedback['type'] }[]>,
   hitEffects: React.MutableRefObject<{ x: number; y: number; type: Feedback['type']; timestamp: number }[]>,
+  activeNoteStatus: React.MutableRefObject<Map<number, Feedback['type']>>,
   playMode: PlayMode
 ) {
   const activeNoteStartTimes = useRef<Map<number, number>>(new Map());
@@ -101,8 +102,10 @@ export function useGameRenderer(
         
         let color = '255, 255, 255';
         if (effect.type === 'perfect') color = '52, 211, 153';
+        else if (effect.type === 'early') color = '96, 165, 250';
+        else if (effect.type === 'late') color = '251, 191, 36';
         else if (effect.type === 'good') color = '96, 165, 250';
-        else if (effect.type === 'miss') color = '251, 191, 36';
+        else if (effect.type === 'miss') color = '148, 163, 184';
         else if (effect.type === 'wrong') color = '244, 63, 94';
 
         ctx.strokeStyle = `rgba(${color}, ${opacity})`;
@@ -146,8 +149,16 @@ export function useGameRenderer(
             const growHeight = Math.min(height - 50, 100 + duration * 0.8);
             const baseOpacity = 0.1 + (velocity * 0.4);
             
+            let noteGlowColor = glowColor;
+            const status = activeNoteStatus.current.get(midi);
+            if (status === 'perfect') noteGlowColor = '52, 211, 153';
+            else if (status === 'early') noteGlowColor = '96, 165, 250';
+            else if (status === 'late') noteGlowColor = '251, 191, 36';
+            else if (status === 'good') noteGlowColor = '96, 165, 250';
+            else if (status === 'wrong') noteGlowColor = '244, 63, 94';
+            
             // Use solid color with alpha instead of gradient for performance
-            ctx.fillStyle = `rgba(${glowColor}, ${baseOpacity})`;
+            ctx.fillStyle = `rgba(${noteGlowColor}, ${baseOpacity})`;
             ctx.fillRect(x + 1, hitLineY - growHeight, currentKeyWidth - 2, growHeight);
             
             ctx.fillStyle = theme === 'light' ? `rgba(0, 0, 0, ${0.8 * velocity})` : `rgba(255, 255, 255, ${0.8 * velocity})`;
@@ -221,9 +232,13 @@ export function useGameRenderer(
           
           ctx.fillStyle = hit.type === 'perfect' 
             ? `rgba(52, 211, 153, ${opacity})` 
-            : hit.type === 'good' 
+            : hit.type === 'early' 
               ? `rgba(96, 165, 250, ${opacity})` 
-              : `rgba(251, 191, 36, ${opacity})`;
+              : hit.type === 'late'
+                ? `rgba(251, 191, 36, ${opacity})`
+                : hit.type === 'good'
+                  ? `rgba(96, 165, 250, ${opacity})`
+                  : `rgba(148, 163, 184, ${opacity})`;
 
           ctx.beginPath();
           ctx.roundRect(hitX - 3, barY - 2, 6, barHeight + 4, 3);
@@ -292,5 +307,5 @@ export function useGameRenderer(
 
     render();
     return () => cancelAnimationFrame(animationFrameId);
-  }, [song, currentTime, dimensions, activeNotes, t, keyboardRange, showNoteNames, theme, keyGeometries, recentHits, hitEffects, canvasRef, playMode]);
+  }, [song, currentTime, dimensions, activeNotes, t, keyboardRange, showNoteNames, theme, keyGeometries, recentHits, hitEffects, activeNoteStatus, canvasRef, playMode]);
 }

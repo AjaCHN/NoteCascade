@@ -83,7 +83,7 @@ export function GameCanvas({
     return geometries;
   }, [keyboardRange.start, keyboardRange.end, dimensions.width]);
 
-  const { score, feedbacks, recentHits, hitEffects } = useGameEngine(
+  const { score, feedbacks, recentHits, hitEffects, activeNoteStatus } = useGameEngine(
     song,
     currentTime,
     activeNotes,
@@ -109,6 +109,7 @@ export function GameCanvas({
     showNoteNames,
     recentHits,
     hitEffects,
+    activeNoteStatus,
     playMode
   );
 
@@ -160,8 +161,10 @@ export function GameCanvas({
               exit={{ opacity: 0 }}
               className={`absolute -translate-x-1/2 text-center font-black text-xl italic drop-shadow-lg ${
                 f.type === 'perfect' ? 'text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]' : 
+                f.type === 'early' ? 'text-blue-400 drop-shadow-[0_0_10px_rgba(96,165,250,0.8)]' : 
+                f.type === 'late' ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]' : 
                 f.type === 'good' ? 'text-blue-400 drop-shadow-[0_0_10px_rgba(96,165,250,0.8)]' : 
-                f.type === 'miss' ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]' : 'text-rose-400 drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]'
+                f.type === 'miss' ? 'text-slate-400 drop-shadow-[0_0_10px_rgba(148,163,184,0.8)]' : 'text-rose-400 drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]'
               }`}
             >
               {f.text.split('\n').map((line, i) => (

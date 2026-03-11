@@ -221,7 +221,7 @@ export default function MidiPlayApp() {
         <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden bg-transparent overflow-x-auto custom-scrollbar">
           <div className="flex-1 flex flex-col min-h-0 relative" style={{ minWidth: typeof minCanvasWidth === 'number' ? `${minCanvasWidth}px` : minCanvasWidth }}>
             <div id="game-canvas-container" className="flex-1 relative min-h-0">
-              {playMode !== 'library' && <UsageTips />}
+              {playMode !== 'library' && !isPlaying && <UsageTips />}
               {playMode === 'library' ? (
                 <div className="h-full w-full overflow-y-auto custom-scrollbar bg-slate-50/50 dark:bg-slate-950/50">
                   <SongSelector 
@@ -259,16 +259,6 @@ export default function MidiPlayApp() {
             </div>
 
             <div id="keyboard-wrapper" className="shrink-0 relative z-20 h-24 md:h-32 border-t theme-border">
-              <button
-                onClick={toggleSustain}
-                className={`absolute top-2 right-2 z-30 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all shadow-sm ${
-                  isSustainActive 
-                    ? 'bg-indigo-500 text-white border-indigo-400 shadow-indigo-500/20' 
-                    : 'theme-bg-secondary theme-text-secondary theme-border hover:theme-text-primary hover:theme-border-primary'
-                }`}
-              >
-                {t.sustain || 'Sustain'}
-              </button>
               <Keyboard 
                 activeNotes={activeNotes} 
                 startNote={keyboardRange.start} 

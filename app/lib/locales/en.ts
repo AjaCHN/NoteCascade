@@ -168,4 +168,6 @@ export const en = {
     midi: 'MIDI',
     sustain: 'Sustain',
     about: 'About',
+    fullScreen: 'Full Screen',
+    exitFullScreen: 'Exit Full Screen',
 };
