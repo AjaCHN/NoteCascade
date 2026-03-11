@@ -4,6 +4,7 @@ import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
 import pkg from '../package.json';
+import { ClientLayout } from './components/ClientLayout';
 
 const { version } = pkg;
 
@@ -86,7 +87,11 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
           }}
         />
       </head>
-      <body suppressHydrationWarning className="antialiased font-sans">{children}</body>
+      <body suppressHydrationWarning className="antialiased font-sans">
+        <ClientLayout>
+          {children}
+        </ClientLayout>
+      </body>
     </html>
   );
 }

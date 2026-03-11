@@ -5,12 +5,13 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
-  Keyboard as KeyboardIcon, Music, Library, Trophy, Menu, Play, HelpCircle
+  Keyboard as KeyboardIcon, Music, Library, Trophy, Menu, Play, HelpCircle, LogIn, LogOut, User as UserIcon
 } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { 
   useLocale, usePlayMode, useAppActions, PlayMode
 } from '../lib/store';
+import { useAuth } from '../lib/auth-context';
 
 const version = "2.3.1";
 
@@ -49,6 +50,7 @@ export function AppHeader({
   const t = translations[locale] || translations.en;
   const [showMenu, setShowMenu] = useState(false);
   const menuTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const { user, signIn, logOut } = useAuth();
 
   const handleMouseLeave = useCallback(() => {
     menuTimeoutRef.current = setTimeout(() => {
