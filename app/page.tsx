@@ -42,7 +42,7 @@ export default function MidiPlayApp() {
   } = useGameLogic(activeNotes, setActiveNotes);
 
   const [showSettings, setShowSettings] = useState(false);
-  const [activeSettingsSection, setActiveSettingsSection] = useState<'general' | 'audio' | 'keyboard' | 'midi' | 'about'>('general');
+  const [activeSettingsSection, setActiveSettingsSection] = useState<'general' | 'audio' | 'keyboard' | 'midi' | 'about' | 'account'>('general');
   const [showAchievements, setShowAchievements] = useState(false);
   const [volume, setVolumeState] = useState(80);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);

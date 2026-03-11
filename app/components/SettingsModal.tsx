@@ -17,13 +17,14 @@ import { KeyboardSettings } from './settings/KeyboardSettings';
 import { MidiSettings } from './settings/MidiSettings';
 import { AppInfoSection } from './settings/AppInfoSection';
 import { AudioSettings } from './settings/AudioSettings';
+import { AccountSettings } from './settings/AccountSettings';
 
 import { MidiDevice, VelocityCurve, MidiMessage } from '../hooks/use-midi';
 
 interface SettingsModalProps {
   show: boolean;
   onClose: () => void;
-  activeSection?: 'general' | 'audio' | 'keyboard' | 'midi' | 'about';
+  activeSection?: 'general' | 'audio' | 'keyboard' | 'midi' | 'about' | 'account';
   midiProps: {
     isSupported: boolean;
     inputs: MidiDevice[];
@@ -152,6 +153,12 @@ export function SettingsModal({ onClose, activeSection = 'general', midiProps, s
           {activeSection === 'about' && (
             <div className="col-span-1">
               <AppInfoSection t={t} />
+            </div>
+          )}
+
+          {activeSection === 'account' && (
+            <div className="col-span-1">
+              <AccountSettings t={t} />
             </div>
           )}
         </div>
