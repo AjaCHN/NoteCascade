@@ -20,7 +20,7 @@ interface AppHeaderProps {
   selectedInputId: string | null;
   inputs: { id: string; name: string }[];
   setShowSettings: (show: boolean) => void;
-  setActiveSettingsSection: (section: 'general' | 'audio' | 'keyboard' | 'midi' | 'about') => void;
+  setActiveSettingsSection: (section: 'general' | 'audio' | 'keyboard' | 'midi' | 'about' | 'account') => void;
   showSettings: boolean;
   connectMidi?: () => void;
   isConnecting?: boolean;
@@ -71,7 +71,7 @@ export function AppHeader({
     };
   }, []);
 
-  const openSettings = useCallback((section: 'general' | 'audio' | 'keyboard' | 'midi' | 'about') => {
+  const openSettings = useCallback((section: 'general' | 'audio' | 'keyboard' | 'midi' | 'about' | 'account') => {
     setActiveSettingsSection(section);
     setShowSettings(true);
     setShowMenu(false);
@@ -199,10 +199,14 @@ export function AppHeader({
         >
           <button 
             onClick={() => setShowMenu(!showMenu)}
-            className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border"
+            className="rounded-full p-2 hover:bg-white/10 transition-all theme-text-secondary hover:theme-text-primary border border-transparent hover:theme-border flex items-center justify-center overflow-hidden"
             title="Menu (Esc)"
           >
-            <Menu className="h-5 w-5" />
+            {user?.photoURL ? (
+              <img src={user.photoURL} alt="User" className="h-5 w-5 rounded-full object-cover" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
           
           {showMenu && (
@@ -240,6 +244,18 @@ export function AppHeader({
                 <HelpCircle className="h-4 w-4" />
                 {t.about}
               </button>
+              <div className="h-px bg-white/10 my-1" />
+              {user ? (
+                <button onClick={() => { logOut(); setShowMenu(false); }} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest text-left">
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </button>
+              ) : (
+                <button onClick={() => { signIn(); setShowMenu(false); }} className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-white/10 theme-text-secondary hover:theme-text-primary text-xs font-bold uppercase tracking-widest text-left">
+                  <LogIn className="h-4 w-4" />
+                  Login
+                </button>
+              )}
             </div>
           )}
         </div>
