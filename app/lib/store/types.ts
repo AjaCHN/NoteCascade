@@ -47,6 +47,7 @@ export interface AppState {
   metronomeEnabled: boolean;
   metronomeBpm: number;
   metronomeBeats: number;
+  unlockedDifficulty: number;
   actions: {
     unlockAchievement: (id: string) => void;
     addScore: (score: ScoreRecord) => void;
@@ -64,5 +65,6 @@ export interface AppState {
     resetProgress: () => void;
     checkAchievements: () => void;
     updateStreak: () => void;
+    checkDifficultyUnlock: () => void;
   };
 }

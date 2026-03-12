@@ -24,6 +24,7 @@ export const createActions = (set: (partial: Partial<AppState> | ((state: AppSta
     }));
     get().actions.updateStreak();
     get().actions.checkAchievements();
+    get().actions.checkDifficultyUnlock();
   },
   incrementPracticeTime: (seconds: number) => {
     set((state: AppState) => ({
@@ -111,6 +112,24 @@ export const createActions = (set: (partial: Partial<AppState> | ((state: AppSta
       set({ achievements: newAchievements });
     }
   },
+  checkDifficultyUnlock: () => {
+    const state = get();
+    const { scores, unlockedDifficulty } = state;
+    
+    // Logic: 2 songs with >80% accuracy on current difficulty to unlock next
+    const masteredOnCurrent = scores.filter(s => {
+      const song = builtInSongs.find(bs => bs.id === s.songId);
+      return song && song.difficulty === unlockedDifficulty && s.accuracy >= 0.8;
+    });
+
+    const uniqueMastered = new Set(masteredOnCurrent.map(s => s.songId));
+
+    if (unlockedDifficulty === 1 && uniqueMastered.size >= 2) {
+      set({ unlockedDifficulty: 2 });
+    } else if (unlockedDifficulty === 2 && uniqueMastered.size >= 2) {
+      set({ unlockedDifficulty: 3 });
+    }
+  },
   setLocale: (locale) => set({ locale }),
   setTheme: (theme) => set({ theme }),
   setInstrument: (instrument) => set({ instrument }),
@@ -140,5 +159,6 @@ export const createActions = (set: (partial: Partial<AppState> | ((state: AppSta
       metronomeEnabled: false,
       metronomeBpm: 120,
       metronomeBeats: 4,
+      unlockedDifficulty: 1,
     }),
 });

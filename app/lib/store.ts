@@ -27,6 +27,7 @@ export const useAppStore = create<AppState>()(
       metronomeEnabled: false,
       metronomeBpm: 120,
       metronomeBeats: 4,
+      unlockedDifficulty: 1,
       actions: createActions(set, get),
     }),
     {

@@ -69,25 +69,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.addEventListener('error', function(e) {
-                if (e.message === 'ResizeObserver loop completed with undelivered notifications.') {
-                  const resizeObserverErrDiv = document.getElementById('webpack-dev-server-client-overlay-div');
-                  const resizeObserverErr = document.getElementById('webpack-dev-server-client-overlay');
-                  if (resizeObserverErr) resizeObserverErr.setAttribute('style', 'display: none');
-                  if (resizeObserverErrDiv) resizeObserverErrDiv.setAttribute('style', 'display: none');
-                  e.stopImmediatePropagation();
-                }
-              });
-            `,
-          }}
-        />
-      </head>
-      <body suppressHydrationWarning className="antialiased font-sans">
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+      <body className="antialiased font-sans">
         <ClientLayout>
           {children}
         </ClientLayout>

@@ -5,7 +5,7 @@ import React, { useState, useRef } from 'react';
 import { Song, builtInSongs, parseMidiFile } from '../lib/songs';
 import { Music, Filter, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useLocale, useScores, useAchievements } from '../lib/store';
+import { useLocale, useScores, useAchievements, useAppStore } from '../lib/store';
 import { translations } from '../lib/translations';
 import { SongCard } from './SongCard';
 
@@ -18,6 +18,7 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   const locale = useLocale();
   const scores = useScores();
   const achievements = useAchievements();
+  const unlockedDifficulty = useAppStore(state => state.unlockedDifficulty);
   const t = translations[locale] || translations.en;
   
   const [filter, setFilter] = useState<string>('all');
@@ -47,6 +48,9 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
   };
 
   const isSongUnlocked = (song: Song) => {
+    // Check difficulty lock
+    if (song.difficulty > unlockedDifficulty) return false;
+
     if (!song.unlockCondition) return true;
     if (song.unlockCondition.type === 'achievement') {
       const achievement = achievements.find(a => a.id === song.unlockCondition?.value);
@@ -59,7 +63,22 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
     return true;
   };
 
-  const getUnlockDescription = (condition: Song['unlockCondition']) => {
+  const getUnlockDescription = (song: Song) => {
+    const condition = song.unlockCondition;
+    
+    if (song.difficulty > unlockedDifficulty) {
+      const masteredOnPrev = scores.filter(s => {
+        const bs = builtInSongs.find(b => b.id === s.songId);
+        return bs && bs.difficulty === unlockedDifficulty && s.accuracy >= 0.8;
+      });
+      const uniqueMastered = new Set(masteredOnPrev.map(s => s.songId));
+      const remaining = Math.max(0, 2 - uniqueMastered.size);
+      
+      return t.unlock_difficulty_hint
+        .replace('{count}', remaining.toString())
+        .replace('{diff}', t[`diff_${unlockedDifficulty}`]);
+    }
+
     if (!condition) return '';
     if (condition.description) return condition.description;
     if (condition.type === 'achievement') {
@@ -174,16 +193,16 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 p-4 md:p-6 pt-2">
         {filteredSongs.length > 0 ? filteredSongs.map((song, idx) => (
-          <SongCard 
-            key={`${song.id}-${idx}`}
-            song={song}
-            isSelected={selectedSongId === song.id}
-            unlocked={isSongUnlocked(song)}
-            highScore={getHighScore(song.id)}
-            unlockDescription={getUnlockDescription(song.unlockCondition)}
-            onSelect={onSelect}
-            t={t}
-          />
+            <SongCard 
+              key={`${song.id}-${idx}`}
+              song={song}
+              isSelected={selectedSongId === song.id}
+              unlocked={isSongUnlocked(song)}
+              highScore={getHighScore(song.id)}
+              unlockDescription={getUnlockDescription(song)}
+              onSelect={onSelect}
+              t={t}
+            />
         )) : (
           <div className="flex flex-col items-center justify-center py-20 px-6 text-center border border-dashed theme-border rounded-[2rem] theme-bg-secondary">
             <Music className="w-12 h-12 theme-text-secondary mb-4 opacity-50" />

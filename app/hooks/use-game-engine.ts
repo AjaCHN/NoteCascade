@@ -138,7 +138,6 @@ export function useGameEngine(
 
   useEffect(() => {
     if (currentTime === 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setScore({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
       processedNotes.current = new Set();
       recentHits.current = [];

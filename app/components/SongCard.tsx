@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Star, Trophy, Lock, Play, Keyboard as KeyboardIcon } from 'lucide-react';
+import { Trophy, Lock, Play, Keyboard as KeyboardIcon } from 'lucide-react';
 import { Song } from '../lib/songs';
 
 interface SongCardProps {
@@ -53,22 +53,19 @@ export function SongCard({
         </div>
         
         <div className="flex items-center gap-3">
-          <div className="flex gap-0.5 shrink-0">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                className={`h-3 w-3 ${
-                  i < song.difficulty 
-                    ? unlocked ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]' : 'fill-slate-300 dark:fill-slate-700 text-slate-300 dark:text-slate-700'
-                    : 'text-slate-200 dark:text-slate-800'
-                }`}
-              />
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 min-w-0">
             <span className={`text-[9px] uppercase tracking-[0.2em] font-black px-2 py-0.5 rounded-md border shrink-0 ${
-              unlocked ? 'bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 border-indigo-500/20' : 'bg-slate-200 dark:bg-slate-900 text-slate-500 dark:text-slate-700 border-slate-300 dark:border-slate-800'
+              unlocked 
+                ? song.difficulty === 1 ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                  song.difficulty === 2 ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                  song.difficulty === 3 ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' :
+                  'bg-indigo-500/10 text-indigo-500 border-indigo-500/20'
+                : 'bg-slate-200 dark:bg-slate-900 text-slate-500 dark:text-slate-700 border-slate-300 dark:border-slate-800'
+            }`}>
+              {t[`diff_${song.difficulty}`] || song.difficulty}
+            </span>
+            <span className={`text-[9px] uppercase tracking-[0.2em] font-black px-2 py-0.5 rounded-md border shrink-0 ${
+              unlocked ? 'bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20' : 'bg-slate-200 dark:bg-slate-900 text-slate-500 dark:text-slate-700 border-slate-300 dark:border-slate-800'
             }`}>
               {song.style ? (t[`style_${song.style.toLowerCase()}`] || song.style) : ''}
             </span>

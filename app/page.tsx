@@ -17,6 +17,8 @@ import { AppHeader } from './components/AppHeader';
 import { SongSelector } from './components/SongSelector';
 import { UsageTips } from './components/UsageTips';
 import { BackgroundEffects } from './components/BackgroundEffects';
+import { useKeyboardRangeLogic } from './hooks/use-keyboard-range-logic';
+import { useWindowLogic } from './hooks/use-window-logic';
 import { useGameLogic } from './hooks/use-game-logic';
 
 export default function MidiPlayApp() {
@@ -26,7 +28,7 @@ export default function MidiPlayApp() {
     transpose, setTranspose, connectMidi, scanBluetoothMidi, midiMapping, setMidiMapping,
     isMappingMode, setIsMappingMode, mappingTarget, setMappingTarget
   } = useMidi();
-  const { setKeyboardRange, setPlayMode } = useAppActions();
+  const { setPlayMode } = useAppActions();
   const locale = useLocale();
   const theme = useTheme();
   const instrument = useInstrument();
@@ -45,11 +47,11 @@ export default function MidiPlayApp() {
   const [activeSettingsSection, setActiveSettingsSection] = useState<'general' | 'audio' | 'keyboard' | 'midi' | 'about' | 'account'>('general');
   const [showAchievements, setShowAchievements] = useState(false);
   const [volume, setVolumeState] = useState(80);
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const [mounted, setMounted] = useState(false);
-  const [isFullScreen, setIsFullScreen] = useState(false);
-
   const [isRangeManuallySet, setIsRangeManuallySet] = useState(false);
+
+  const { windowWidth, isFullScreen, toggleFullScreen } = useWindowLogic();
+  useKeyboardRangeLogic(mounted, isRangeManuallySet, inputs, selectedSong, windowWidth);
 
   // Initial setup and audio sync
   useEffect(() => {
@@ -68,88 +70,6 @@ export default function MidiPlayApp() {
       setVolume(volume);
     }
   }, [volume, mounted]);
-
-  // Dynamic keyboard range logic
-  useEffect(() => {
-    if (!mounted || isRangeManuallySet) return;
-
-    const hasMidi = inputs.length > 0;
-    
-    if (hasMidi) {
-      if (keyboardRange.start !== 21 || keyboardRange.end !== 108) {
-         setKeyboardRange(21, 108);
-      }
-      return;
-    }
-
-    if (windowWidth < 768) {
-      if (keyboardRange.start !== 48 || keyboardRange.end !== 72) {
-        setKeyboardRange(48, 72);
-      }
-      return;
-    }
-
-    // No MIDI connected: Adjust range to fit the song
-    if (selectedSong && selectedSong.notes && selectedSong.notes.length > 0) {
-      const midis = selectedSong.notes.map(n => n.midi);
-      const minMidi = Math.min(...midis);
-      const maxMidi = Math.max(...midis);
-      
-      let start = Math.max(21, minMidi - 2);
-      let end = Math.min(108, maxMidi + 2);
-      
-      while ([1, 3, 6, 8, 10].includes(start % 12) && start > 21) {
-        start--;
-      }
-      while ([1, 3, 6, 8, 10].includes(end % 12) && end < 108) {
-        end++;
-      }
-      
-      const finalStart = start;
-      let finalEnd = Math.max(start + 24, end); 
-
-      while ([1, 3, 6, 8, 10].includes(finalEnd % 12) && finalEnd < 108) {
-        finalEnd++;
-      }
-      
-      if (finalStart !== keyboardRange.start || finalEnd !== keyboardRange.end) {
-        setKeyboardRange(finalStart, finalEnd);
-      }
-    } else {
-      if (keyboardRange.start !== 48 || keyboardRange.end !== 72) {
-        setKeyboardRange(48, 72);
-      }
-    }
-  }, [inputs.length, selectedSong, mounted, isRangeManuallySet, windowWidth, keyboardRange.start, keyboardRange.end, setKeyboardRange]);
-
-  const toggleFullScreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(err => {
-        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
-      });
-      setIsFullScreen(true);
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-        setIsFullScreen(false);
-      }
-    }
-  };
-
-  useEffect(() => {
-    const handleFsChange = () => setIsFullScreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', handleFsChange);
-    return () => document.removeEventListener('fullscreenchange', handleFsChange);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const handleResize = () => setWindowWidth(window.innerWidth);
-      setTimeout(() => setWindowWidth(window.innerWidth), 0);
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, []);
 
   useEffect(() => {
     if (!isSupported && mounted) {
