@@ -22,8 +22,10 @@ import { Song } from './lib/songs';
 import { useKeyboardRangeLogic } from './hooks/use-keyboard-range-logic';
 import { useWindowLogic } from './hooks/use-window-logic';
 import { useGameLogic } from './hooks/use-game-logic';
+import { useMetronome } from './hooks/use-metronome';
 
 export default function MidiPlayApp() {
+  useMetronome();
   const { 
     activeNotes, setActiveNotes, lastMessage, isSupported, isConnecting, inputs, selectedInputId,
     setSelectedInputId, midiChannel, setMidiChannel, velocityCurve, setVelocityCurve,
@@ -52,6 +54,10 @@ export default function MidiPlayApp() {
   const [volume, setVolumeState] = useState(80);
   const [mounted, setMounted] = useState(false);
   const [isRangeManuallySet, setIsRangeManuallySet] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { windowWidth, isFullScreen, toggleFullScreen } = useWindowLogic();
   useKeyboardRangeLogic(mounted, isRangeManuallySet, inputs, selectedSong, windowWidth);
