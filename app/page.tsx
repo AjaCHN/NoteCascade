@@ -17,6 +17,8 @@ import { AppHeader } from './components/AppHeader';
 import { SongSelector } from './components/SongSelector';
 import { UsageTips } from './components/UsageTips';
 import { BackgroundEffects } from './components/BackgroundEffects';
+import { ImportSongModal } from './components/ImportSongModal';
+import { Song } from './lib/songs';
 import { useKeyboardRangeLogic } from './hooks/use-keyboard-range-logic';
 import { useWindowLogic } from './hooks/use-window-logic';
 import { useGameLogic } from './hooks/use-game-logic';
@@ -46,6 +48,7 @@ export default function MidiPlayApp() {
   const [showSettings, setShowSettings] = useState(false);
   const [activeSettingsSection, setActiveSettingsSection] = useState<'general' | 'audio' | 'keyboard' | 'midi' | 'about' | 'account'>('general');
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [volume, setVolumeState] = useState(80);
   const [mounted, setMounted] = useState(false);
   const [isRangeManuallySet, setIsRangeManuallySet] = useState(false);
@@ -53,11 +56,10 @@ export default function MidiPlayApp() {
   const { windowWidth, isFullScreen, toggleFullScreen } = useWindowLogic();
   useKeyboardRangeLogic(mounted, isRangeManuallySet, inputs, selectedSong, windowWidth);
 
-  // Initial setup and audio sync
-  useEffect(() => {
-    const timer = setTimeout(() => setMounted(true), 0);
-    return () => clearTimeout(timer);
-  }, []);
+  const handleImport = (song: Song) => {
+    setSelectedSong(song);
+    setShowImportModal(false);
+  };
 
   useEffect(() => {
     if (mounted) {
@@ -131,7 +133,10 @@ export default function MidiPlayApp() {
         isConnecting={isConnecting}
         isFullScreen={isFullScreen}
         toggleFullScreen={toggleFullScreen}
+        onImport={() => setShowImportModal(true)}
       />
+
+      {showImportModal && <ImportSongModal onImport={handleImport} onClose={() => setShowImportModal(false)} />}
 
       <main id="main-content" className="flex flex-1 overflow-hidden relative z-10">
         <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden bg-transparent overflow-x-auto custom-scrollbar">
