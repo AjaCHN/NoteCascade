@@ -74,9 +74,12 @@ export function SongSelector({ onSelect, selectedSongId }: SongSelectorProps) {
       const uniqueMastered = new Set(masteredOnPrev.map(s => s.songId));
       const remaining = Math.max(0, 2 - uniqueMastered.size);
       
-      return t.unlock_difficulty_hint
+      const hint = t.unlock_difficulty_hint || 'Master {count} more {diff} songs to unlock';
+      const diffName = t[`diff_${unlockedDifficulty}`] || `Level ${unlockedDifficulty}`;
+      
+      return hint
         .replace('{count}', remaining.toString())
-        .replace('{diff}', t[`diff_${unlockedDifficulty}`]);
+        .replace('{diff}', diffName);
     }
 
     if (!condition) return '';

@@ -1,12 +1,11 @@
 // app/hooks/use-metronome.ts v2.3.1
 import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
-import { useMetronomeEnabled, useMetronomeBpm, useMetronomeBeats } from '../lib/store';
+import { useMetronomeEnabled, useMetronomeBpm } from '../lib/store';
 
 export function useMetronome() {
   const enabled = useMetronomeEnabled();
   const bpm = useMetronomeBpm();
-  const beats = useMetronomeBeats();
   const clickRef = useRef<Tone.MembraneSynth | null>(null);
 
   useEffect(() => {

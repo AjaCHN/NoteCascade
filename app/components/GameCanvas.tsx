@@ -90,7 +90,6 @@ export function GameCanvas({
     activeNotes,
     isPlaying,
     keyboardRange,
-    t,
     dimensions,
     keyGeometries,
     onScoreUpdate,

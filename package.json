@@ -1,9 +1,9 @@
 {
   "name": "notecascade",
-  "version": "2.3.1",
+  "version": "2.5.3",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "rm -rf .next && next build",
     "start": "next start",
     "lint": "eslint ."
   },

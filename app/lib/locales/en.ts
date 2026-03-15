@@ -32,6 +32,7 @@ export const en = {
     diff_2: 'Intermediate',
     diff_3: 'Advanced',
     diff_4: 'Expert',
+    diff_5: 'Master',
     difficulty_locked: 'Difficulty Locked',
     unlock_difficulty_hint: 'Master {count} more {diff} songs to unlock',
     ach_first_song_title: 'First Steps',
