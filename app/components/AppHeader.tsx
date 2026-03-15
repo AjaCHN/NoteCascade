@@ -1,4 +1,4 @@
-// app/components/AppHeader.tsx v2.5.3
+// app/components/AppHeader.tsx v2.6.0
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
@@ -13,7 +13,7 @@ import {
 } from '../lib/store';
 import { useAuth } from '../lib/auth-context';
 
-const version = "2.5.3";
+const version = "2.6.0";
 
 interface AppHeaderProps {
   theme: string;

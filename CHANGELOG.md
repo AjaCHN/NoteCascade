@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.6.0
+- 增强：同步并更新所有文件的版本号至 v2.6.0。
+- 增强：检查并补全所有国际化语言文件（11 种语言）的完整性。
+- 优化：更新 README 和 README_zh-CN 文档，修复中英文混杂问题。
+- 优化：同步代码功能细节到 openspec 文档，增加 MIDI 映射和节拍器说明。
+- 优化：提升应用鲁棒性，优化开发环境下的 Manifest 错误处理。
+
 ## v2.5.3
 - Fix: 进一步禁用 `devIndicators.buildActivity`，彻底解决 Next.js 15 开发工具导致的 `SegmentViewNode` React Client Manifest 错误。
 - Chore: 升级版本至 v2.5.3。

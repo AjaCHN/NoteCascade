@@ -1,4 +1,4 @@
-// app/lib/locales/zh-CN.ts v2.3.1
+// app/lib/locales/zh-CN.ts v2.6.0
 export const zhCN = {
     title: '音符瀑布',
     subtitle: '掌控你的琴键',

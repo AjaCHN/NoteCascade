@@ -1,3 +1,5 @@
+export const dynamic = 'force-static';
+
 export default function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white p-4">

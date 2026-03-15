@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // v2.5.3 - 进一步禁用开发指示器以彻底解决 SegmentViewNode 相关的 Manifest 错误
+  // v2.6.0 - 进一步禁用开发指示器以彻底解决 SegmentViewNode 相关的 Manifest 错误
   output: 'standalone',
   reactStrictMode: true,
   eslint: { ignoreDuringBuilds: true },
