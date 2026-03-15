@@ -22,6 +22,7 @@ export function useGameEngine(
   activeNotes: Map<number, number>,
   isPlaying: boolean,
   keyboardRange: { start: number; end: number },
+  t: Record<string, string>,
   dimensions: { width: number; height: number },
   keyGeometries: Map<number, { x: number, width: number, isBlack: boolean }>,
   onScoreUpdate: (score: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => void,
@@ -29,23 +30,30 @@ export function useGameEngine(
   showResult: boolean = false
 ) {
   const [score, setScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const processedNotes = useRef<Set<number>>(new Set());
   const lastActiveNotes = useRef<Set<number>>(new Set());
   const recentHits = useRef<{ timeDiff: number; timestamp: number; type: Feedback['type'] }[]>([]);
+  const feedbackIdCounter = useRef(0);
   const hitEffects = useRef<{ x: number; y: number; type: Feedback['type']; timestamp: number }[]>([]);
   const activeNoteStatus = useRef<Map<number, Feedback['type']>>(new Map());
 
-  const addFeedback = useCallback((type: Feedback['type'], midi: number) => {
-    if (playMode === 'free-play') return; // No feedback in free play
+  const addFeedback = useCallback((text: string, type: Feedback['type'], midi: number) => {
+    if (playMode === 'free') return; // No feedback in free play
     const geo = keyGeometries.get(midi);
     if (!geo) return;
     const x = geo.x + geo.width / 2;
+    const id = ++feedbackIdCounter.current;
+    setFeedbacks((prev) => [...prev, { id, text, type, x, y: dimensions.height * 0.4 }]);
     hitEffects.current.push({ x, y: dimensions.height - HIT_LINE_Y, type, timestamp: Date.now() });
+    setTimeout(() => {
+      setFeedbacks((prev) => prev.filter((f) => f.id !== id));
+    }, 1000);
   }, [dimensions.height, keyGeometries, playMode]);
 
   useEffect(() => {
     if (!isPlaying || showResult) return;
-    if (playMode === 'free-play') {
+    if (playMode === 'free') {
       lastActiveNotes.current = new Set(activeNotes.keys());
       return;
     }
@@ -66,18 +74,23 @@ export function useGameEngine(
 
           let type: Feedback['type'] = 'good';
           let points = 50;
+          let text = t.good.toUpperCase();
 
           if (absTimeDiff < PERFECT_THRESHOLD) {
             type = 'perfect';
             points = 100;
+            text = t.perfect.toUpperCase();
           } else if (timeDiff < 0) {
             type = 'early';
+            text = t.early;
           } else {
             type = 'late';
+            text = t.late;
           }
 
           const velocityDiff = velocity - match.velocity;
           if (Math.abs(velocityDiff) > 0.3) {
+            text += velocityDiff > 0 ? `\n${t.tooHard}` : `\n${t.tooSoft}`;
             points = Math.floor(points * 0.8);
           }
 
@@ -90,12 +103,12 @@ export function useGameEngine(
             currentScore: prev.currentScore + points
           }));
 
-          addFeedback(type, midi);
+          addFeedback(text, type, midi);
           activeNoteStatus.current.set(midi, type);
         } else {
           if (midi >= keyboardRange.start && midi <= keyboardRange.end) {
             setScore(prev => ({ ...prev, wrong: prev.wrong + 1, currentScore: Math.max(0, prev.currentScore - 10) }));
-            addFeedback('wrong', midi);
+            addFeedback(t.wrong.toUpperCase(), 'wrong', midi);
             activeNoteStatus.current.set(midi, 'wrong');
           }
         }
@@ -112,12 +125,12 @@ export function useGameEngine(
       if (!processedNotes.current.has(idx) && n.time < currentTime - GOOD_THRESHOLD) {
         processedNotes.current.add(idx);
         setScore(prev => ({ ...prev, miss: prev.miss + 1 }));
-        addFeedback('miss', n.midi);
+        addFeedback(t.miss.toUpperCase(), 'miss', n.midi);
       }
     });
 
     lastActiveNotes.current = new Set(activeNotes.keys());
-  }, [currentTime, activeNotes, song, isPlaying, showResult, addFeedback, keyboardRange.start, keyboardRange.end, playMode]);
+  }, [currentTime, activeNotes, song, isPlaying, showResult, addFeedback, t, keyboardRange.start, keyboardRange.end, playMode]);
 
   useEffect(() => {
     onScoreUpdate(score);
@@ -133,6 +146,7 @@ export function useGameEngine(
 
   return {
     score,
+    feedbacks,
     recentHits,
     hitEffects,
     activeNoteStatus

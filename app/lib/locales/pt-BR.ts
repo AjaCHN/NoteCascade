@@ -1,4 +1,4 @@
-// app/lib/locales/pt-BR.ts v2.6.0
+// app/lib/locales/pt-BR.ts v2.3.1
 export const ptBR = {
     title: 'NoteCascade',
     subtitle: 'Master your keys',

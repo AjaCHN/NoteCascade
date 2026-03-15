@@ -124,12 +124,13 @@ export const createActions = (set: (partial: Partial<AppState> | ((state: AppSta
 
     const uniqueMastered = new Set(masteredOnCurrent.map(s => s.songId));
 
-    if (unlockedDifficulty < 5 && uniqueMastered.size >= 2) {
-      set({ unlockedDifficulty: unlockedDifficulty + 1 });
+    if (unlockedDifficulty === 1 && uniqueMastered.size >= 2) {
+      set({ unlockedDifficulty: 2 });
+    } else if (unlockedDifficulty === 2 && uniqueMastered.size >= 2) {
+      set({ unlockedDifficulty: 3 });
     }
   },
-  setLocale: (locale, isManual = true) => set({ locale, localeSetByUser: isManual }),
-  setLocaleSetByUser: (localeSetByUser) => set({ localeSetByUser }),
+  setLocale: (locale) => set({ locale }),
   setTheme: (theme) => set({ theme }),
   setInstrument: (instrument) => set({ instrument }),
   setPlayMode: (playMode) => set({ playMode }),
@@ -149,7 +150,6 @@ export const createActions = (set: (partial: Partial<AppState> | ((state: AppSta
       totalNotesHit: 0,
       songsCompleted: 0,
       locale: 'en',
-      localeSetByUser: false,
       theme: 'dark',
       instrument: 'piano',
       playMode: 'practice',

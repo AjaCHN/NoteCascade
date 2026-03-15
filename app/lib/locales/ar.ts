@@ -1,4 +1,4 @@
-// app/lib/locales/ar.ts v2.6.0
+// app/lib/locales/ar.ts v2.3.1
 export const ar = {
     title: 'NoteCascade',
     subtitle: 'Master your keys',

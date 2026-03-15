@@ -1,11 +1,11 @@
-// app/components/AppHeader.tsx v2.6.0
+// app/components/AppHeader.tsx v2.3.1
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
-  Keyboard as KeyboardIcon, Music, Library, Trophy, Menu, Play, HelpCircle, LogIn, LogOut, FileUp
+  Keyboard as KeyboardIcon, Music, Library, Trophy, Menu, Play, HelpCircle, LogIn, LogOut, User as UserIcon, FileUp, Zap, BookOpen, Mic
 } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { 
@@ -13,7 +13,7 @@ import {
 } from '../lib/store';
 import { useAuth } from '../lib/auth-context';
 
-const version = "2.6.0";
+const version = "2.3.1";
 
 interface AppHeaderProps {
   theme: string;
@@ -104,7 +104,7 @@ export function AppHeader({
   const modes = [
     { id: 'demo', icon: Play, label: t.demo || 'Demo' },
     { id: 'practice', icon: KeyboardIcon, label: t.practice || 'Practice' },
-    { id: 'free-play', icon: Music, label: t.freePlay || 'Free' },
+    { id: 'free', icon: Music, label: t.freePlay || 'Free' },
   ];
 
   return (
@@ -151,6 +151,31 @@ export function AppHeader({
         >
           <FileUp className="h-5 w-5" />
           <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{t.import || 'Import'}</span>
+        </button>
+
+        <button 
+          onClick={() => setPlayMode('free-play')}
+          className={`flex items-center gap-2 rounded-full px-3 py-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${playMode === 'free-play' ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
+          title={t.freePlay || 'Free Play'}
+        >
+          <Mic className="h-5 w-5" />
+          <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{t.freePlay || 'Free Play'}</span>
+        </button>
+        <button 
+          onClick={() => setPlayMode('rhythm-game')}
+          className={`flex items-center gap-2 rounded-full px-3 py-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${playMode === 'rhythm-game' ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
+          title={t.rhythmGame || 'Rhythm Game'}
+        >
+          <Zap className="h-5 w-5" />
+          <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{t.rhythmGame || 'Rhythm Game'}</span>
+        </button>
+        <button 
+          onClick={() => setPlayMode('sheet-music')}
+          className={`flex items-center gap-2 rounded-full px-3 py-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${playMode === 'sheet-music' ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
+          title={t.sheetMusic || 'Sheet Music'}
+        >
+          <BookOpen className="h-5 w-5" />
+          <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{t.sheetMusic || 'Sheet Music'}</span>
         </button>
 
         <button 
@@ -205,7 +230,7 @@ export function AppHeader({
             title="Menu (Esc)"
           >
             {user?.photoURL ? (
-              <Image src={user.photoURL} alt="User" width={20} height={20} className="h-5 w-5 rounded-full object-cover" referrerPolicy="no-referrer" />
+              <img src={user.photoURL} alt="User" className="h-5 w-5 rounded-full object-cover" />
             ) : (
               <Menu className="h-5 w-5" />
             )}

@@ -1,4 +1,4 @@
-// app/lib/locales/zh-CN.ts v2.6.0
+// app/lib/locales/zh-CN.ts v2.3.1
 export const zhCN = {
     title: '音符瀑布',
     subtitle: '掌控你的琴键',
@@ -28,13 +28,6 @@ export const zhCN = {
     play: '播放',
     noSongs: '没有符合条件的乐曲',
     clearFilters: '清除所有筛选',
-    diff_1: '入门',
-    diff_2: '进阶',
-    diff_3: '高级',
-    diff_4: '专家',
-    diff_5: '大师',
-    difficulty_locked: '难度已锁定',
-    unlock_difficulty_hint: '再以高分完成 {count} 首{diff}乐曲以解锁',
     ach_first_song_title: '第一步',
     ach_first_song_desc: '弹奏你的第一首乐曲',
     ach_perfect_10_title: '完美十连',

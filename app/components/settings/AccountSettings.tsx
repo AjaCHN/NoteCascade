@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 import { useAuth } from '../../lib/auth-context';
 import { LogIn, LogOut, User } from 'lucide-react';
 
@@ -7,7 +6,7 @@ interface AccountSettingsProps {
   t: Record<string, string>;
 }
 
-export function AccountSettings({}: AccountSettingsProps) {
+export function AccountSettings({ t }: AccountSettingsProps) {
   const { user, signIn, logOut } = useAuth();
 
   return (
@@ -23,7 +22,7 @@ export function AccountSettings({}: AccountSettingsProps) {
         {user ? (
           <div className="flex flex-col items-center gap-4">
             {user.photoURL ? (
-              <Image src={user.photoURL} alt="User Avatar" width={80} height={80} className="w-20 h-20 rounded-full border-2 border-indigo-500 shadow-lg" referrerPolicy="no-referrer" />
+              <img src={user.photoURL} alt="User Avatar" className="w-20 h-20 rounded-full border-2 border-indigo-500 shadow-lg" />
             ) : (
               <div className="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">
                 <User className="w-10 h-10" />

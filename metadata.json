@@ -1,5 +1,8 @@
 {
-  "name": "My App v2.0.0",
-  "description": "A rebuilt application",
-  "requestFramePermissions": []
+  "id": "notecascade-v1",
+  "name": "NoteCascade v2.3.1",
+  "description": "A visual/game-like MIDI keyboard practice app with real-time scoring and achievements.",
+  "requestFramePermissions": [
+    "midi"
+  ]
 }

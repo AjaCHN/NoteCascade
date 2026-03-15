@@ -1,7 +1,9 @@
-// app/components/SongEditor.tsx v2.3.2
+// app/components/SongEditor.tsx v2.3.1
 'use client';
 import React, { useState } from 'react';
 import { Song, Note } from '../lib/songs';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
 
 interface SongEditorProps {
   song: Song;
@@ -19,48 +21,20 @@ export function SongEditor({ song, onSave, onCancel }: SongEditorProps) {
   };
 
   return (
-    <div className="p-6 bg-slate-50 dark:bg-slate-900 rounded-2xl shadow-xl border theme-border max-w-2xl w-full max-h-[90vh] flex flex-col">
-      <h2 className="text-xl font-bold mb-4 theme-text-primary">Edit Song: {editedSong.title}</h2>
-      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+    <div className="p-4 bg-background rounded-lg shadow-lg">
+      <h2 className="text-xl font-bold mb-4">Edit Song: {editedSong.title}</h2>
+      <div className="max-h-96 overflow-y-auto">
         {editedSong.notes?.map((note, index) => (
-          <div key={index} className="flex gap-4 mb-3 items-center p-3 bg-white dark:bg-slate-800 rounded-xl border theme-border">
-            <span className="w-20 font-mono text-sm theme-text-secondary">Note: {note.midi}</span>
-            <div className="flex items-center gap-2">
-              <label className="text-xs theme-text-secondary">Time:</label>
-              <input 
-                type="number" 
-                value={note.time} 
-                onChange={(e) => updateNote(index, 'time', parseFloat(e.target.value))} 
-                className="w-24 px-3 py-1.5 bg-slate-100 dark:bg-slate-950 border theme-border rounded-lg text-sm theme-text-primary focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                step="0.1"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-xs theme-text-secondary">Dur:</label>
-              <input 
-                type="number" 
-                value={note.duration} 
-                onChange={(e) => updateNote(index, 'duration', parseFloat(e.target.value))} 
-                className="w-24 px-3 py-1.5 bg-slate-100 dark:bg-slate-950 border theme-border rounded-lg text-sm theme-text-primary focus:outline-none focus:ring-2 focus:ring-indigo-500" 
-                step="0.1"
-              />
-            </div>
+          <div key={index} className="flex gap-2 mb-2 items-center">
+            <span className="w-16">Note: {note.midi}</span>
+            <Input type="number" value={note.time} onChange={(e) => updateNote(index, 'time', parseFloat(e.target.value))} className="w-20" />
+            <Input type="number" value={note.duration} onChange={(e) => updateNote(index, 'duration', parseFloat(e.target.value))} className="w-20" />
           </div>
         ))}
       </div>
-      <div className="mt-6 flex gap-3 justify-end pt-4 border-t theme-border">
-        <button 
-          onClick={onCancel}
-          className="px-4 py-2 bg-slate-200 dark:bg-slate-800 rounded-xl theme-text-primary hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors font-medium"
-        >
-          Cancel
-        </button>
-        <button 
-          onClick={() => onSave(editedSong)}
-          className="px-4 py-2 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-colors font-medium shadow-sm"
-        >
-          Save
-        </button>
+      <div className="mt-4 flex gap-2">
+        <Button onClick={() => onSave(editedSong)}>Save</Button>
+        <Button variant="outline" onClick={onCancel}>Cancel</Button>
       </div>
     </div>
   );
