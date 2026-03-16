@@ -1,4 +1,4 @@
-// app/hooks/use-game-logic.ts v2.3.1
+// app/hooks/use-game-logic.ts v2.3.2
 import { useState, useEffect, useCallback, useRef } from 'react';
 import * as Tone from 'tone';
 import confetti from 'canvas-confetti';
@@ -52,7 +52,7 @@ export function useGameLogic(
   }, [metronomeEnabled, metronomeBpm, metronomeBeats, isPlaying]);
 
   const handleSongEnd = useCallback(() => {
-    if (playMode === 'demo' || playMode === 'free-play') {
+    if (playMode === 'demo' || playMode === 'free') {
       setIsPlaying(false);
       setCurrentTime(0);
       currentTimeRef.current = 0;
@@ -60,10 +60,6 @@ export function useGameLogic(
     }
 
     const { perfect, good, miss, wrong, currentScore } = latestScoreRef.current;
-    
-    // Prevent multiple calls to handleSongEnd for the same song
-    if (showResult) return;
-
     const totalNotes = perfect + good + miss + wrong;
     const accuracy = totalNotes > 0 ? (perfect + good) / totalNotes : 0;
     const maxScore = (selectedSong.notes?.length || 0) * 100;
@@ -76,7 +72,7 @@ export function useGameLogic(
     if (accuracy > 0.8) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     updateStreak();
     setShowResult(true);
-  }, [updateStreak, addScore, selectedSong.id, selectedSong.notes?.length, playMode, showResult]);
+  }, [updateStreak, addScore, selectedSong.id, selectedSong.notes?.length, playMode]);
 
   const togglePlay = useCallback(async () => {
     if (isPlaying) {
@@ -109,7 +105,7 @@ export function useGameLogic(
 
   const prevActiveNotesSize = useRef(0);
   useEffect(() => {
-    if (playMode !== 'free-play' && activeNotes.size > 0 && prevActiveNotesSize.current === 0 && !isPlaying) {
+    if (playMode !== 'free' && activeNotes.size > 0 && prevActiveNotesSize.current === 0 && !isPlaying) {
       setTimeout(() => togglePlay(), 0);
     }
     prevActiveNotesSize.current = activeNotes.size;

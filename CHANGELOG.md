@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.3.2
+- Fix: Installed missing dependencies `tone` and `canvas-confetti`.
+- Fix: Resolved syntax errors (unterminated string constants) in multiple locale files (ar, de, es, fr, ja, ko, pt-BR, ru, zh-TW).
+
 ## v2.3.1
 - 增强：右上角菜单在鼠标移出 2 秒后自动关闭
 - 修复：国际化语言文件完整性检查及补全

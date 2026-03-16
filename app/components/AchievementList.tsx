@@ -27,10 +27,6 @@ export function AchievementList() {
 
   return (
     <div className="flex flex-col space-y-6 p-6">
-      <h2 className="text-xl font-black text-white flex items-center gap-3 text-glow">
-        <Trophy className="w-6 h-6 text-amber-400" />
-        {t.achievements}
-      </h2>
       <div className="grid grid-cols-1 gap-4">
         {achievements.map((achievement, idx) => {
           const Icon = iconMap[achievement.icon] || Trophy;
