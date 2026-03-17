@@ -1,1 +1,94 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@layer utilities {
+  .theme-bg-primary {
+    @apply bg-slate-50;
+  }
+  .theme-bg-secondary {
+    @apply bg-white;
+  }
+  .theme-text-primary {
+    @apply text-slate-900;
+  }
+  .theme-text-secondary {
+    @apply text-slate-500;
+  }
+  .theme-border {
+    @apply border-slate-200;
+  }
+  .theme-border-primary {
+    @apply border-indigo-500;
+  }
+
+  [data-theme="dark"] .theme-bg-primary {
+    @apply bg-slate-950;
+  }
+  [data-theme="dark"] .theme-bg-secondary {
+    @apply bg-slate-900;
+  }
+  [data-theme="dark"] .theme-text-primary {
+    @apply text-slate-50;
+  }
+  [data-theme="dark"] .theme-text-secondary {
+    @apply text-slate-400;
+  }
+  [data-theme="dark"] .theme-border {
+    @apply border-slate-800;
+  }
+  [data-theme="dark"] .theme-border-primary {
+    @apply border-indigo-500;
+  }
+
+  [data-theme="cyber"] .theme-bg-primary {
+    @apply bg-black;
+  }
+  [data-theme="cyber"] .theme-bg-secondary {
+    @apply bg-zinc-900;
+  }
+  [data-theme="cyber"] .theme-text-primary {
+    @apply text-cyan-400;
+  }
+  [data-theme="cyber"] .theme-text-secondary {
+    @apply text-fuchsia-500;
+  }
+  [data-theme="cyber"] .theme-border {
+    @apply border-cyan-900/50;
+  }
+  [data-theme="cyber"] .theme-border-primary {
+    @apply border-cyan-400;
+  }
+
+  [data-theme="classic"] .theme-bg-primary {
+    @apply bg-[#f5f5dc];
+  }
+  [data-theme="classic"] .theme-bg-secondary {
+    @apply bg-[#fffdd0];
+  }
+  [data-theme="classic"] .theme-text-primary {
+    @apply text-[#3e2723];
+  }
+  [data-theme="classic"] .theme-text-secondary {
+    @apply text-[#5d4037];
+  }
+  [data-theme="classic"] .theme-border {
+    @apply border-[#d7ccc8];
+  }
+  [data-theme="classic"] .theme-border-primary {
+    @apply border-[#8d6e63];
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400 dark:bg-slate-600;
+}

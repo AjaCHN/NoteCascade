@@ -5,6 +5,7 @@ import './globals.css';
 
 import pkg from '../package.json';
 import { ClientLayout } from './components/ClientLayout';
+import { PwaRegister } from './components/PwaRegister';
 
 const { version } = pkg;
 
@@ -59,18 +60,21 @@ export const metadata: Metadata = {
     'geo.position': '37.7749;-122.4194',
     'ICBM': '37.7749, -122.4194',
   },
+  manifest: '/manifest.json',
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  themeColor: '#4f46e5',
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <body className="antialiased font-sans" suppressHydrationWarning>
+        <PwaRegister />
         <ClientLayout>
           {children}
         </ClientLayout>

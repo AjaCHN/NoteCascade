@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 
-export default function Error({
+export default function ErrorBoundary({
   error,
   reset,
 }: {

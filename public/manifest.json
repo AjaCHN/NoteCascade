@@ -1,0 +1,50 @@
+{
+  "name": "NoteCascade - Keyboard Practice",
+  "short_name": "NoteCascade",
+  "description": "A visual/game-like MIDI keyboard practice app with real-time scoring and achievements.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/logo.svg",
+      "sizes": "1200x630",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "NoteCascade Desktop View"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "630x1200",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "NoteCascade Mobile View"
+    }
+  ],
+  "categories": ["education", "music", "games"],
+  "shortcuts": [
+    {
+      "name": "Practice Now",
+      "short_name": "Practice",
+      "description": "Start a new practice session",
+      "url": "/",
+      "icons": [{ "src": "/logo.svg", "sizes": "192x192", "type": "image/svg+xml" }]
+    }
+  ]
+}
