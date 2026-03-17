@@ -31,10 +31,10 @@
 
 ### Installation
 
-1.  克隆仓库：
+1.  Clone the repository:
     ```bash
-    git clone https://github.com/AjaCHN/NoteCascade.git
-    cd NoteCascade
+    git clone https://github.com/sutchan/notecascade.git
+    cd notecascade
     ```
 
 2.  Install dependencies:

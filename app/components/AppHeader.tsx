@@ -5,7 +5,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { 
   Settings, RefreshCw, Maximize2, Minimize2, 
-  Keyboard as KeyboardIcon, Music, Library, Trophy, Menu, Play, HelpCircle, LogIn, LogOut, User as UserIcon, FileUp, Zap, BookOpen, Mic
+  Keyboard as KeyboardIcon, Music, Library, Trophy, Menu, Play, HelpCircle, LogIn, LogOut, User as UserIcon
 } from 'lucide-react';
 import { translations } from '../lib/translations';
 import { 
@@ -28,7 +28,6 @@ interface AppHeaderProps {
   toggleFullScreen: () => void;
   setShowAchievements: (show: boolean) => void;
   showAchievements: boolean;
-  onImport: () => void;
 }
 
 export function AppHeader({ 
@@ -43,8 +42,7 @@ export function AppHeader({
   isFullScreen,
   toggleFullScreen,
   setShowAchievements,
-  showAchievements,
-  onImport
+  showAchievements
 }: AppHeaderProps) {
   const locale = useLocale();
   const playMode = usePlayMode();
@@ -145,37 +143,12 @@ export function AppHeader({
 
       <div className="flex items-center gap-2 md:gap-4">
         <button 
-          onClick={onImport}
+          onClick={() => setPlayMode('library')}
           className={`flex items-center gap-2 rounded-full px-3 py-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${playMode === 'library' ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
-          title={t.import || 'Import'}
+          title={`${t.library} (L)`}
         >
-          <FileUp className="h-5 w-5" />
-          <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{t.import || 'Import'}</span>
-        </button>
-
-        <button 
-          onClick={() => setPlayMode('free-play')}
-          className={`flex items-center gap-2 rounded-full px-3 py-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${playMode === 'free-play' ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
-          title={t.freePlay || 'Free Play'}
-        >
-          <Mic className="h-5 w-5" />
-          <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{t.freePlay || 'Free Play'}</span>
-        </button>
-        <button 
-          onClick={() => setPlayMode('rhythm-game')}
-          className={`flex items-center gap-2 rounded-full px-3 py-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${playMode === 'rhythm-game' ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
-          title={t.rhythmGame || 'Rhythm Game'}
-        >
-          <Zap className="h-5 w-5" />
-          <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{t.rhythmGame || 'Rhythm Game'}</span>
-        </button>
-        <button 
-          onClick={() => setPlayMode('sheet-music')}
-          className={`flex items-center gap-2 rounded-full px-3 py-2 hover:bg-white/10 transition-all border border-transparent hover:theme-border ${playMode === 'sheet-music' ? 'theme-text-primary bg-white/10' : 'theme-text-secondary hover:theme-text-primary'}`}
-          title={t.sheetMusic || 'Sheet Music'}
-        >
-          <BookOpen className="h-5 w-5" />
-          <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{t.sheetMusic || 'Sheet Music'}</span>
+          <Library className="h-5 w-5" />
+          <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{t.library}</span>
         </button>
 
         <button 

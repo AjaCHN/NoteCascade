@@ -33,8 +33,8 @@
 
 1.  克隆仓库：
     ```bash
-    git clone https://github.com/AjaCHN/NoteCascade.git
-    cd NoteCascade
+    git clone https://github.com/sutchan/notecascade.git
+    cd notecascade
     ```
 
 2.  安装依赖：
