@@ -1,14 +1,11 @@
-// app/hooks/use-keyboard-input.ts v2.3.1
+// app/hooks/use-keyboard-input.ts v1.3.5
 import { useEffect } from 'react';
 import { startNote, stopNote, initAudio, setSustainPedal } from '../lib/audio';
-import { useAppStore } from '../lib/store';
 
 export function useKeyboardInput(
   setActiveNotes: React.Dispatch<React.SetStateAction<Map<number, number>>>,
   isMidiConnected: boolean
 ) {
-  const playMode = useAppStore(state => state.playMode);
-
   useEffect(() => {
     const KEYBOARD_MAP: Record<string, number> = {
       'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59, // C3 - B3
@@ -28,7 +25,7 @@ export function useKeyboardInput(
       const key = e.key.toLowerCase();
       const midi = KEYBOARD_MAP[key];
       if (midi) {
-        startNote(midi, 0.8, playMode === 'demo');
+        startNote(midi, 0.8);
         setActiveNotes(prev => new Map(prev).set(midi, 0.8));
       }
     };
@@ -73,5 +70,5 @@ export function useKeyboardInput(
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [setActiveNotes, isMidiConnected, playMode]);
+  }, [setActiveNotes, isMidiConnected]);
 }

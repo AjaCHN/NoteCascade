@@ -1,8 +1,8 @@
-// app/components/settings/MidiSettings.tsx v2.3.1
+// app/components/settings/MidiSettings.tsx v1.3.5
 'use client';
 
 import React from 'react';
-import { Cpu, Zap, Check, AlertCircle, Sliders, RefreshCw, Bluetooth, MapPin, Trash2 } from 'lucide-react';
+import { Cpu, Zap, Check, AlertCircle, Sliders, RefreshCw } from 'lucide-react';
 import { MidiDevice, VelocityCurve, MidiMessage } from '../../hooks/use-midi';
 
 interface MidiSettingsProps {
@@ -19,53 +19,19 @@ interface MidiSettingsProps {
     transpose: number;
     setTranspose: (transpose: number) => void;
     connectMidi: () => void;
-    scanBluetoothMidi: () => void;
     isConnecting: boolean;
     lastMessage: MidiMessage | null;
-    midiMapping: Record<number, number>;
-    setMidiMapping: (mapping: Record<number, number>) => void;
-    isMappingMode: boolean;
-    setIsMappingMode: (val: boolean) => void;
-    mappingTarget: number | null;
-    setMappingTarget: (val: number | null) => void;
   };
 }
 
 export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
   const { 
     isSupported, inputs, selectedInputId, setSelectedInputId,
-    midiChannel, setMidiChannel, velocityCurve, setVelocityCurve, transpose, setTranspose, 
-    connectMidi, scanBluetoothMidi, isConnecting, midiMapping, setMidiMapping,
-    isMappingMode, setIsMappingMode, mappingTarget, setMappingTarget
+    midiChannel, setMidiChannel, velocityCurve, setVelocityCurve, transpose, setTranspose, connectMidi, isConnecting
   } = midiProps;
-
-  const getNoteName = (midi: number) => {
-    const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    return `${names[midi % 12]}${Math.floor(midi / 12) - 1}`;
-  };
 
   return (
     <div className="space-y-8">
-      {/* Bluetooth MIDI Section */}
-      <section className="p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/10">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Bluetooth className="h-4 w-4 text-indigo-400" />
-            <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">Bluetooth MIDI</label>
-          </div>
-          <button 
-            onClick={() => scanBluetoothMidi()}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500 text-white hover:bg-indigo-400 transition-colors text-xs font-bold shadow-lg shadow-indigo-500/20"
-          >
-            <Bluetooth className="h-3 w-3" />
-            <span>{t.scanBluetooth || 'Scan for Devices'}</span>
-          </button>
-        </div>
-        <p className="text-[10px] theme-text-secondary leading-relaxed">
-          {t.bluetoothTip || 'Connect your wireless MIDI keyboard via Bluetooth. Ensure Bluetooth is enabled on your device.'}
-        </p>
-      </section>
-
       <section>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -143,68 +109,15 @@ export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
               <Zap className="h-3 w-3 text-amber-400" />
               <span className="text-[10px] theme-text-secondary font-bold italic">{t.midiAutoConnect}</span>
             </div>
+            {midiProps.lastMessage && (
+              <div className="mt-4 p-3 rounded-xl bg-slate-500/10 border border-slate-500/20">
+                <p className="text-[10px] font-mono text-slate-400">
+                  Last Msg: Cmd {midiProps.lastMessage.command.toString(16)} | Note {midiProps.lastMessage.note} | Vel {midiProps.lastMessage.velocity}
+                </p>
+              </div>
+            )}
           </div>
         )}
-      </section>
-
-      {/* MIDI Mapping Section */}
-      <section>
-        <div className="flex items-center gap-2 mb-4">
-          <MapPin className="h-4 w-4 text-indigo-400" />
-          <label className="text-[10px] font-bold uppercase tracking-[0.2em] theme-text-secondary">{t.midiMapping || 'MIDI Mapping'}</label>
-        </div>
-        <div className="space-y-4 p-4 rounded-2xl theme-bg-secondary border theme-border">
-          {isMappingMode ? (
-            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
-              <p className="text-xs font-bold text-amber-400 animate-pulse">
-                {mappingTarget === null 
-                  ? (t.mappingSelectTarget || 'Click a key on the virtual keyboard to select mapping target...')
-                  : (t.mappingWait || `Now press a key on your physical MIDI device to map it to ${getNoteName(mappingTarget)}`)}
-              </p>
-              <button 
-                onClick={() => { setIsMappingMode(false); setMappingTarget(null); }}
-                className="mt-2 text-[10px] font-bold text-slate-400 hover:text-white underline"
-              >
-                {t.cancel || 'Cancel'}
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-[10px] theme-text-secondary italic">
-                {t.mappingTip || 'Map physical MIDI keys to specific virtual keys. Click "Start Mapping" then follow the instructions.'}
-              </p>
-              
-              {Object.keys(midiMapping).length > 0 && (
-                <div className="grid grid-cols-2 gap-2">
-                  {Object.entries(midiMapping).map(([raw, target]) => (
-                    <div key={raw} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border theme-border">
-                      <span className="text-[10px] font-mono theme-text-primary">
-                        {raw} → {getNoteName(target)}
-                      </span>
-                      <button 
-                        onClick={() => {
-                          const newMapping = { ...midiMapping };
-                          delete newMapping[parseInt(raw)];
-                          setMidiMapping(newMapping);
-                        }}
-                        className="p-1 text-rose-400 hover:bg-rose-500/10 rounded"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <button 
-                onClick={() => setIsMappingMode(true)}
-                className="w-full px-3 py-3 rounded-lg bg-indigo-500 text-white text-xs font-bold hover:bg-indigo-400 transition-all shadow-lg shadow-indigo-500/20"
-              >
-                {t.startMapping || 'Start Mapping'}
-              </button>
-            </div>
-          )}
-        </div>
       </section>
 
       <section>
@@ -217,12 +130,12 @@ export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
             <span className="text-xs font-bold theme-text-primary">{t.channel || 'Channel'}</span>
             <select 
               value={midiChannel}
-              onChange={(e) => setMidiChannel(e.target.value === '-1' ? 'all' : parseInt(e.target.value))}
+              onChange={(e) => setMidiChannel(parseInt(e.target.value))}
               className="bg-transparent text-xs font-bold theme-text-secondary focus:outline-none"
             >
-              <option value="-1">All</option>
+              <option value={-1}>All</option>
               {Array.from({ length: 16 }, (_, i) => (
-                <option key={i} value={i + 1}>{i + 1}</option>
+                <option key={i} value={i}>{i + 1}</option>
               ))}
             </select>
           </div>
@@ -249,14 +162,6 @@ export function MidiSettings({ t, midiProps }: MidiSettingsProps) {
           </div>
         </div>
       </section>
-
-      {midiProps.lastMessage && (
-        <div className="p-3 rounded-xl bg-slate-500/10 border border-slate-500/20">
-          <p className="text-[10px] font-mono text-slate-400">
-            Last Msg: Cmd {midiProps.lastMessage.command.toString(16)} | Note {midiProps.lastMessage.note} | Vel {midiProps.lastMessage.velocity}
-          </p>
-        </div>
-      )}
     </div>
   );
 }

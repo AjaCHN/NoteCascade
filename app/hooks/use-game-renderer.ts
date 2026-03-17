@@ -1,4 +1,4 @@
-// app/hooks/use-game-renderer.ts v2.3.1
+// app/hooks/use-game-renderer.ts v1.5.2
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -28,7 +28,6 @@ export function useGameRenderer(
   showNoteNames: boolean,
   recentHits: React.MutableRefObject<{ timeDiff: number; timestamp: number; type: Feedback['type'] }[]>,
   hitEffects: React.MutableRefObject<{ x: number; y: number; type: Feedback['type']; timestamp: number }[]>,
-  activeNoteStatus: React.MutableRefObject<Map<number, Feedback['type']>>,
   playMode: PlayMode
 ) {
   const activeNoteStartTimes = useRef<Map<number, number>>(new Map());
@@ -102,10 +101,8 @@ export function useGameRenderer(
         
         let color = '255, 255, 255';
         if (effect.type === 'perfect') color = '52, 211, 153';
-        else if (effect.type === 'early') color = '96, 165, 250';
-        else if (effect.type === 'late') color = '251, 191, 36';
         else if (effect.type === 'good') color = '96, 165, 250';
-        else if (effect.type === 'miss') color = '148, 163, 184';
+        else if (effect.type === 'miss') color = '251, 191, 36';
         else if (effect.type === 'wrong') color = '244, 63, 94';
 
         ctx.strokeStyle = `rgba(${color}, ${opacity})`;
@@ -119,7 +116,7 @@ export function useGameRenderer(
       activeNotes.forEach((velocity, midi) => {
         if (!activeNoteStartTimes.current.has(midi)) {
           activeNoteStartTimes.current.set(midi, now);
-          if (playMode === 'free-play') {
+          if (playMode === 'free') {
             freePlayNotes.current.push({ midi, startTime: now, endTime: null, velocity });
           }
         }
@@ -127,7 +124,7 @@ export function useGameRenderer(
       for (const midi of activeNoteStartTimes.current.keys()) {
         if (!activeNotes.has(midi)) {
           activeNoteStartTimes.current.delete(midi);
-          if (playMode === 'free-play') {
+          if (playMode === 'free') {
             const note = freePlayNotes.current.find(n => n.midi === midi && n.endTime === null);
             if (note) note.endTime = now;
           }
@@ -135,7 +132,7 @@ export function useGameRenderer(
       }
 
       // Draw active note columns (only for non-free play mode)
-      if (playMode !== 'free-play') {
+      if (playMode !== 'free') {
         const glowColor = theme === 'cyber' ? '0, 255, 0' : theme === 'classic' ? '217, 119, 6' : '99, 102, 241';
         activeNotes.forEach((velocity, midi) => {
           if (midi >= keyboardRange.start && midi <= keyboardRange.end) {
@@ -149,16 +146,8 @@ export function useGameRenderer(
             const growHeight = Math.min(height - 50, 100 + duration * 0.8);
             const baseOpacity = 0.1 + (velocity * 0.4);
             
-            let noteGlowColor = glowColor;
-            const status = activeNoteStatus.current.get(midi);
-            if (status === 'perfect') noteGlowColor = '52, 211, 153';
-            else if (status === 'early') noteGlowColor = '96, 165, 250';
-            else if (status === 'late') noteGlowColor = '251, 191, 36';
-            else if (status === 'good') noteGlowColor = '96, 165, 250';
-            else if (status === 'wrong') noteGlowColor = '244, 63, 94';
-            
             // Use solid color with alpha instead of gradient for performance
-            ctx.fillStyle = `rgba(${noteGlowColor}, ${baseOpacity})`;
+            ctx.fillStyle = `rgba(${glowColor}, ${baseOpacity})`;
             ctx.fillRect(x + 1, hitLineY - growHeight, currentKeyWidth - 2, growHeight);
             
             ctx.fillStyle = theme === 'light' ? `rgba(0, 0, 0, ${0.8 * velocity})` : `rgba(255, 255, 255, ${0.8 * velocity})`;
@@ -168,7 +157,7 @@ export function useGameRenderer(
       }
 
       // Draw free play notes (shooting up)
-      if (playMode === 'free-play') {
+      if (playMode === 'free') {
         freePlayNotes.current = freePlayNotes.current.filter(note => {
           const endTime = note.endTime || now;
           const noteBottomY = hitLineY - (now - endTime) * (FALL_SPEED / 1000);
@@ -201,7 +190,7 @@ export function useGameRenderer(
       }
 
       // Draw timing bar (only for non-free play mode)
-      if (playMode !== 'free-play') {
+      if (playMode !== 'free') {
         const barWidth = Math.min(400, width * 0.6);
         const barHeight = 12;
         const barX = (width - barWidth) / 2;
@@ -232,13 +221,9 @@ export function useGameRenderer(
           
           ctx.fillStyle = hit.type === 'perfect' 
             ? `rgba(52, 211, 153, ${opacity})` 
-            : hit.type === 'early' 
+            : hit.type === 'good' 
               ? `rgba(96, 165, 250, ${opacity})` 
-              : hit.type === 'late'
-                ? `rgba(251, 191, 36, ${opacity})`
-                : hit.type === 'good'
-                  ? `rgba(96, 165, 250, ${opacity})`
-                  : `rgba(148, 163, 184, ${opacity})`;
+              : `rgba(251, 191, 36, ${opacity})`;
 
           ctx.beginPath();
           ctx.roundRect(hitX - 3, barY - 2, 6, barHeight + 4, 3);
@@ -256,7 +241,7 @@ export function useGameRenderer(
       }
 
       // Draw falling notes (only for non-free play mode)
-      if (playMode !== 'free-play' && song.notes) {
+      if (playMode !== 'free' && song.notes) {
         const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
         const noteNameColor = 'rgba(255, 255, 255, 0.8)';
         ctx.font = 'bold 10px Inter';
@@ -307,5 +292,5 @@ export function useGameRenderer(
 
     render();
     return () => cancelAnimationFrame(animationFrameId);
-  }, [song, currentTime, dimensions, activeNotes, t, keyboardRange, showNoteNames, theme, keyGeometries, recentHits, hitEffects, activeNoteStatus, canvasRef, playMode]);
+  }, [song, currentTime, dimensions, activeNotes, t, keyboardRange, showNoteNames, theme, keyGeometries, recentHits, hitEffects, canvasRef, playMode]);
 }

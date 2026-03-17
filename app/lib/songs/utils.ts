@@ -1,4 +1,4 @@
-// app/lib/songs/utils.ts v2.3.1
+// app/lib/songs/utils.ts v1.4.2
 import type { Note } from '../songs';
 
 export function parseMelody(melody: string, bpm: number = 120): { notes: Note[], duration: number } {

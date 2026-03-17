@@ -1,8 +1,346 @@
-export default function Home() {
+// app/page.tsx v1.4.7
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useMidi } from './hooks/use-midi';
+import { useKeyboardInput } from './hooks/use-keyboard-input';
+import { initAudio, startNote, stopNote, setVolume, setAudioInstrument } from './lib/audio';
+import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, useShowNoteNames, useShowKeymap } from './lib/store';
+import { translations } from './lib/translations';
+import { Keyboard } from './components/Keyboard';
+import { GameCanvas } from './components/GameCanvas';
+import { motion, AnimatePresence } from 'motion/react';
+import { SettingsModal } from './components/SettingsModal';
+import { ResultModal } from './components/ResultModal';
+import { AchievementModal } from './components/AchievementModal';
+import { AppHeader } from './components/AppHeader';
+import { SongSelector } from './components/SongSelector';
+import { UsageTips } from './components/UsageTips';
+import { useGameLogic } from './hooks/use-game-logic';
+import { usePlayMode } from './lib/store';
+import { RotateCcw, RefreshCw, Play, Pause, SkipForward } from 'lucide-react';
+
+export default function MidiPlayApp() {
+  const { 
+    activeNotes, setActiveNotes, lastMessage, isSupported, isConnecting, inputs, selectedInputId,
+    setSelectedInputId, midiChannel, setMidiChannel, velocityCurve, setVelocityCurve,
+    transpose, setTranspose, connectMidi
+  } = useMidi();
+  const { setKeyboardRange, setPlayMode } = useAppActions();
+  const locale = useLocale();
+  const theme = useTheme();
+  const instrument = useInstrument();
+  const playMode = usePlayMode();
+  const keyboardRange = useKeyboardRange();
+  const showNoteNames = useShowNoteNames();
+  const showKeymap = useShowKeymap();
+  const t = translations[locale] || translations.en;
+  
+  const {
+    selectedSong, setSelectedSong, isPlaying, currentTime, showResult, setShowResult,
+    lastScore, setLastScore, togglePlay, resetSong, handleNextSong
+  } = useGameLogic(activeNotes, setActiveNotes);
+
+  const [showSettings, setShowSettings] = useState(false);
+  const [activeSettingsSection, setActiveSettingsSection] = useState<'general' | 'audio' | 'keyboard' | 'midi' | 'about'>('general');
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [volume, setVolumeState] = useState(80);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const [mounted, setMounted] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isRangeManuallySet, setIsRangeManuallySet] = useState(false);
+
+  // Dynamic keyboard range logic
+  useEffect(() => {
+    if (!mounted || isRangeManuallySet) return;
+
+    const hasMidi = inputs.length > 0;
+    
+    if (hasMidi) {
+      // MIDI connected: Use a fixed standard 88-key range and stop auto-adjusting to songs
+      if (keyboardRange.start !== 21 || keyboardRange.end !== 108) {
+         setKeyboardRange(21, 108);
+      }
+      return;
+    }
+
+    // No MIDI connected: Adjust range to fit the song
+    if (selectedSong && selectedSong.notes && selectedSong.notes.length > 0) {
+      const midis = selectedSong.notes.map(n => n.midi);
+      const minMidi = Math.min(...midis);
+      const maxMidi = Math.max(...midis);
+      
+      // Add some padding (e.g., 2-3 notes on each side)
+      let start = Math.max(21, minMidi - 2);
+      let end = Math.min(108, maxMidi + 2);
+      
+      // Ensure start and end are white keys for better visual rendering
+      while ([1, 3, 6, 8, 10].includes(start % 12) && start > 21) {
+        start--;
+      }
+      while ([1, 3, 6, 8, 10].includes(end % 12) && end < 108) {
+        end++;
+      }
+      
+      // Ensure at least 25 keys width as requested
+      const finalStart = start;
+      let finalEnd = Math.max(start + 24, end); // 24 diff means 25 keys
+
+      // Ensure finalEnd is also a white key
+      while ([1, 3, 6, 8, 10].includes(finalEnd % 12) && finalEnd < 108) {
+        finalEnd++;
+      }
+      
+      if (finalStart !== keyboardRange.start || finalEnd !== keyboardRange.end) {
+        setKeyboardRange(finalStart, finalEnd);
+      }
+    } else {
+      // Default range for no song: ensure 25 keys
+      if (keyboardRange.start !== 48 || keyboardRange.end !== 72) {
+        setKeyboardRange(48, 72); // 48 to 72 is 25 keys
+      }
+    }
+  }, [inputs.length, selectedSong, setKeyboardRange, mounted, keyboardRange.start, keyboardRange.end, isRangeManuallySet]);
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+      setIsFullScreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+        setIsFullScreen(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleFsChange = () => setIsFullScreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const handleResize = () => setWindowWidth(window.innerWidth);
+      setTimeout(() => setWindowWidth(window.innerWidth), 0);
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isSupported && mounted) {
+      console.warn('Web MIDI API is not supported in this browser.');
+    }
+  }, [isSupported, mounted]);
+
+  useEffect(() => {
+    if (lastMessage) {
+      initAudio();
+      const { command, note, velocity } = lastMessage;
+      const status = command & 0xf0;
+      if (status === 0x90 && velocity > 0) {
+        startNote(note, velocity / 127);
+      } else if (status === 0x80 || (status === 0x90 && velocity === 0)) {
+        stopNote(note);
+      }
+    }
+  }, [lastMessage]);
+
+  useKeyboardInput(setActiveNotes, inputs.length > 0);
+
+  useEffect(() => {
+    setTimeout(() => setMounted(true), 0);
+    setVolume(volume);
+    setAudioInstrument(instrument);
+
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setTimeout(() => {
+        setKeyboardRange(48, 72); // 25 keys
+      }, 0);
+    }
+  }, [instrument, setKeyboardRange, volume]);
+
+  useEffect(() => {
+    setAudioInstrument(instrument);
+  }, [instrument]);
+
+  const isBlackKey = (midi: number) => [1, 3, 6, 8, 10].includes(midi % 12);
+  const whiteKeyCount = Array.from({ length: keyboardRange.end - keyboardRange.start + 1 }, (_, i) => keyboardRange.start + i)
+      .filter(midi => !isBlackKey(midi)).length;
+  const minCanvasWidth = windowWidth < 768 
+    ? Math.max(windowWidth, whiteKeyCount * 32) 
+    : '100%';
+
+  const midiProps = {
+    activeNotes, setActiveNotes, lastMessage, isSupported, inputs, selectedInputId,
+    setSelectedInputId, midiChannel, setMidiChannel, velocityCurve, setVelocityCurve,
+    transpose, setTranspose, connectMidi, isConnecting
+  };
+
+  if (!mounted) {
+    return <div className="flex h-dvh w-full items-center justify-center bg-slate-950 text-slate-500">{t.loading}</div>;
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-4xl font-bold">Welcome to My App</h1>
-      <p className="mt-4 text-xl">The application has been rebuilt.</p>
-    </main>
+    <div 
+      id="notecascade-app" 
+      data-theme={theme}
+      className="flex h-dvh w-full flex-col theme-bg-primary theme-text-primary font-sans selection:bg-indigo-500/30 overflow-hidden relative transition-colors duration-500"
+    >
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <div className={`absolute -top-[20%] -left-[10%] w-[60%] h-[60%] blur-[120px] rounded-full transition-colors duration-1000 ${
+          theme === 'cyber' ? 'bg-green-500/10' : theme === 'classic' ? 'bg-amber-500/10' : 'bg-indigo-500/10'
+        }`} />
+        <div className={`absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] blur-[120px] rounded-full transition-colors duration-1000 ${
+          theme === 'cyber' ? 'bg-fuchsia-500/10' : theme === 'classic' ? 'bg-orange-500/10' : 'bg-purple-500/10'
+        }`} />
+        <div className="scanline-effect opacity-30" />
+      </div>
+
+      <AppHeader 
+        theme={theme}
+        selectedInputId={selectedInputId}
+        inputs={inputs}
+        setShowSettings={setShowSettings}
+        setActiveSettingsSection={setActiveSettingsSection}
+        showSettings={showSettings}
+        setShowAchievements={setShowAchievements}
+        showAchievements={showAchievements}
+        connectMidi={connectMidi}
+        isConnecting={isConnecting}
+        isFullScreen={isFullScreen}
+        toggleFullScreen={toggleFullScreen}
+      />
+
+      <UsageTips />
+
+      <main id="main-content" className="flex flex-1 overflow-hidden relative z-10">
+        <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden bg-transparent overflow-x-auto custom-scrollbar">
+          <div className="flex-1 flex flex-col min-h-0 relative" style={{ minWidth: typeof minCanvasWidth === 'number' ? `${minCanvasWidth}px` : minCanvasWidth }}>
+            <div id="game-canvas-container" className="flex-1 relative min-h-0">
+              {playMode === 'library' ? (
+                <div className="h-full w-full overflow-y-auto custom-scrollbar bg-slate-50/50 dark:bg-slate-950/50">
+                  <SongSelector 
+                    onSelect={(song, mode) => {
+                      setSelectedSong(song);
+                      resetSong();
+                      setPlayMode(mode || 'practice'); // Switch to practice mode when song selected
+                    }}
+                    selectedSongId={selectedSong.id}
+                  />
+                </div>
+              ) : (
+                <>
+                  <GameCanvas
+                    song={selectedSong}
+                    currentTime={currentTime}
+                    activeNotes={activeNotes}
+                    isPlaying={isPlaying}
+                    onScoreUpdate={setLastScore}
+                    keyboardRange={keyboardRange}
+                    showNoteNames={showNoteNames}
+                    theme={theme}
+                  />
+
+                  {/* Floating Controls - Hide in free play mode */}
+                  {playMode !== 'free' && (
+                    <div className="absolute top-4 right-4 flex flex-col gap-3 z-40">
+                      <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md p-2 rounded-2xl border theme-border shadow-lg">
+                        <div className="flex items-center gap-1">
+                          <button onClick={resetSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.reset}>
+                            <RotateCcw className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => { resetSong(); togglePlay(); }} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.retry}>
+                            <RefreshCw className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="w-px h-6 bg-white/10 mx-1"></div>
+                        <button onClick={togglePlay} className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/40 hover:bg-indigo-400 hover:scale-105 active:scale-95 transition-all">
+                          {isPlaying ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current ml-1" />}
+                        </button>
+                        <div className="w-px h-6 bg-white/10 mx-1"></div>
+                        <button onClick={handleNextSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.nextSong}>
+                          <SkipForward className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="bg-black/40 backdrop-blur-md p-3 rounded-2xl border theme-border shadow-lg w-64">
+                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest theme-text-secondary mb-1.5">
+                          <span>{Math.floor(currentTime / 60)}:{(currentTime % 60).toFixed(0).padStart(2, '0')}</span>
+                          <span>{Math.floor((selectedSong.duration || 0) / 60)}:{((selectedSong.duration || 0) % 60).toFixed(0).padStart(2, '0')}</span>
+                        </div>
+                        <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden border theme-border">
+                          <motion.div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500" style={{ width: `${(currentTime / (selectedSong.duration || 1)) * 100}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            <div id="keyboard-wrapper" className="shrink-0 relative z-20 h-24 md:h-32 border-t theme-border">
+              <Keyboard 
+                activeNotes={activeNotes} 
+                startNote={keyboardRange.start} 
+                endNote={keyboardRange.end} 
+                showNoteNames={showNoteNames}
+                showKeymap={showKeymap}
+                keyMap={{
+                  'z': 48, 's': 49, 'x': 50, 'd': 51, 'c': 52, 'v': 53, 'g': 54, 'b': 55, 'h': 56, 'n': 57, 'j': 58, 'm': 59,
+                  'q': 60, '2': 61, 'w': 62, '3': 63, 'e': 64, 'r': 65, '5': 66, 't': 67, '6': 68, 'y': 69, '7': 70, 'u': 71,
+                  'i': 72, '9': 73, 'o': 74, '0': 75, 'p': 76
+                }}
+                onNoteOn={(midi) => setActiveNotes(prev => new Map(prev).set(midi, 0.7))}
+                onNoteOff={(midi) => setActiveNotes(prev => { const next = new Map(prev); next.delete(midi); return next; })}
+                isMidiConnected={inputs.length > 0}
+              />
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <AnimatePresence>
+        {showResult && (
+          <ResultModal 
+            key="result-modal"
+            show={showResult}
+            onClose={() => { setShowResult(false); resetSong(); }}
+            onRetry={() => { setShowResult(false); resetSong(); togglePlay(); }}
+            score={lastScore}
+            song={selectedSong}
+          />
+        )}
+
+        {showSettings && (
+          <SettingsModal 
+            key="settings-modal"
+            show={showSettings}
+            activeSection={activeSettingsSection}
+            onClose={() => setShowSettings(false)}
+            midiProps={midiProps}
+            setIsRangeManuallySet={setIsRangeManuallySet}
+            volume={volume}
+            setVolume={(val) => {
+              setVolumeState(val);
+              setVolume(val);
+            }}
+          />
+        )}
+
+        {showAchievements && (
+          <AchievementModal
+            key="achievement-modal"
+            show={showAchievements}
+            onClose={() => setShowAchievements(false)}
+          />
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

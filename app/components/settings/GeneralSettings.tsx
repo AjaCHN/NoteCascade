@@ -1,4 +1,4 @@
-// app/components/settings/GeneralSettings.tsx v2.3.1
+// app/components/settings/GeneralSettings.tsx v1.3.5
 'use client';
 
 import React from 'react';
@@ -8,7 +8,7 @@ import { Theme, Instrument } from '../../lib/store';
 
 interface GeneralSettingsProps {
   locale: Locale;
-  setLocale: (locale: Locale, isManual?: boolean) => void;
+  setLocale: (locale: Locale) => void;
   theme: Theme;
   setTheme: (theme: Theme) => void;
   instrument: Instrument;
@@ -35,7 +35,7 @@ export function GeneralSettings({
         <div className="relative group">
           <select 
             value={locale}
-            onChange={(e) => setLocale(e.target.value as Locale, true)}
+            onChange={(e) => setLocale(e.target.value as Locale)}
             className="w-full appearance-none theme-bg-secondary border theme-border rounded-2xl px-5 py-4 theme-text-primary font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all cursor-pointer"
           >
             {(Object.keys(translations) as Locale[]).map((lang) => (

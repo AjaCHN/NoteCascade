@@ -1,4 +1,4 @@
-# NoteCascade 🎹 v2.6.0
+# NoteCascade 🎹
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
@@ -13,16 +13,13 @@
 
 ## ✨ 特性
 
--   **🎹 MIDI 支持**：通过 USB 或蓝牙连接任何兼容 MIDI 的键盘，获得实时反馈。
+-   **🎹 MIDI 支持**：通过 USB 连接任何兼容 MIDI 的键盘，获得实时反馈。
 -   **🌊 瀑布流游戏模式**：类似于流行节奏游戏的视觉下落音符界面。
 -   **🌍 多语言支持**：全面本地化，支持英语、中文（简体/繁体）、西班牙语、阿拉伯语、法语、葡萄牙语、德语、日语、韩语和俄语。
 -   **🏆 成就系统**：通过解锁成就和统计数据跟踪您的进度。
 -   **🎨 主题切换**：选择多种主题（深色、浅色、赛博朋克、经典）以适应您的风格。
 -   **📱 响应式设计**：适用于桌面和移动设备（包含触摸支持）。
--   **🎵 内置歌曲**：使用包含各种风格（经典、中文、儿童等）的内置歌曲库进行练习。
--   **⚙️ 增强的鲁棒性**：菜单自动关闭、完善的错误处理与状态管理。
--   **🛠️ MIDI 映射**：支持物理 MIDI 按键到虚拟按键的自定义映射。
--   **⏲️ 节拍器**：内置节拍器，帮助您保持稳定的节奏。
+-   **🎵 内置歌曲**：使用包含各种风格的内置歌曲库进行练习。
 
 ## 🚀 快速开始
 
@@ -35,8 +32,8 @@
 
 1.  克隆仓库：
     ```bash
-    git clone https://github.com/AjaCHN/NoteCascade.git
-    cd NoteCascade
+    git clone https://github.com/sutchan/notecascade.git
+    cd notecascade
     ```
 
 2.  安装依赖：
@@ -75,7 +72,7 @@
 
 1.  Fork 本项目
 2.  创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
-3.  Commit 您 的更改 (`git commit -m 'feat: Add some AmazingFeature'`)
+3.  提交您的更改 (`git commit -m 'feat: Add some AmazingFeature'`)
 4.  推送到分支 (`git push origin feature/AmazingFeature`)
 5.  开启一个 Pull Request
 
