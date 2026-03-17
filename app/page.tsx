@@ -1,4 +1,4 @@
-// app/page.tsx v2.0.1
+// app/page.tsx v2.0.2
 'use client';
 
 import React, { useState, useEffect } from 'react';

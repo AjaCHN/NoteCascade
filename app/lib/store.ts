@@ -1,7 +1,6 @@
-// app/lib/store.ts v2.0.1
+// app/lib/store.ts v2.2.0
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import Cookies from 'js-cookie';
 import { AppState, PlayMode, Theme, Instrument, Achievement, ScoreRecord } from './store/types';
 import { INITIAL_ACHIEVEMENTS } from './achievements-data';
 import { createActions } from './store/actions';
@@ -32,11 +31,7 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'notecascade-storage',
-      storage: createJSONStorage(() => ({
-        getItem: (name: string): string | null => Cookies.get(name) || null,
-        setItem: (name: string, value: string): void => { Cookies.set(name, value, { expires: 365 }); },
-        removeItem: (name: string): void => { Cookies.remove(name); },
-      }) as unknown as Storage),
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         achievements: state.achievements,
         scores: state.scores,

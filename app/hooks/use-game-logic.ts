@@ -61,6 +61,9 @@ export function useGameLogic(
 
     const { perfect, good, miss, wrong, currentScore } = latestScoreRef.current;
     
+    // Prevent multiple calls to handleSongEnd for the same song
+    if (showResult) return;
+
     const totalNotes = perfect + good + miss + wrong;
     const accuracy = totalNotes > 0 ? (perfect + good) / totalNotes : 0;
     const maxScore = (selectedSong.notes?.length || 0) * 100;

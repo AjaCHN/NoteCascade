@@ -49,13 +49,30 @@ export function AppHeader({
   const { setPlayMode } = useAppActions();
   const t = translations[locale] || translations.en;
   const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const { user, signIn, logOut } = useAuth();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const openSettings = useCallback((section: 'general' | 'audio' | 'keyboard' | 'midi' | 'about' | 'account') => {
     setActiveSettingsSection(section);
     setShowSettings(true);
     setShowMenu(false);
   }, [setActiveSettingsSection, setShowSettings]);
+
+  const handleMouseLeave = () => {
+    setTimeout(() => {
+      setShowMenu(false);
+    }, 2000);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -128,6 +145,7 @@ export function AppHeader({
           title={`${t.library} (L)`}
         >
           <Library className="h-5 w-5" />
+          <span className="text-xs font-bold uppercase tracking-widest hidden md:inline">{t.library}</span>
         </button>
 
         <button 
@@ -173,6 +191,8 @@ export function AppHeader({
         </button>
         <div 
           className="relative" 
+          ref={menuRef}
+          onMouseLeave={handleMouseLeave}
         >
           <button 
             onClick={() => setShowMenu(!showMenu)}

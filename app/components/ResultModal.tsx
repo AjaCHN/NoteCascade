@@ -25,7 +25,7 @@ interface ResultModalProps {
 export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps) {
   const locale = useLocale();
   const t = translations[locale] || translations.en;
-  const [countdown, setCountdown] = useState(10);
+  const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -64,7 +64,7 @@ export function ResultModal({ onClose, onRetry, score, song }: ResultModalProps)
           <motion.div 
             initial={{ width: '100%' }}
             animate={{ width: '0%' }}
-            transition={{ duration: 10, ease: 'linear' }}
+            transition={{ duration: 5, ease: 'linear' }}
             className="h-full bg-indigo-500"
           />
         </div>

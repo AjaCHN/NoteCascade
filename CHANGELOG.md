@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.2
+- Fix: Fixed hydration error by suppressing warnings in layout and ensuring components render only after mount.
+- Fix: Fixed build error by regenerating missing build artifacts.
+- Refactor: Optimized state persistence by switching from Cookie to localStorage.
+- UI: Improved menu auto-close interaction in AppHeader.
+
 ## v2.0.1
 - Feat: Added 15 new children's songs to the library (Little Rabbit Be Good, Counting Ducks, Malan Flower, Childhood, Edelweiss, The Dull-Ice Flower, Catching Loaches, Little Donkey, Little Swallow, Pulling Radishes, Two Tigers, Doraemon, The Painter, Little Conch, Peppa Pig).
 - UI: Moved random tips display position up to the blank canvas area and ensured it doesn't block other UI elements.

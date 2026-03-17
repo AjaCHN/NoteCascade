@@ -1,4 +1,4 @@
-// app/layout.tsx v2.0.1
+// app/layout.tsx v2.0.2
 import type {Metadata, Viewport} from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
@@ -70,7 +70,7 @@ export const viewport: Viewport = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
-      <body className="antialiased font-sans">
+      <body className="antialiased font-sans" suppressHydrationWarning>
         <ClientLayout>
           {children}
         </ClientLayout>
