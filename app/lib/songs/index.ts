@@ -1,16 +1,18 @@
-// app/lib/songs/index.ts v1.4.2
+// app/lib/songs/index.ts v2.3.1
 import type { Song } from '../songs';
 import { parseMelody } from './utils';
 import { classicSongs } from './classic';
 import { holidaySongs } from './holiday';
 import { chineseSongs } from './chinese';
 import { popRockSongs } from './pop-rock';
+import { childrenSongs } from './children';
 
 const allSongData = [
   ...classicSongs,
   ...holidaySongs,
   ...chineseSongs,
-  ...popRockSongs
+  ...popRockSongs,
+  ...childrenSongs
 ];
 
 export const generatedSongs: Song[] = allSongData.map(data => {

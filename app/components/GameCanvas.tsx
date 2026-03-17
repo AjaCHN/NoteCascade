@@ -1,8 +1,7 @@
-// app/components/GameCanvas.tsx v1.3.5
+// app/components/GameCanvas.tsx v2.3.1
 'use client';
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { Song } from '../lib/songs';
 import { useLocale, usePlayMode } from '../lib/store';
 import { translations } from '../lib/translations';
@@ -16,9 +15,19 @@ interface GameCanvasProps {
   activeNotes: Map<number, number>;
   onScoreUpdate: (score: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => void;
   isPlaying: boolean;
+  showResult?: boolean;
   keyboardRange: { start: number; end: number };
   showNoteNames: boolean;
   theme: string;
+  controls?: {
+    isPlaying: boolean;
+    currentTime: number;
+    duration: number;
+    onReset: () => void;
+    onRetry: () => void;
+    onTogglePlay: () => void;
+    onNextSong: () => void;
+  };
 }
 
 function isBlackKey(midi: number): boolean {
@@ -32,9 +41,11 @@ export function GameCanvas({
   activeNotes, 
   onScoreUpdate, 
   isPlaying,
+  showResult = false,
   keyboardRange,
   showNoteNames,
-  theme
+  theme,
+  controls
 }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -73,7 +84,7 @@ export function GameCanvas({
     return geometries;
   }, [keyboardRange.start, keyboardRange.end, dimensions.width]);
 
-  const { score, feedbacks, recentHits, hitEffects } = useGameEngine(
+  const { score, recentHits, hitEffects, activeNoteStatus } = useGameEngine(
     song,
     currentTime,
     activeNotes,
@@ -83,7 +94,8 @@ export function GameCanvas({
     dimensions,
     keyGeometries,
     onScoreUpdate,
-    playMode
+    playMode,
+    showResult
   );
 
   useGameRenderer(
@@ -99,6 +111,7 @@ export function GameCanvas({
     showNoteNames,
     recentHits,
     hitEffects,
+    activeNoteStatus,
     playMode
   );
 
@@ -130,29 +143,15 @@ export function GameCanvas({
   return (
     <div ref={containerRef} className={`relative h-full w-full overflow-hidden ${theme === 'light' ? 'bg-slate-50' : 'bg-slate-950'}`}>
       <canvas ref={canvasRef} className="h-full w-full" />
-      {playMode !== 'free' && <GameStatsOverlay song={song} score={score} theme={theme} t={t} />}
-
-      <div className="absolute inset-0 pointer-events-none z-30">
-        <AnimatePresence>
-          {feedbacks.map((f) => (
-            <motion.div
-              key={f.id}
-              initial={{ y: f.y, x: f.x, opacity: 0, scale: 0.5 }}
-              animate={{ y: f.y - 100, opacity: 1, scale: 1.2 }}
-              exit={{ opacity: 0 }}
-              className={`absolute -translate-x-1/2 text-center font-black text-xl italic drop-shadow-lg ${
-                f.type === 'perfect' ? 'text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.8)]' : 
-                f.type === 'good' ? 'text-blue-400 drop-shadow-[0_0_10px_rgba(96,165,250,0.8)]' : 
-                f.type === 'miss' ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]' : 'text-rose-400 drop-shadow-[0_0_10px_rgba(244,63,94,0.8)]'
-              }`}
-            >
-              {f.text.split('\n').map((line, i) => (
-                <div key={i} className={i > 0 ? 'text-sm opacity-80' : ''}>{line}</div>
-              ))}
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+      {playMode !== 'free-play' && (
+        <GameStatsOverlay 
+          song={song} 
+          score={score} 
+          t={t} 
+          recentHits={recentHits.current}
+          controls={controls}
+        />
+      )}
     </div>
   );
 }

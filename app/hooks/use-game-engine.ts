@@ -1,4 +1,4 @@
-// app/hooks/use-game-engine.ts v1.3.5
+// app/hooks/use-game-engine.ts v2.3.1
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
@@ -7,7 +7,7 @@ import { Song } from '../lib/songs';
 export interface Feedback {
   id: number;
   text: string;
-  type: 'perfect' | 'good' | 'miss' | 'wrong';
+  type: 'perfect' | 'good' | 'early' | 'late' | 'miss' | 'wrong';
   x: number;
   y: number;
 }
@@ -26,7 +26,8 @@ export function useGameEngine(
   dimensions: { width: number; height: number },
   keyGeometries: Map<number, { x: number, width: number, isBlack: boolean }>,
   onScoreUpdate: (score: { perfect: number; good: number; miss: number; wrong: number; currentScore: number }) => void,
-  playMode: string
+  playMode: string,
+  showResult: boolean = false
 ) {
   const [score, setScore] = useState({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
@@ -35,6 +36,7 @@ export function useGameEngine(
   const recentHits = useRef<{ timeDiff: number; timestamp: number; type: Feedback['type'] }[]>([]);
   const feedbackIdCounter = useRef(0);
   const hitEffects = useRef<{ x: number; y: number; type: Feedback['type']; timestamp: number }[]>([]);
+  const activeNoteStatus = useRef<Map<number, Feedback['type']>>(new Map());
 
   const addFeedback = useCallback((text: string, type: Feedback['type'], midi: number) => {
     if (playMode === 'free') return; // No feedback in free play
@@ -50,7 +52,7 @@ export function useGameEngine(
   }, [dimensions.height, keyGeometries, playMode]);
 
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying || showResult) return;
     if (playMode === 'free') {
       lastActiveNotes.current = new Set(activeNotes.keys());
       return;
@@ -79,8 +81,10 @@ export function useGameEngine(
             points = 100;
             text = t.perfect.toUpperCase();
           } else if (timeDiff < 0) {
+            type = 'early';
             text = t.early;
           } else {
+            type = 'late';
             text = t.late;
           }
 
@@ -95,19 +99,27 @@ export function useGameEngine(
           setScore(prev => ({
             ...prev,
             perfect: prev.perfect + (type === 'perfect' ? 1 : 0),
-            good: prev.good + (type === 'perfect' ? 0 : 1),
+            good: prev.good + ((type === 'early' || type === 'late') ? 1 : 0),
             currentScore: prev.currentScore + points
           }));
 
           addFeedback(text, type, midi);
+          activeNoteStatus.current.set(midi, type);
         } else {
           if (midi >= keyboardRange.start && midi <= keyboardRange.end) {
             setScore(prev => ({ ...prev, wrong: prev.wrong + 1, currentScore: Math.max(0, prev.currentScore - 10) }));
             addFeedback(t.wrong.toUpperCase(), 'wrong', midi);
+            activeNoteStatus.current.set(midi, 'wrong');
           }
         }
       }
     });
+
+    for (const midi of lastActiveNotes.current) {
+      if (!activeNotes.has(midi)) {
+        activeNoteStatus.current.delete(midi);
+      }
+    }
 
     song.notes?.forEach((n, idx) => {
       if (!processedNotes.current.has(idx) && n.time < currentTime - GOOD_THRESHOLD) {
@@ -118,7 +130,7 @@ export function useGameEngine(
     });
 
     lastActiveNotes.current = new Set(activeNotes.keys());
-  }, [currentTime, activeNotes, song, isPlaying, addFeedback, t, keyboardRange.start, keyboardRange.end, playMode]);
+  }, [currentTime, activeNotes, song, isPlaying, showResult, addFeedback, t, keyboardRange.start, keyboardRange.end, playMode]);
 
   useEffect(() => {
     onScoreUpdate(score);
@@ -126,7 +138,6 @@ export function useGameEngine(
 
   useEffect(() => {
     if (currentTime === 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setScore({ perfect: 0, good: 0, miss: 0, wrong: 0, currentScore: 0 });
       processedNotes.current = new Set();
       recentHits.current = [];
@@ -137,6 +148,7 @@ export function useGameEngine(
     score,
     feedbacks,
     recentHits,
-    hitEffects
+    hitEffects,
+    activeNoteStatus
   };
 }

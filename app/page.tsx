@@ -1,32 +1,38 @@
-// app/page.tsx v1.4.7
+// app/page.tsx v2.3.1
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useMidi } from './hooks/use-midi';
 import { useKeyboardInput } from './hooks/use-keyboard-input';
-import { initAudio, startNote, stopNote, setVolume, setAudioInstrument } from './lib/audio';
-import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, useShowNoteNames, useShowKeymap } from './lib/store';
+import { startNote, stopNote, setVolume, setAudioInstrument } from './lib/audio';
+import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, useShowNoteNames, useShowKeymap, usePlayMode } from './lib/store';
 import { translations } from './lib/translations';
 import { Keyboard } from './components/Keyboard';
 import { GameCanvas } from './components/GameCanvas';
-import { motion, AnimatePresence } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
 import { SettingsModal } from './components/SettingsModal';
 import { ResultModal } from './components/ResultModal';
 import { AchievementModal } from './components/AchievementModal';
 import { AppHeader } from './components/AppHeader';
 import { SongSelector } from './components/SongSelector';
 import { UsageTips } from './components/UsageTips';
+import { BackgroundEffects } from './components/BackgroundEffects';
+import { ImportSongModal } from './components/ImportSongModal';
+import { Song } from './lib/songs';
+import { useKeyboardRangeLogic } from './hooks/use-keyboard-range-logic';
+import { useWindowLogic } from './hooks/use-window-logic';
 import { useGameLogic } from './hooks/use-game-logic';
-import { usePlayMode } from './lib/store';
-import { RotateCcw, RefreshCw, Play, Pause, SkipForward } from 'lucide-react';
+import { useMetronome } from './hooks/use-metronome';
 
 export default function MidiPlayApp() {
+  useMetronome();
   const { 
     activeNotes, setActiveNotes, lastMessage, isSupported, isConnecting, inputs, selectedInputId,
     setSelectedInputId, midiChannel, setMidiChannel, velocityCurve, setVelocityCurve,
-    transpose, setTranspose, connectMidi
+    transpose, setTranspose, connectMidi, scanBluetoothMidi, midiMapping, setMidiMapping,
+    isMappingMode, setIsMappingMode, mappingTarget, setMappingTarget
   } = useMidi();
-  const { setKeyboardRange, setPlayMode } = useAppActions();
+  const { setPlayMode } = useAppActions();
   const locale = useLocale();
   const theme = useTheme();
   const instrument = useInstrument();
@@ -42,94 +48,32 @@ export default function MidiPlayApp() {
   } = useGameLogic(activeNotes, setActiveNotes);
 
   const [showSettings, setShowSettings] = useState(false);
-  const [activeSettingsSection, setActiveSettingsSection] = useState<'general' | 'audio' | 'keyboard' | 'midi' | 'about'>('general');
+  const [activeSettingsSection, setActiveSettingsSection] = useState<'general' | 'audio' | 'keyboard' | 'midi' | 'about' | 'account'>('general');
   const [showAchievements, setShowAchievements] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [volume, setVolumeState] = useState(80);
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const [mounted, setMounted] = useState(false);
-  const [isFullScreen, setIsFullScreen] = useState(false);
   const [isRangeManuallySet, setIsRangeManuallySet] = useState(false);
 
-  // Dynamic keyboard range logic
-  useEffect(() => {
-    if (!mounted || isRangeManuallySet) return;
+  const { windowWidth, isFullScreen, toggleFullScreen } = useWindowLogic();
+  useKeyboardRangeLogic(mounted, isRangeManuallySet, inputs, selectedSong, windowWidth);
 
-    const hasMidi = inputs.length > 0;
-    
-    if (hasMidi) {
-      // MIDI connected: Use a fixed standard 88-key range and stop auto-adjusting to songs
-      if (keyboardRange.start !== 21 || keyboardRange.end !== 108) {
-         setKeyboardRange(21, 108);
-      }
-      return;
-    }
-
-    // No MIDI connected: Adjust range to fit the song
-    if (selectedSong && selectedSong.notes && selectedSong.notes.length > 0) {
-      const midis = selectedSong.notes.map(n => n.midi);
-      const minMidi = Math.min(...midis);
-      const maxMidi = Math.max(...midis);
-      
-      // Add some padding (e.g., 2-3 notes on each side)
-      let start = Math.max(21, minMidi - 2);
-      let end = Math.min(108, maxMidi + 2);
-      
-      // Ensure start and end are white keys for better visual rendering
-      while ([1, 3, 6, 8, 10].includes(start % 12) && start > 21) {
-        start--;
-      }
-      while ([1, 3, 6, 8, 10].includes(end % 12) && end < 108) {
-        end++;
-      }
-      
-      // Ensure at least 25 keys width as requested
-      const finalStart = start;
-      let finalEnd = Math.max(start + 24, end); // 24 diff means 25 keys
-
-      // Ensure finalEnd is also a white key
-      while ([1, 3, 6, 8, 10].includes(finalEnd % 12) && finalEnd < 108) {
-        finalEnd++;
-      }
-      
-      if (finalStart !== keyboardRange.start || finalEnd !== keyboardRange.end) {
-        setKeyboardRange(finalStart, finalEnd);
-      }
-    } else {
-      // Default range for no song: ensure 25 keys
-      if (keyboardRange.start !== 48 || keyboardRange.end !== 72) {
-        setKeyboardRange(48, 72); // 48 to 72 is 25 keys
-      }
-    }
-  }, [inputs.length, selectedSong, setKeyboardRange, mounted, keyboardRange.start, keyboardRange.end, isRangeManuallySet]);
-
-  const toggleFullScreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(err => {
-        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
-      });
-      setIsFullScreen(true);
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-        setIsFullScreen(false);
-      }
-    }
+  const handleImport = (song: Song) => {
+    setSelectedSong(song);
+    setShowImportModal(false);
   };
 
   useEffect(() => {
-    const handleFsChange = () => setIsFullScreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', handleFsChange);
-    return () => document.removeEventListener('fullscreenchange', handleFsChange);
-  }, []);
+    if (mounted) {
+      setAudioInstrument(instrument);
+    }
+  }, [instrument, mounted]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const handleResize = () => setWindowWidth(window.innerWidth);
-      setTimeout(() => setWindowWidth(window.innerWidth), 0);
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
+    if (mounted) {
+      setVolume(volume);
     }
-  }, []);
+  }, [volume, mounted]);
 
   useEffect(() => {
     if (!isSupported && mounted) {
@@ -139,34 +83,18 @@ export default function MidiPlayApp() {
 
   useEffect(() => {
     if (lastMessage) {
-      initAudio();
       const { command, note, velocity } = lastMessage;
       const status = command & 0xf0;
       if (status === 0x90 && velocity > 0) {
-        startNote(note, velocity / 127);
+        startNote(note, velocity / 127, playMode === 'demo');
       } else if (status === 0x80 || (status === 0x90 && velocity === 0)) {
         stopNote(note);
       }
     }
-  }, [lastMessage]);
+  }, [lastMessage, playMode]);
 
   useKeyboardInput(setActiveNotes, inputs.length > 0);
 
-  useEffect(() => {
-    setTimeout(() => setMounted(true), 0);
-    setVolume(volume);
-    setAudioInstrument(instrument);
-
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      setTimeout(() => {
-        setKeyboardRange(48, 72); // 25 keys
-      }, 0);
-    }
-  }, [instrument, setKeyboardRange, volume]);
-
-  useEffect(() => {
-    setAudioInstrument(instrument);
-  }, [instrument]);
 
   const isBlackKey = (midi: number) => [1, 3, 6, 8, 10].includes(midi % 12);
   const whiteKeyCount = Array.from({ length: keyboardRange.end - keyboardRange.start + 1 }, (_, i) => keyboardRange.start + i)
@@ -178,7 +106,8 @@ export default function MidiPlayApp() {
   const midiProps = {
     activeNotes, setActiveNotes, lastMessage, isSupported, inputs, selectedInputId,
     setSelectedInputId, midiChannel, setMidiChannel, velocityCurve, setVelocityCurve,
-    transpose, setTranspose, connectMidi, isConnecting
+    transpose, setTranspose, connectMidi, isConnecting, scanBluetoothMidi,
+    midiMapping, setMidiMapping, isMappingMode, setIsMappingMode, mappingTarget, setMappingTarget
   };
 
   if (!mounted) {
@@ -191,15 +120,7 @@ export default function MidiPlayApp() {
       data-theme={theme}
       className="flex h-dvh w-full flex-col theme-bg-primary theme-text-primary font-sans selection:bg-indigo-500/30 overflow-hidden relative transition-colors duration-500"
     >
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className={`absolute -top-[20%] -left-[10%] w-[60%] h-[60%] blur-[120px] rounded-full transition-colors duration-1000 ${
-          theme === 'cyber' ? 'bg-green-500/10' : theme === 'classic' ? 'bg-amber-500/10' : 'bg-indigo-500/10'
-        }`} />
-        <div className={`absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] blur-[120px] rounded-full transition-colors duration-1000 ${
-          theme === 'cyber' ? 'bg-fuchsia-500/10' : theme === 'classic' ? 'bg-orange-500/10' : 'bg-purple-500/10'
-        }`} />
-        <div className="scanline-effect opacity-30" />
-      </div>
+      <BackgroundEffects theme={theme} />
 
       <AppHeader 
         theme={theme}
@@ -214,14 +135,16 @@ export default function MidiPlayApp() {
         isConnecting={isConnecting}
         isFullScreen={isFullScreen}
         toggleFullScreen={toggleFullScreen}
+        onImport={() => setShowImportModal(true)}
       />
 
-      <UsageTips />
+      {showImportModal && <ImportSongModal onImport={handleImport} onClose={() => setShowImportModal(false)} />}
 
       <main id="main-content" className="flex flex-1 overflow-hidden relative z-10">
         <section id="game-section" className="relative flex flex-1 flex-col overflow-hidden bg-transparent overflow-x-auto custom-scrollbar">
           <div className="flex-1 flex flex-col min-h-0 relative" style={{ minWidth: typeof minCanvasWidth === 'number' ? `${minCanvasWidth}px` : minCanvasWidth }}>
             <div id="game-canvas-container" className="flex-1 relative min-h-0">
+              {playMode !== 'library' && !isPlaying && <UsageTips />}
               {playMode === 'library' ? (
                 <div className="h-full w-full overflow-y-auto custom-scrollbar bg-slate-50/50 dark:bg-slate-950/50">
                   <SongSelector 
@@ -240,46 +163,21 @@ export default function MidiPlayApp() {
                     currentTime={currentTime}
                     activeNotes={activeNotes}
                     isPlaying={isPlaying}
+                    showResult={showResult}
                     onScoreUpdate={setLastScore}
                     keyboardRange={keyboardRange}
                     showNoteNames={showNoteNames}
                     theme={theme}
+                    controls={{
+                      isPlaying,
+                      currentTime,
+                      duration: selectedSong.duration || 0,
+                      onReset: resetSong,
+                      onRetry: () => { resetSong(); togglePlay(); },
+                      onTogglePlay: togglePlay,
+                      onNextSong: handleNextSong
+                    }}
                   />
-
-                  {/* Floating Controls - Hide in free play mode */}
-                  {playMode !== 'free' && (
-                    <div className="absolute top-4 right-4 flex flex-col gap-3 z-40">
-                      <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md p-2 rounded-2xl border theme-border shadow-lg">
-                        <div className="flex items-center gap-1">
-                          <button onClick={resetSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.reset}>
-                            <RotateCcw className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => { resetSong(); togglePlay(); }} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.retry}>
-                            <RefreshCw className="w-4 h-4" />
-                          </button>
-                        </div>
-                        <div className="w-px h-6 bg-white/10 mx-1"></div>
-                        <button onClick={togglePlay} className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500 text-white shadow-lg shadow-indigo-500/40 hover:bg-indigo-400 hover:scale-105 active:scale-95 transition-all">
-                          {isPlaying ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current ml-1" />}
-                        </button>
-                        <div className="w-px h-6 bg-white/10 mx-1"></div>
-                        <button onClick={handleNextSong} className="p-2 theme-text-secondary hover:theme-text-primary rounded-full hover:bg-white/10 transition-colors" title={t.nextSong}>
-                          <SkipForward className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      {/* Progress Bar */}
-                      <div className="bg-black/40 backdrop-blur-md p-3 rounded-2xl border theme-border shadow-lg w-64">
-                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest theme-text-secondary mb-1.5">
-                          <span>{Math.floor(currentTime / 60)}:{(currentTime % 60).toFixed(0).padStart(2, '0')}</span>
-                          <span>{Math.floor((selectedSong.duration || 0) / 60)}:{((selectedSong.duration || 0) % 60).toFixed(0).padStart(2, '0')}</span>
-                        </div>
-                        <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden border theme-border">
-                          <motion.div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500" style={{ width: `${(currentTime / (selectedSong.duration || 1)) * 100}%` }} />
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </>
               )}
             </div>
@@ -299,6 +197,8 @@ export default function MidiPlayApp() {
                 onNoteOn={(midi) => setActiveNotes(prev => new Map(prev).set(midi, 0.7))}
                 onNoteOff={(midi) => setActiveNotes(prev => { const next = new Map(prev); next.delete(midi); return next; })}
                 isMidiConnected={inputs.length > 0}
+                isMappingMode={isMappingMode && mappingTarget === null}
+                onMappingTargetSelect={(midi) => setMappingTarget(midi)}
               />
             </div>
           </div>

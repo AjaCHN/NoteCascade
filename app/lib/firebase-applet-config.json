@@ -1,0 +1,7 @@
+{
+  "apiKey": "TODO_KEYHERE",
+  "authDomain": "TODO AUTH_DOMAIN",
+  "projectId": "TODO_PROJECT_ID",
+  "appId": "TODO_APP_ID",
+  "firestoreDatabaseId": "TODO_FIRESTORE_DATABASE_ID"
+}

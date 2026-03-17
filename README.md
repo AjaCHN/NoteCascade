@@ -1,4 +1,4 @@
-# NoteCascade 🎹
+# NoteCascade 🎹 v2.3.1
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
@@ -20,6 +20,7 @@
 -   **🎨 Theming**: Choose from multiple themes (Dark, Light, Cyber, Classic) to suit your style.
 -   **📱 Responsive Design**: Works on desktop and mobile devices (touch support included).
 -   **🎵 Built-in Songs**: Practice with a library of built-in songs across various styles.
+-   **⚙️ Robust UX**: Auto-closing menus, robust error handling, and seamless state management.
 
 ## 🚀 Getting Started
 
@@ -30,10 +31,10 @@
 
 ### Installation
 
-1.  Clone the repository:
+1.  克隆仓库：
     ```bash
-    git clone https://github.com/sutchan/notecascade.git
-    cd notecascade
+    git clone https://github.com/AjaCHN/NoteCascade.git
+    cd NoteCascade
     ```
 
 2.  Install dependencies:

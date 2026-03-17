@@ -1,4 +1,4 @@
-// app/components/SettingsModal.tsx v1.3.6
+// app/components/SettingsModal.tsx v2.3.1
 'use client';
 
 import React from 'react';
@@ -17,13 +17,14 @@ import { KeyboardSettings } from './settings/KeyboardSettings';
 import { MidiSettings } from './settings/MidiSettings';
 import { AppInfoSection } from './settings/AppInfoSection';
 import { AudioSettings } from './settings/AudioSettings';
+import { AccountSettings } from './settings/AccountSettings';
 
 import { MidiDevice, VelocityCurve, MidiMessage } from '../hooks/use-midi';
 
 interface SettingsModalProps {
   show: boolean;
   onClose: () => void;
-  activeSection?: 'general' | 'audio' | 'keyboard' | 'midi' | 'about';
+  activeSection?: 'general' | 'audio' | 'keyboard' | 'midi' | 'about' | 'account';
   midiProps: {
     isSupported: boolean;
     inputs: MidiDevice[];
@@ -36,8 +37,15 @@ interface SettingsModalProps {
     transpose: number;
     setTranspose: (transpose: number) => void;
     connectMidi: () => void;
+    scanBluetoothMidi: () => void;
     isConnecting: boolean;
     lastMessage: MidiMessage | null;
+    midiMapping: Record<number, number>;
+    setMidiMapping: (mapping: Record<number, number>) => void;
+    isMappingMode: boolean;
+    setIsMappingMode: (val: boolean) => void;
+    mappingTarget: number | null;
+    setMappingTarget: (val: number | null) => void;
   };
   setIsRangeManuallySet?: (val: boolean) => void;
   volume: number;
@@ -73,7 +81,7 @@ export function SettingsModal({ onClose, activeSection = 'general', midiProps, s
       <motion.div 
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        className="w-full max-w-4xl h-full md:h-auto md:max-h-[90vh] md:rounded-[2.5rem] theme-bg-primary border theme-border p-6 md:p-10 shadow-2xl flex flex-col"
+        className="w-full max-w-xl h-full md:h-auto md:max-h-[90vh] md:rounded-[2.5rem] theme-bg-primary border theme-border p-6 md:p-10 shadow-2xl flex flex-col"
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-8 shrink-0">
@@ -81,7 +89,7 @@ export function SettingsModal({ onClose, activeSection = 'general', midiProps, s
             <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
               <SettingsIcon className="h-6 w-6" />
             </div>
-            <h2 className="text-2xl font-bold theme-text-primary">{t.settings}</h2>
+            <h2 className="text-2xl font-bold theme-text-primary">{t[activeSection] || t.settings}</h2>
           </div>
           <button 
             onClick={onClose} 
@@ -94,7 +102,7 @@ export function SettingsModal({ onClose, activeSection = 'general', midiProps, s
         {/* Content */}
         <div className="overflow-y-auto custom-scrollbar pr-4 pb-4">
           {(activeSection === 'general' || activeSection === 'audio') && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+            <div className="grid grid-cols-1 gap-y-8">
               {activeSection === 'general' && (
                 <GeneralSettings 
                   locale={locale}
@@ -123,7 +131,7 @@ export function SettingsModal({ onClose, activeSection = 'general', midiProps, s
           )}
 
           {(activeSection === 'keyboard' || activeSection === 'midi') && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+            <div className="grid grid-cols-1 gap-y-8">
               {activeSection === 'keyboard' && (
                 <KeyboardSettings 
                   keyboardRange={keyboardRange}
@@ -143,8 +151,14 @@ export function SettingsModal({ onClose, activeSection = 'general', midiProps, s
           )}
           
           {activeSection === 'about' && (
-            <div className="md:col-span-2">
+            <div className="col-span-1">
               <AppInfoSection t={t} />
+            </div>
+          )}
+
+          {activeSection === 'account' && (
+            <div className="col-span-1">
+              <AccountSettings t={t} />
             </div>
           )}
         </div>

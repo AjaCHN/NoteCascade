@@ -1,9 +1,10 @@
-// app/layout.tsx v1.4.0
+// app/layout.tsx v2.3.1
 import type {Metadata, Viewport} from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
 import pkg from '../package.json';
+import { ClientLayout } from './components/ClientLayout';
 
 const { version } = pkg;
 
@@ -68,25 +69,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.addEventListener('error', function(e) {
-                if (e.message === 'ResizeObserver loop completed with undelivered notifications.') {
-                  const resizeObserverErrDiv = document.getElementById('webpack-dev-server-client-overlay-div');
-                  const resizeObserverErr = document.getElementById('webpack-dev-server-client-overlay');
-                  if (resizeObserverErr) resizeObserverErr.setAttribute('style', 'display: none');
-                  if (resizeObserverErrDiv) resizeObserverErrDiv.setAttribute('style', 'display: none');
-                  e.stopImmediatePropagation();
-                }
-              });
-            `,
-          }}
-        />
-      </head>
-      <body suppressHydrationWarning className="antialiased font-sans">{children}</body>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+      <body className="antialiased font-sans">
+        <ClientLayout>
+          {children}
+        </ClientLayout>
+      </body>
     </html>
   );
 }
