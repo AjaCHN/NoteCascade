@@ -1,4 +1,4 @@
-// app/lib/audio/instruments.ts v2.3.1
+// app/lib/audio/instruments.ts v2.3.2
 import * as Tone from 'tone';
 
 export interface Instruments {

@@ -1,4 +1,4 @@
-# NoteCascade 🎹 v2.3.1
+# NoteCascade 🎹 v2.6.0
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
@@ -13,14 +13,16 @@
 
 ## ✨ Features
 
--   **🎹 MIDI Support**: Connect any MIDI-compatible keyboard via USB for real-time feedback.
+-   **🎹 MIDI Support**: Connect any MIDI-compatible keyboard via USB or Bluetooth for real-time feedback.
 -   **🌊 Waterfall Gameplay**: Visual falling notes interface similar to popular rhythm games.
 -   **🌍 Multi-language Support**: Fully localized in English, Chinese (Simplified/Traditional), Spanish, Arabic, French, Portuguese, German, Japanese, Korean, and Russian.
 -   **🏆 Achievement System**: Track your progress with unlockable achievements and stats.
 -   **🎨 Theming**: Choose from multiple themes (Dark, Light, Cyber, Classic) to suit your style.
 -   **📱 Responsive Design**: Works on desktop and mobile devices (touch support included).
--   **🎵 Built-in Songs**: Practice with a library of built-in songs across various styles.
+-   **🎵 Built-in Songs**: Practice with a library of built-in songs across various styles (Classic, Chinese, Children, etc.).
 -   **⚙️ Robust UX**: Auto-closing menus, robust error handling, and seamless state management.
+-   **🛠️ MIDI Mapping**: Custom mapping for physical MIDI keys to virtual keys.
+-   **⏲️ Metronome**: Built-in metronome to help you keep a steady beat.
 
 ## 🚀 Getting Started
 
@@ -33,8 +35,8 @@
 
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/sutchan/notecascade.git
-    cd notecascade
+    git clone https://github.com/AjaCHN/NoteCascade.git
+    cd NoteCascade
     ```
 
 2.  Install dependencies:

@@ -119,7 +119,7 @@ export function useGameRenderer(
       activeNotes.forEach((velocity, midi) => {
         if (!activeNoteStartTimes.current.has(midi)) {
           activeNoteStartTimes.current.set(midi, now);
-          if (playMode === 'free') {
+          if (playMode === 'free-play') {
             freePlayNotes.current.push({ midi, startTime: now, endTime: null, velocity });
           }
         }
@@ -127,7 +127,7 @@ export function useGameRenderer(
       for (const midi of activeNoteStartTimes.current.keys()) {
         if (!activeNotes.has(midi)) {
           activeNoteStartTimes.current.delete(midi);
-          if (playMode === 'free') {
+          if (playMode === 'free-play') {
             const note = freePlayNotes.current.find(n => n.midi === midi && n.endTime === null);
             if (note) note.endTime = now;
           }
@@ -135,7 +135,7 @@ export function useGameRenderer(
       }
 
       // Draw active note columns (only for non-free play mode)
-      if (playMode !== 'free') {
+      if (playMode !== 'free-play') {
         const glowColor = theme === 'cyber' ? '0, 255, 0' : theme === 'classic' ? '217, 119, 6' : '99, 102, 241';
         activeNotes.forEach((velocity, midi) => {
           if (midi >= keyboardRange.start && midi <= keyboardRange.end) {
@@ -168,7 +168,7 @@ export function useGameRenderer(
       }
 
       // Draw free play notes (shooting up)
-      if (playMode === 'free') {
+      if (playMode === 'free-play') {
         freePlayNotes.current = freePlayNotes.current.filter(note => {
           const endTime = note.endTime || now;
           const noteBottomY = hitLineY - (now - endTime) * (FALL_SPEED / 1000);
@@ -201,7 +201,7 @@ export function useGameRenderer(
       }
 
       // Draw timing bar (only for non-free play mode)
-      if (playMode !== 'free') {
+      if (playMode !== 'free-play') {
         const barWidth = Math.min(400, width * 0.6);
         const barHeight = 12;
         const barX = (width - barWidth) / 2;
@@ -256,7 +256,7 @@ export function useGameRenderer(
       }
 
       // Draw falling notes (only for non-free play mode)
-      if (playMode !== 'free' && song.notes) {
+      if (playMode !== 'free-play' && song.notes) {
         const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
         const noteNameColor = 'rgba(255, 255, 255, 0.8)';
         ctx.font = 'bold 10px Inter';

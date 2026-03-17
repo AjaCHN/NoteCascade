@@ -1,4 +1,4 @@
-// app/hooks/use-game-logic.ts v2.3.1
+// app/hooks/use-game-logic.ts v2.0.1
 import { useState, useEffect, useCallback, useRef } from 'react';
 import * as Tone from 'tone';
 import confetti from 'canvas-confetti';
@@ -61,9 +61,6 @@ export function useGameLogic(
 
     const { perfect, good, miss, wrong, currentScore } = latestScoreRef.current;
     
-    // Prevent multiple calls to handleSongEnd for the same song
-    if (showResult) return;
-
     const totalNotes = perfect + good + miss + wrong;
     const accuracy = totalNotes > 0 ? (perfect + good) / totalNotes : 0;
     const maxScore = (selectedSong.notes?.length || 0) * 100;
@@ -76,7 +73,7 @@ export function useGameLogic(
     if (accuracy > 0.8) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     updateStreak();
     setShowResult(true);
-  }, [updateStreak, addScore, selectedSong.id, selectedSong.notes?.length, playMode, showResult]);
+  }, [updateStreak, addScore, selectedSong.id, selectedSong.notes?.length, playMode]);
 
   const togglePlay = useCallback(async () => {
     if (isPlaying) {

@@ -90,7 +90,6 @@ export function GameCanvas({
     activeNotes,
     isPlaying,
     keyboardRange,
-    t,
     dimensions,
     keyGeometries,
     onScoreUpdate,
@@ -143,7 +142,7 @@ export function GameCanvas({
   return (
     <div ref={containerRef} className={`relative h-full w-full overflow-hidden ${theme === 'light' ? 'bg-slate-50' : 'bg-slate-950'}`}>
       <canvas ref={canvasRef} className="h-full w-full" />
-      {playMode !== 'free' && (
+      {playMode !== 'free-play' && (
         <GameStatsOverlay 
           song={song} 
           score={score} 

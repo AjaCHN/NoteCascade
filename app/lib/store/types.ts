@@ -27,7 +27,7 @@ export interface ScoreRecord {
 
 export type Theme = 'dark' | 'light' | 'cyber' | 'classic';
 export type Instrument = 'piano' | 'synth' | 'epiano' | 'strings';
-export type PlayMode = 'library' | 'demo' | 'practice' | 'free';
+export type PlayMode = 'library' | 'demo' | 'practice' | 'free-play';
 
 export interface AppState {
   achievements: Achievement[];
@@ -38,6 +38,7 @@ export interface AppState {
   totalNotesHit: number;
   songsCompleted: number;
   locale: Locale;
+  localeSetByUser: boolean;
   theme: Theme;
   instrument: Instrument;
   playMode: PlayMode;
@@ -52,7 +53,8 @@ export interface AppState {
     unlockAchievement: (id: string) => void;
     addScore: (score: ScoreRecord) => void;
     incrementPracticeTime: (seconds: number) => void;
-    setLocale: (locale: Locale) => void;
+    setLocale: (locale: Locale, isManual?: boolean) => void;
+    setLocaleSetByUser: (set: boolean) => void;
     setTheme: (theme: Theme) => void;
     setInstrument: (instrument: Instrument) => void;
     setPlayMode: (mode: PlayMode) => void;

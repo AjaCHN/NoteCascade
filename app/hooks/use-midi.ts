@@ -1,4 +1,4 @@
-// app/hooks/use-midi.ts v2.3.1
+// app/hooks/use-midi.ts v2.0.1
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { setPitchBend, setModulation, setExpression, setSustainPedal } from '../lib/audio';
 import { MidiDevice, MidiMessage, VelocityCurve } from './midi/types';

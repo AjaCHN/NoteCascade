@@ -1,4 +1,4 @@
-// app/lib/store.ts v2.3.1
+// app/lib/store.ts v2.0.1
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import Cookies from 'js-cookie';

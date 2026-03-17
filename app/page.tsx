@@ -1,9 +1,10 @@
-// app/page.tsx v2.3.1
+// app/page.tsx v2.0.1
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useMidi } from './hooks/use-midi';
 import { useKeyboardInput } from './hooks/use-keyboard-input';
+import { useGameLogic } from './hooks/use-game-logic';
 import { startNote, stopNote, setVolume, setAudioInstrument } from './lib/audio';
 import { useAppActions, useLocale, useTheme, useInstrument, useKeyboardRange, useShowNoteNames, useShowKeymap, usePlayMode } from './lib/store';
 import { translations } from './lib/translations';

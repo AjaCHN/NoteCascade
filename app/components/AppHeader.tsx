@@ -1,4 +1,4 @@
-// app/components/AppHeader.tsx v2.3.1
+// app/components/AppHeader.tsx v2.0.1
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
@@ -13,7 +13,7 @@ import {
 } from '../lib/store';
 import { useAuth } from '../lib/auth-context';
 
-const version = "2.3.1";
+const version = "2.0.1";
 
 interface AppHeaderProps {
   theme: string;
@@ -49,27 +49,7 @@ export function AppHeader({
   const { setPlayMode } = useAppActions();
   const t = translations[locale] || translations.en;
   const [showMenu, setShowMenu] = useState(false);
-  const menuTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const { user, signIn, logOut } = useAuth();
-
-  const handleMouseLeave = useCallback(() => {
-    menuTimeoutRef.current = setTimeout(() => {
-      setShowMenu(false);
-    }, 2000);
-  }, []);
-
-  const handleMouseEnter = useCallback(() => {
-    if (menuTimeoutRef.current) {
-      clearTimeout(menuTimeoutRef.current);
-      menuTimeoutRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (menuTimeoutRef.current) clearTimeout(menuTimeoutRef.current);
-    };
-  }, []);
 
   const openSettings = useCallback((section: 'general' | 'audio' | 'keyboard' | 'midi' | 'about' | 'account') => {
     setActiveSettingsSection(section);
@@ -148,7 +128,6 @@ export function AppHeader({
           title={`${t.library} (L)`}
         >
           <Library className="h-5 w-5" />
-          <span className="text-[10px] md:text-xs font-black uppercase tracking-widest hidden sm:inline">{t.library}</span>
         </button>
 
         <button 
@@ -194,8 +173,6 @@ export function AppHeader({
         </button>
         <div 
           className="relative" 
-          onMouseLeave={handleMouseLeave}
-          onMouseEnter={handleMouseEnter}
         >
           <button 
             onClick={() => setShowMenu(!showMenu)}
